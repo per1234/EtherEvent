@@ -1,14 +1,12 @@
 #include "Arduino.h"  //not needed?
 #include "EtherEvent.h"
-#include <MD5.h>
+#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #include <SPI.h>
-#include <Ethernet.h>
-#include <MemoryFree.h>  //debug only
-#include <Math.h>  //added to make it compile
+#include <Ethernet.h>  //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
 
 #define DEBUG 0 // flag to turn on/off debugging
 #define Serial if(DEBUG)Serial
-///#define REMOTEIP //is the ethernet library modified to return the client IP address via the remoteIP function
+//#define REMOTEIP //is the ethernet library modified to return the client IP address via the remoteIP function
 
 const char magicWord[] = "quintessence";  //word used to trigger the cookie send from the receiver
 const char password[] = "password";  //the password used in the Network Event Sender/Receiver plugin configuration in EventGhost
@@ -33,7 +31,6 @@ char receivedPayload[payloadLengthMax+1];  //payload buffer
 byte readEventCount=0;  //the next char of the received event string to be read
 byte readPayloadCount=0;
 IPAddress fromIP(0,0,0,0);  //IP address of the last event sender
-//byte availableEventFlag=0;  //get rid of this global
 
 EtherEvent::EtherEvent(){
 }
@@ -49,7 +46,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
   byte eventLength=strlen(receivedEvent);
   if(eventLength>0){  //there is already an available event
     if(readEventCount>eventLength){  //avoid negative overflow - this shouldn't be needed
-      Serial.println(F("availableEvent: readEventCount>length ----------------------------------------------------------!"));
+      Serial.println(F("availableEvent: readEventCount>length"));
       return 0;
     }
     return eventLength+1 - readEventCount;
@@ -64,7 +61,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
       Serial.println(F("availableEvent: connected"));
       char cookieChar[6];  //initializing here because it needs to be used in the cookie send if and the hashword verify if and if it's inside the while then it will be reinitialized on every loop
       byte maxInput=strlen(payloadSeparator) + payloadLengthMax;  //payload message length
-      byte messageLengthMax=max(maxInput,32);  //32 is the MD5
+      byte messageLengthMax=max(maxInput,32);  //32 is the length of the MD5
       maxInput=strlen(payloadFirst);
       messageLengthMax=max(messageLengthMax,maxInput);
       maxInput=strlen(magicWord);
@@ -75,7 +72,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
       unsigned long timeStamp=millis();
       while(etherEventClient.connected()==1){
         if(millis()>timeStamp+timeoutDuration){  //timeout
-          Serial.println(F("availableEvent: timeout---------------------------------------------------------------------"));
+          Serial.println(F("availableEvent: timeout"));
           Serial.println(F("availableEventDisconnect"));
           etherEventClient.flush();
           etherEventClient.stop();
@@ -101,7 +98,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
           unsigned long receiveMessageTimeStamp=millis();
           while(etherEventClient.available()==0){ //wait a little bit for more message to come in
             if(millis()>receiveMessageTimeStamp+listenTimeoutDuration){  //timeout
-              Serial.println(F("sendEvent: listenTimeout------------------------------------------------------------------------------"));
+              Serial.println(F("sendEvent: listenTimeout"));
               break;
             }
           }
@@ -225,7 +222,7 @@ byte EtherEvent::availablePayload(){  //returns the number of chars in the paylo
     return 0;
   }
   if(readPayloadCount>length){	//shouldn't be needed but just in case this will prevent the negative overflow of the variable leading to an incorrect return value
-    Serial.println(F("availablePayload: readPayloadCount>length ---------------------------------------------------!"));
+    Serial.println(F("availablePayload: readPayloadCount>length"));
     return 0;
   }
   return length+1 - readPayloadCount;
@@ -287,7 +284,7 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
     unsigned long timeStamp=millis();  //reset the timeout now that it has connected to the receiver
     while(etherEventClient.connected()){
       if(millis()>timeStamp+timeoutDuration){
-        Serial.println(F("sendEvent: Timeout------------------------------------------------------------------------------"));
+        Serial.println(F("sendEvent: Timeout"));
         break;
       }
       Serial.println(F("sendEvent: connected loop"));
@@ -311,7 +308,7 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
           unsigned long receiveMessageTimeStamp=millis();
           while(etherEventClient.available()==0){ //wait a little bit for more message to come in
             if(millis()>receiveMessageTimeStamp+listenTimeoutDuration){  //timeout
-              Serial.println(F("sendEvent: listenTimeout------------------------------------------------------------------------------"));
+              Serial.println(F("sendEvent: listenTimeout"));
               break;
             }
           }
@@ -372,7 +369,7 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
             Serial.print(F("sendEvent: payload bytes sent="));
             Serial.println(sendEventBytesSent);
           }
-          byte sendEventBytesSent=etherEventClient.print(sendEvent); //this one also works with the ln the events look the same but are not equivalent in eg
+          byte sendEventBytesSent=etherEventClient.print(sendEvent); //This one also works with the println. The events look the same but are not equivalent in eg
           sendEventBytesSent+=etherEventClient.print(F("\n"));
           Serial.print(F("sendEvent: event bytes sent="));
           Serial.println(sendEventBytesSent);
