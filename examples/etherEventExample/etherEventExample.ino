@@ -6,7 +6,6 @@
 //network parameters:
 const IPAddress IPdevice(192, 168, 69, 104);  //pick any unused IP address for a static IP
 byte mac[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};  //this can be anything but must be unique on your network
-
 EtherEvent etherEvent;  //create an instance of the EtherEvent class called etherEvent
 
 const unsigned int etherEventSendInterval=7000;
@@ -16,12 +15,6 @@ unsigned long sendTimeStamp=0;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(pinEthernetReset,OUTPUT);	//reset ethernet chip
-  Serial.println(F("setup: resetting ethernet module"));  
-  digitalWrite(pinEthernetReset,LOW);
-  delay(200);
-  digitalWrite(pinEthernetReset,HIGH);
-  delay(1000);
   etherEvent.etherEventStart(mac,IPdevice);
 }
 

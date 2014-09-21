@@ -18,10 +18,9 @@ const char TCPEventsMD5separator[]="TCPEvents";  //TCPEvents adds the separator 
 const byte cookieLengthMax=5;  //EtherEvent sends a 5 digit cookie, eg seems to be a 4 digit cookie(socket), but it can be set larger if needed
 const byte eventLengthMax=3;  //Maximum event length
 const byte payloadLengthMax=60;  //Maximum payload length
-const unsigned int timeoutDuration=1300;  //max blocking time of the availableEvent or sendEvent functions
-const byte listenTimeoutDuration=1;  //max time to wait for another char to be available from the client.read function - it was getting ahead of the stream and stopping before getting the whole message event though I send the full string all at once
+const unsigned int timeoutDuration=100;  //max blocking time of the availableEvent or sendEvent functions
+const byte listenTimeoutDuration=3;  //max time to wait for another char to be available from the client.read function - it was getting ahead of the stream and stopping before getting the whole message event though I send the full string all at once
 const int receivePort = 1024;  //TCP port to receive on
-
 
 EthernetServer etherEventServer = EthernetServer(receivePort);
 EthernetClient etherEventClient;
@@ -31,6 +30,8 @@ char receivedPayload[payloadLengthMax+1];  //payload buffer
 byte readEventCount=0;  //the next char of the received event string to be read
 byte readPayloadCount=0;
 IPAddress fromIP(0,0,0,0);  //IP address of the last event sender
+byte availableEventMessageLengthMax;  //I'm using globals for these 2 so I can just calculate the buffer size in the setup() instead of every time the functions is called
+byte sendEventMessageLengthMax;
 
 EtherEvent::EtherEvent(){
 }
@@ -39,12 +40,25 @@ void EtherEvent::etherEventStart(byte macAdd[],IPAddress deviceIP){
   Serial.println(F("etherEventStart: start"));
   Ethernet.begin(macAdd,deviceIP);
   etherEventServer.begin();
+  
+  byte maxInput=strlen(payloadSeparator) + payloadLengthMax;  //determine the size of the incoming message buffer for the availableEvent function.
+  availableEventMessageLengthMax=max(maxInput,32);  //32 is the length of the MD5
+  maxInput=strlen(payloadFirst);
+  availableEventMessageLengthMax=max(availableEventMessageLengthMax,maxInput);
+  maxInput=strlen(magicWord);
+  availableEventMessageLengthMax=max(availableEventMessageLengthMax,maxInput);
+  maxInput=strlen(closeMessage);
+  availableEventMessageLengthMax=max(availableEventMessageLengthMax,maxInput);
+  
+  sendEventMessageLengthMax=strlen(acceptMessage);
+  sendEventMessageLengthMax=max(sendEventMessageLengthMax,cookieLengthMax);
+  sendEventMessageLengthMax=max(sendEventMessageLengthMax,5);  //EtherEvent uses a 5 digit cookie so this is the absolute minimum value for the sendEventMessageLengthMax
+
   Serial.println(F("etherEventStart: finished"));  
 }
 
-byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticates, reads the event and payload into the buffer
-  byte eventLength=strlen(receivedEvent);
-  if(eventLength>0){  //there is already an available event
+byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
+  if(byte eventLength=strlen(receivedEvent)){  //there is already an available event
     if(readEventCount>eventLength){  //avoid negative overflow - this shouldn't be needed
       Serial.println(F("availableEvent: readEventCount>length"));
       return 0;
@@ -60,15 +74,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
       byte availableEventFlag=1;
       Serial.println(F("availableEvent: connected"));
       char cookieChar[6];  //initializing here because it needs to be used in the cookie send if and the hashword verify if and if it's inside the while then it will be reinitialized on every loop
-      byte maxInput=strlen(payloadSeparator) + payloadLengthMax;  //payload message length
-      byte messageLengthMax=max(maxInput,32);  //32 is the length of the MD5
-      maxInput=strlen(payloadFirst);
-      messageLengthMax=max(messageLengthMax,maxInput);
-      maxInput=strlen(magicWord);
-      messageLengthMax=max(messageLengthMax,maxInput);
-      maxInput=strlen(closeMessage);
-      messageLengthMax=max(messageLengthMax,maxInput);
-      char receivedMessage[messageLengthMax+1];  //size for the longest possible message 32 is the MD5 length
+      char receivedMessage[availableEventMessageLengthMax+1];  //size for the longest possible message
       unsigned long timeStamp=millis();
       while(etherEventClient.connected()==1){
         if(millis()>timeStamp+timeoutDuration){  //timeout
@@ -90,7 +96,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
             messageCount=0;  //reset the count so the next part of the message will be written to the start of the buffer
             continue;  //continue reading the message
           }
-          if(messageCount==messageLengthMax || receivedMessage[messageCount]==0 || receivedMessage[messageCount]==10 || receivedMessage[messageCount]==13){ //last char of the message reached or newline reached
+          if(messageCount==availableEventMessageLengthMax || receivedMessage[messageCount]==0 || receivedMessage[messageCount]==10 || receivedMessage[messageCount]==13){ //last char of the message reached or newline reached
             receivedMessage[messageCount]=0;	//make sure the last char is always the null terminator
             messageCount++;
             break;
@@ -159,7 +165,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
             }
             else{  //authentication failed
               free(availableEventCookiePasswordMD5);
-	      Serial.println(F("availableEvent: authentication failed"));
+	            Serial.println(F("availableEvent: authentication failed"));
               Serial.println(F("availableEventDisconnect"));
               etherEventClient.flush();
               etherEventClient.stop();
@@ -214,6 +220,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
       etherEventClient.stop();
     }
   }
+  return 0;
 }
 
 byte EtherEvent::availablePayload(){  //returns the number of chars in the payload if there is one
@@ -289,20 +296,21 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
       }
       Serial.println(F("sendEvent: connected loop"));
       byte messageCount=0;
-      byte receivedMessageLengthMax=strlen(acceptMessage);
-      receivedMessageLengthMax=max(receivedMessageLengthMax,5);  //EtherEvent uses a 5 digit cookie so this is the minimum value for the receivedMessageLengthMax
-      receivedMessageLengthMax=max(receivedMessageLengthMax,cookieLengthMax);
-      char receivedMessage[receivedMessageLengthMax+1]; //need to size this smarter, right now the 
+      char receivedMessage[sendEventMessageLengthMax+1];
+      Serial.print(F("sendEvent: sendEventMessageLengthMax="));
+      Serial.println(sendEventMessageLengthMax);
       if(sendFlag>1){  //it can skip checking for a message the first one because the magic word must be sent first
         Serial.println(F("sendEvent: checking for message from receiver"));
         while(etherEventClient.available()>0){  //figure out how to put the number of bytes available in a variable here to be used below instead of calling the available() function twice
-          receivedMessage[messageCount]=etherEventClient.read();
+          receivedMessage[messageCount]=etherEventClient.read();          
           if(receivedMessage[messageCount]==32 && messageCount==0){  //ignore leading spaces(ascii code 32) for TCPEvents EventGhost plugin compatibility
+            Serial.println(F("sendEvent: leading space ignored"));
             continue;
           }
-          if(messageCount==receivedMessageLengthMax || receivedMessage[messageCount]==0 || receivedMessage[messageCount]==10 || receivedMessage[messageCount]==13){ //(10=ascii code for newline, 13=return, 0=null)last char of the message reached or newline reached
+          if(messageCount==sendEventMessageLengthMax || receivedMessage[messageCount]==0 || receivedMessage[messageCount]==10 || receivedMessage[messageCount]==13){ //(10=ascii code for newline, 13=return, 0=null)last char of the message reached or newline reached
             receivedMessage[messageCount]=0;	//make sure the last char is always the null terminator
             messageCount++;
+            Serial.println(F("sendEvent: message ended"));
             break;
           }
           unsigned long receiveMessageTimeStamp=millis();
@@ -315,18 +323,66 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
           if(etherEventClient.available()==0){
             messageCount++;
             receivedMessage[messageCount]=0;	//make sure the last char is always the null terminator
+            Serial.println(F("sendEvent: no more message"));
             break;
           }             
           messageCount++;
         }
         if(messageCount<2){  //no message or if it's only the null terminator then that's not considered a message
-          Serial.println(F("sendEvent: no message or null message"));
+          Serial.print(F("sendEvent: no message or null message. messageCount="));
+          Serial.println(messageCount);
           continue;
         }
         Serial.print(F("sendEvent: message from receiver="));
         Serial.println(receivedMessage);
+        if(sendFlag==2){ //cookie received
+          Serial.println(F("sendEvent: md5 received from receiver"));
+          char cookiePassword[cookieLengthMax+1+strlen(password)+1];  //cookie, password separator(:), password, null terminator
+          strcpy(cookiePassword,receivedMessage);
+          strcat(cookiePassword,":");  //add the password separator to the cookie
+          strcat(cookiePassword,password); //add password to the cookie
+          Serial.print(F("sendEvent cookiePassword="));
+          Serial.println(cookiePassword);
+          unsigned char* cookiePasswordHash=MD5::make_hash(cookiePassword);
+          char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
+          Serial.print(F("sendEvent hashWordMD5="));
+          Serial.println(cookiePasswordMD5);
+          byte sendEventBytesSent=etherEventClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
+          free(cookiePasswordMD5);
+          sendEventBytesSent+=etherEventClient.print(F("\n"));
+          Serial.print(F("sendEvent: hashWordMD5, bytes sent="));
+          Serial.println(sendEventBytesSent);
+          sendFlag=3;
+          continue;
+        }
+        if(sendFlag==3){
+          if(strncmp(acceptMessage,receivedMessage,strlen(acceptMessage))==0){  //combine this if with the one above authentication successful
+            Serial.print(F("sendEvent: Payload="));
+            Serial.println(sendPayload);
+            Serial.print(F("sendEvent: event="));
+            Serial.println(sendEvent);
+            if(sendPayload[0]!=0){  //check if there is a payload
+              byte sendEventBytesSent=etherEventClient.print(payloadSeparator);
+              sendEventBytesSent+=etherEventClient.print(sendPayload);
+              sendEventBytesSent+=etherEventClient.print(F("\n"));
+              Serial.print(F("sendEvent: payload bytes sent="));
+              Serial.println(sendEventBytesSent);
+            }
+            byte sendEventBytesSent=etherEventClient.print(sendEvent); //This one also works with the println. The events look the same but are not equivalent in eg
+            sendEventBytesSent+=etherEventClient.print(F("\n"));
+            Serial.print(F("sendEvent: event bytes sent="));
+            Serial.println(sendEventBytesSent);
+            sendEventStop();
+            return 1;  //send successful
+          }
+          else{  //authentication failed
+            Serial.println(F("sendEvent: authentication failed"));
+            break;
+          }
+        }
+        Serial.println(F("sendEvent: dead loop"));        
       }
-      if(sendFlag==1){
+      else{  //sendFlag==1
         Serial.print(F("sendEvent: sending magic word="));
         Serial.println(magicWord);
         byte sendEventBytesSent=etherEventClient.print(magicWord);  //send the magic word to the receiver so it will send the cookie
@@ -336,52 +392,6 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
         sendFlag=2;
         continue;
       }
-      if(sendFlag==2){ //cookie received
-        Serial.println(F("sendEvent: md5 received from receiver"));
-        char cookiePassword[cookieLengthMax+1+strlen(password)+1];  //cookie, password separator(:), password, null terminator
-        strcpy(cookiePassword,receivedMessage);
-        strcat(cookiePassword,":");  //add the password separator to the cookie
-        strcat(cookiePassword,password); //add password to the cookie
-        Serial.print(F("sendEvent cookiePassword="));
-        Serial.println(cookiePassword);
-        unsigned char* cookiePasswordHash=MD5::make_hash(cookiePassword);
-        char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
-        Serial.print(F("sendEvent hashWordMD5="));
-        Serial.println(cookiePasswordMD5);
-        byte sendEventBytesSent=etherEventClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
-        free(cookiePasswordMD5);
-        sendEventBytesSent+=etherEventClient.print(F("\n"));
-        Serial.print(F("sendEvent: hashWordMD5, bytes sent="));
-        Serial.println(sendEventBytesSent);
-        sendFlag=3;
-        continue;
-      }
-      if(sendFlag==3){
-        if(strncmp(acceptMessage,receivedMessage,strlen(acceptMessage))==0){  //combine this if with the one above authentication successful
-          Serial.print(F("sendEvent: Payload="));
-          Serial.println(sendPayload);
-          Serial.print(F("sendEvent: event="));
-          Serial.println(sendEvent);
-          if(sendPayload[0]!=0){  //check if there is a payload
-            byte sendEventBytesSent=etherEventClient.print(payloadSeparator);
-            sendEventBytesSent+=etherEventClient.print(sendPayload);
-            sendEventBytesSent+=etherEventClient.print(F("\n"));
-            Serial.print(F("sendEvent: payload bytes sent="));
-            Serial.println(sendEventBytesSent);
-          }
-          byte sendEventBytesSent=etherEventClient.print(sendEvent); //This one also works with the println. The events look the same but are not equivalent in eg
-          sendEventBytesSent+=etherEventClient.print(F("\n"));
-          Serial.print(F("sendEvent: event bytes sent="));
-          Serial.println(sendEventBytesSent);
-          sendEventStop();
-          return 1;  //send successful
-        }
-        else{  //authentication failed
-          Serial.println(F("sendEvent: authentication failed"));
-          break;
-        }
-      }
-      Serial.println(F("sendEvent: dead loop"));
     }
     sendEventStop();
   }
