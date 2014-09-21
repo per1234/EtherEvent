@@ -6,7 +6,7 @@
 
 #define DEBUG 0 // flag to turn on/off debugging
 #define Serial if(DEBUG)Serial
-//#define REMOTEIP //is the ethernet library modified to return the client IP address via the remoteIP function
+//#define REMOTEIP //is the ethernet library modified to return the client IP address via the remoteIP function. Instructions here: http://forum.arduino.cc/index.php?/topic,82416.0.html
 
 const char magicWord[] = "quintessence";  //word used to trigger the cookie send from the receiver
 const char password[] = "password";  //the password used in the Network Event Sender/Receiver plugin configuration in EventGhost
@@ -16,7 +16,7 @@ const char payloadSeparator[] = "payload ";  //indicates payload
 const char closeMessage[] = "close";  //sender sends this message to the receiver to close the connection
 const char TCPEventsMD5separator[]="TCPEvents";  //TCPEvents adds the separator before the MD5
 const byte cookieLengthMax=5;  //EtherEvent sends a 5 digit cookie, eg seems to be a 4 digit cookie(socket), but it can be set larger if needed
-const byte eventLengthMax=3;  //Maximum event length
+const byte eventLengthMax=10;  //Maximum event length
 const byte payloadLengthMax=60;  //Maximum payload length
 const unsigned int timeoutDuration=100;  //max blocking time of the availableEvent or sendEvent functions
 const byte listenTimeoutDuration=3;  //max time to wait for another char to be available from the client.read function - it was getting ahead of the stream and stopping before getting the whole message event though I send the full string all at once
@@ -204,7 +204,9 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
               strcpy(receivedEvent,receivedMessage);
               receivedEvent[eventLengthMax]=0;  //make sure there is a null terminator at the end of the string
               #ifdef REMOTEIP
-                fromIP=etherEventClient.remoteIP;  //save the IP address of the sender
+                byte tempIP[4];
+                etherEventClient.getRemoteIP(tempIP);  //save the IP address of the sender
+                fromIP=tempIP;
               #endif
               Serial.println(receivedEvent);
               Serial.print(F("availableEvent: strlen(receivedEvent)="));

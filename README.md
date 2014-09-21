@@ -10,6 +10,8 @@ UIPEthernet library required for ENC28J60 ethernet chip: http://github.com/ntruc
 EventGhost is a free open source automation tool for Windows http://eventghost.com
 TCP Events EventGhost plugin by miljbee - improved network event sender/receiver: http://www.eventghost.org/forum/viewtopic.php?p=16803 - allows sending events to multiple IP addresses
 
+Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of receivePort
+
 Usage:
 
 EtherEvent etherEvent() - Declare the EtherEvent class. You can use any name you like in place of etherEvent.
@@ -58,7 +60,7 @@ Type: char
 Returns: 1 for success, 0 for failure
 Type: Byte
 
-etherEvent.senderIP() - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library or this will return only 0.0.0.0.
+etherEvent.senderIP() - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?/topic,82416.0.html
 Parameters:none
 Returns: IP address of the sender
 Return Type: IPAddress

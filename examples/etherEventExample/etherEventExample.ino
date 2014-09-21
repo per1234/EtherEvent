@@ -30,6 +30,8 @@ void loop(){
       Serial.print(etherEvent.readPayload());
     }
     Serial.println();
+    Serial.print(F("Received from IP="));
+    Serial.println(etherEvent.senderIP());
   }
 
   if(millis()>sendTimeStamp+etherEventSendInterval){	//send event
