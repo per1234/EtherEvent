@@ -6,9 +6,10 @@ Arduino library for easy to use password authenticated network communication bet
 This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. There is a lot of room for improvement so if you have any issues, bugs, improvements, feature requests feel free to make pull requests or issue reports. Thanks!
 
 - Requires the arduinoMD5 library by Vasilis Georgitzikis: http://github.com/tzikis/ArduinoMD5
+- Requires the Entropy library: https://sites.google.com/site/astudyofentropy/file-cabinet
 - UIPEthernet library required for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
 - EventGhost is a free open source automation tool for Windows http://eventghost.com
-- TCP Events EventGhost plugin by miljbee - improved network event sender/receiver: http://www.eventghost.org/forum/viewtopic.php?p=16803 - allows sending events to multiple IP addresses
+- TCP Events EventGhost plugin by miljbee: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
 
 Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of receivePort
 

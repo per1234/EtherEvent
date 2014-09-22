@@ -3,6 +3,9 @@
 #include <SPI.h>
 #include <Ethernet.h>  //might not be needed because it is included in the EtherEvent library
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
+#include <Entropy.h>
+
+
 //network parameters:
 const IPAddress IPdevice(192, 168, 69, 104);  //pick any unused IP address for a static IP
 byte mac[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};  //this can be anything but must be unique on your network

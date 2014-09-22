@@ -3,10 +3,12 @@
 #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #include <SPI.h>
 #include <Ethernet.h>  //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
+#include <Entropy.h>
 
 #define DEBUG 0 // flag to turn on/off debugging
 #define Serial if(DEBUG)Serial
 //#define REMOTEIP //is the ethernet library modified to return the client IP address via the remoteIP function. Instructions here: http://forum.arduino.cc/index.php?/topic,82416.0.html
+//#define MORE_SECURE //use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message
 
 const char magicWord[] = "quintessence";  //word used to trigger the cookie send from the receiver
 const char password[] = "password";  //the password used in the Network Event Sender/Receiver plugin configuration in EventGhost
@@ -15,8 +17,8 @@ const char payloadFirst[] = "payload withoutRelease";  //eg sends this every tim
 const char payloadSeparator[] = "payload ";  //indicates payload
 const char closeMessage[] = "close";  //sender sends this message to the receiver to close the connection
 const char TCPEventsMD5separator[]="TCPEvents";  //TCPEvents adds the separator before the MD5
-const byte cookieLengthMax=5;  //EtherEvent sends a 5 digit cookie, eg seems to be a 4 digit cookie(socket), but it can be set larger if needed
-const byte eventLengthMax=10;  //Maximum event length
+const byte cookieLengthMax=10;  //EtherEvent sends a 10 digit cookie, eg seems to be a 4 digit cookie(socket), but it can be set larger if needed
+const byte eventLengthMax=3;  //Maximum event length
 const byte payloadLengthMax=60;  //Maximum payload length
 const unsigned int timeoutDuration=100;  //max blocking time of the availableEvent or sendEvent functions
 const byte listenTimeoutDuration=3;  //max time to wait for another char to be available from the client.read function - it was getting ahead of the stream and stopping before getting the whole message event though I send the full string all at once
@@ -40,7 +42,7 @@ void EtherEvent::etherEventStart(byte macAdd[],IPAddress deviceIP){
   Serial.println(F("etherEventStart: start"));
   Ethernet.begin(macAdd,deviceIP);
   etherEventServer.begin();
-  
+
   byte maxInput=strlen(payloadSeparator) + payloadLengthMax;  //determine the size of the incoming message buffer for the availableEvent function.
   availableEventMessageLengthMax=max(maxInput,32);  //32 is the length of the MD5
   maxInput=strlen(payloadFirst);
@@ -52,8 +54,11 @@ void EtherEvent::etherEventStart(byte macAdd[],IPAddress deviceIP){
   
   sendEventMessageLengthMax=strlen(acceptMessage);
   sendEventMessageLengthMax=max(sendEventMessageLengthMax,cookieLengthMax);
-  sendEventMessageLengthMax=max(sendEventMessageLengthMax,5);  //EtherEvent uses a 5 digit cookie so this is the absolute minimum value for the sendEventMessageLengthMax
-
+  
+  Entropy.initialize(); //gets a truly random number from the timer jitter
+  #ifndef MORE_SECURE //randomSeed is not needed if the entropy random function is used via the MORE_SECURE flag. 
+    randomSeed(Entropy.random()); //Initialize the random function with a truly random value from the entropy library
+  #endif
   Serial.println(F("etherEventStart: finished"));  
 }
 
@@ -73,7 +78,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
       receivedPayload[0]=0;  //reset so it won't bleed through if there is no payload on subsequent events
       byte availableEventFlag=1;
       Serial.println(F("availableEvent: connected"));
-      char cookieChar[6];  //initializing here because it needs to be used in the cookie send if and the hashword verify if and if it's inside the while then it will be reinitialized on every loop
+      char cookieChar[cookieLengthMax+1];  //initializing here because it needs to be used in the cookie send if and the hashword verify if and if it's inside the while then it will be reinitialized on every loop
       char receivedMessage[availableEventMessageLengthMax+1];  //size for the longest possible message
       unsigned long timeStamp=millis();
       while(etherEventClient.connected()==1){
@@ -134,7 +139,11 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
           if(availableEventFlag==1 && strncmp(receivedMessage,magicWord,strlen(magicWord)-1)==0){  //magic word received
             Serial.println(F("availableEvent: magic word received"));
             availableEventFlag=2;
-            int availableEventCookie=random(10000,32767);  //make random 5 digit number to use as cookie and send to the sender
+            #ifdef MORE_SECURE
+              int availableEventCookie=Entropy.random();
+            #else  
+              int availableEventCookie=random(2147483648);  //make random 5 digit number to use as cookie and send to the sender
+            #endif
             itoa(availableEventCookie,cookieChar,10);
     	    Serial.print(F("availableEvent: cookieChar="));
             Serial.println(cookieChar);

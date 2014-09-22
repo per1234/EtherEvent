@@ -2,6 +2,7 @@
   #define EtherEvent_h
   #include "Arduino.h"
   #include <Ethernet.h>
+  #include <Entropy.h>  
 
   class EtherEvent{
     public:
