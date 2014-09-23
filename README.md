@@ -5,16 +5,35 @@ Arduino library for easy to use password authenticated network communication bet
 
 This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. There is a lot of room for improvement so if you have any issues, bugs, improvements, feature requests feel free to make pull requests or issue reports. Thanks!
 
-- Requires the arduinoMD5 library by Vasilis Georgitzikis: http://github.com/tzikis/ArduinoMD5
-- Requires the Entropy library: https://sites.google.com/site/astudyofentropy/file-cabinet
-- UIPEthernet library required for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
+#### Required Libraries
+- ArduinoMD5 http://github.com/tzikis/ArduinoMD5
+- Entropy http://sites.google.com/site/astudyofentropy/file-cabinet
+
+#### Related Programs
+- UIPEthernet library for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
 - EventGhost is a free open source automation tool for Windows http://eventghost.com
 - TCP Events EventGhost plugin by miljbee: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
 
-Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of receivePort
+#### Installation
+- Download EtherEvent - Download ZIP button(or Clone in Desktop if you have GitHub Desktop installed)
+- Extract the EtherEvent-master folder from the downloaded zip file
+- Rename the folder EtherEvent
+- Move the folder to your arduino sketchbook\libraries folder
+- Repeat this process with the other required libraries
+- If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?/topic,82416.0.html and set the library configuration parameter as explained below.
+- EtherEvent library configuration parameters(EtherEvent.cpp):
+  - senderIP() function enable - if you have the modified Arduino Ethernet library then you can enable use of the EtherEvent senderIP() function via the SENDERIP_ENABLE flag
+  - Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of receivePort. Send port is set as a parameter of sendEvent()
+  - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the RANDOM_COOKIE flag  
+- Restart the Arduino IDE
+- File>Examples>etherEventExample
+- Set the device IP address, this can be any available IP address on the network. DHCP not currently implemented.
+- Set the device MAC address. This can be any address not already used on the network
+- Set the EtherEvent password. The password must be the same on all connected devices.
+- Upload to device
+- Repeat with other connected devices. The serial monitor will show details of the test communications.
 
-#### Usage:
-
+#### Usage
 `EtherEvent etherEvent` - Create an instance of the EtherEvent class called etherEvent. You can use any name you like in place of etherEvent.
 - Parameters: none
 - Returns: none
@@ -26,11 +45,12 @@ Receive Port: the port to receive events on is initially set to 1024 it can be c
   - Type: IPAddress
 - Parameter: password
   - Type: char
+- Returns: none
 
 `etherEvent.availableEvent()` - Returns the number of chars of event including null terminator available to read.
 - Parameters: none
 - Returns: Number of chars in the event including the null terminator at the end of the string.
-  - Return Type: byte
+  - Type: byte
 
 `etherEvent.availablePayload()` - Returns the number of chars of payload including null terminator available to read
 - Parameters: none
@@ -51,7 +71,7 @@ Receive Port: the port to receive events on is initially set to 1024 it can be c
 - Parameters:none
 - Returns:none
 
-`etherEvent.sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEvent[],char sendPayload[])` - Send an event and payload
+`etherEvent.sendEvent(sendIP, sendPort, sendEvent[], sendPayload[])` - Send an event and payload
 - Parameter: sendIP: IP address to send the event to
   - Type: IPAddress
 - Parameter: sendPort: port to send the event to
@@ -61,7 +81,7 @@ Receive Port: the port to receive events on is initially set to 1024 it can be c
 - Parameter: sendPayload: payload to send with the event(char array). If you don't want a payload then just use "" for this parameter
   - Type: char
 - Returns: 1 for success, 0 for failure
-  - Type: Byte
+  - Type: byte
 
 `etherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?/topic,82416.0.html
 - Parameters:none
@@ -69,7 +89,7 @@ Receive Port: the port to receive events on is initially set to 1024 it can be c
   - Type: IPAddress
 
 
-#### Process:
+#### Process
 EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. This library allows the arduino to use this previously established authentication system.
 - sender: connect to receiver
 - receiver: waits for "quintessence\n"

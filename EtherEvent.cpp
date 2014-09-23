@@ -1,3 +1,4 @@
+//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
 #include "Arduino.h"  //not needed?
 #include "EtherEvent.h"
 #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
@@ -7,8 +8,8 @@
 
 #define DEBUG 0 // flag to turn on/off debugging
 #define Serial if(DEBUG)Serial
-//#define REMOTEIP //is the ethernet library modified to return the client IP address via the remoteIP function. Instructions here: http://forum.arduino.cc/index.php?/topic,82416.0.html
-//#define MORE_SECURE //use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message
+//#define SENDERIP_ENABLE //is the ethernet library modified to return the client IP address via the remoteIP function. Instructions here: http://forum.arduino.cc/index.php?/topic,82416.0.html
+//#define RANDOM_COOKIE //use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message
 
 const char magicWord[] = "quintessence";  //word used to trigger the cookie send from the receiver
 const char acceptMessage[] = "accept";  //authentication success message
@@ -16,8 +17,8 @@ const char payloadFirst[] = "payload withoutRelease";  //eg sends this every tim
 const char payloadSeparator[] = "payload ";  //indicates payload
 const char closeMessage[] = "close";  //sender sends this message to the receiver to close the connection
 const char TCPEventsMD5separator[]="TCPEvents";  //TCPEvents adds the separator before the MD5
-const byte cookieLengthMax=10;  //EtherEvent sends a 10 digit cookie, eg seems to be a 4 digit cookie(socket), but it can be set larger if needed
-const byte eventLengthMax=3;  //Maximum event length
+const byte cookieLengthMax=6;  //EtherEvent sends a 6 digit cookie(5 digit number and negative sign), eg seems to be a 4 digit cookie(socket), but it can be set larger if needed
+const byte eventLengthMax=15;  //Maximum event length
 const byte payloadLengthMax=60;  //Maximum payload length
 const unsigned int timeoutDuration=100;  //max blocking time of the availableEvent or sendEvent functions
 const byte listenTimeoutDuration=3;  //max time to wait for another char to be available from the client.read function - it was getting ahead of the stream and stopping before getting the whole message event though I send the full string all at once
@@ -58,7 +59,7 @@ void EtherEvent::etherEventStart(byte macAdd[],IPAddress deviceIP, char password
   sendEventMessageLengthMax=max(sendEventMessageLengthMax,cookieLengthMax);
   
   Entropy.initialize(); //gets a truly random number from the timer jitter
-  #ifndef MORE_SECURE //randomSeed is not needed if the entropy random function is used via the MORE_SECURE flag. 
+  #ifndef RANDOM_COOKIE //randomSeed is not needed if the entropy random function is used via the MORE_SECURE flag. 
     randomSeed(Entropy.random()); //Initialize the random function with a truly random value from the entropy library
   #endif
   Serial.println(F("etherEventStart: finished"));  
@@ -141,10 +142,10 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
           if(availableEventFlag==1 && strncmp(receivedMessage,magicWord,strlen(magicWord)-1)==0){  //magic word received
             Serial.println(F("availableEvent: magic word received"));
             availableEventFlag=2;
-            #ifdef MORE_SECURE
-              int availableEventCookie=Entropy.random();
+            #ifdef RANDOM_COOKIE
+              int availableEventCookie=Entropy.random(65536);
             #else  
-              int availableEventCookie=random(2147483648);  //make random 5 digit number to use as cookie and send to the sender
+              int availableEventCookie=random(65536);  //make random 5 digit number to use as cookie and send to the sender
             #endif
             itoa(availableEventCookie,cookieChar,10);
     	    Serial.print(F("availableEvent: cookieChar="));
@@ -214,7 +215,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
               Serial.print(F("availableEvent: event received="));              
               strcpy(receivedEvent,receivedMessage);
               receivedEvent[eventLengthMax]=0;  //make sure there is a null terminator at the end of the string
-              #ifdef REMOTEIP
+              #ifdef SENDERIP_ENABLE
                 byte tempIP[4];
                 etherEventClient.getRemoteIP(tempIP);  //save the IP address of the sender
                 fromIP=tempIP;
