@@ -11,7 +11,6 @@
 //#define MORE_SECURE //use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message
 
 const char magicWord[] = "quintessence";  //word used to trigger the cookie send from the receiver
-const char password[] = "password";  //the password used in the Network Event Sender/Receiver plugin configuration in EventGhost
 const char acceptMessage[] = "accept";  //authentication success message
 const char payloadFirst[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
 const char payloadSeparator[] = "payload ";  //indicates payload
@@ -27,6 +26,7 @@ const int receivePort = 1024;  //TCP port to receive on
 EthernetServer etherEventServer = EthernetServer(receivePort);
 EthernetClient etherEventClient;
 
+char etherEventPassword[21];
 char receivedEvent[eventLengthMax+1];  //event buffer
 char receivedPayload[payloadLengthMax+1];  //payload buffer
 byte readEventCount=0;  //the next char of the received event string to be read
@@ -38,11 +38,13 @@ byte sendEventMessageLengthMax;
 EtherEvent::EtherEvent(){
 }
 
-void EtherEvent::etherEventStart(byte macAdd[],IPAddress deviceIP){
+void EtherEvent::etherEventStart(byte macAdd[],IPAddress deviceIP, char password[]){
   Serial.println(F("etherEventStart: start"));
   Ethernet.begin(macAdd,deviceIP);
   etherEventServer.begin();
-
+  
+  strcpy(etherEventPassword,password);
+  
   byte maxInput=strlen(payloadSeparator) + payloadLengthMax;  //determine the size of the incoming message buffer for the availableEvent function.
   availableEventMessageLengthMax=max(maxInput,32);  //32 is the length of the MD5
   maxInput=strlen(payloadFirst);
@@ -153,10 +155,10 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
             continue;
           }
           if(availableEventFlag==2){ //hashword received
-            char availableEventCookiePassword[max(cookieLengthMax,5)+1+strlen(password)+1];  //cookie + password separator + Password + null terminator
+            char availableEventCookiePassword[max(cookieLengthMax,5)+1+strlen(etherEventPassword)+1];  //cookie + password separator + Password + null terminator
             strcpy(availableEventCookiePassword,cookieChar); //create the hashword to compare to the received one
             strcat(availableEventCookiePassword,":"); //create the hashword to compare to the received one
-            strcat(availableEventCookiePassword,password);
+            strcat(availableEventCookiePassword,etherEventPassword);
             Serial.print(F("availableEvent: availableEventCookiePassword="));  //it always hangs here
             Serial.println(availableEventCookiePassword);
             unsigned char* availableEventCookiePasswordHash=MD5::make_hash(availableEventCookiePassword);
@@ -348,10 +350,10 @@ byte EtherEvent::sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEve
         Serial.println(receivedMessage);
         if(sendFlag==2){ //cookie received
           Serial.println(F("sendEvent: md5 received from receiver"));
-          char cookiePassword[cookieLengthMax+1+strlen(password)+1];  //cookie, password separator(:), password, null terminator
+          char cookiePassword[cookieLengthMax+1+strlen(etherEventPassword)+1];  //cookie, password separator(:), password, null terminator
           strcpy(cookiePassword,receivedMessage);
           strcat(cookiePassword,":");  //add the password separator to the cookie
-          strcat(cookiePassword,password); //add password to the cookie
+          strcat(cookiePassword,etherEventPassword); //add password to the cookie
           Serial.print(F("sendEvent cookiePassword="));
           Serial.println(cookiePassword);
           unsigned char* cookiePasswordHash=MD5::make_hash(cookiePassword);

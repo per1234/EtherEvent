@@ -7,7 +7,7 @@
   class EtherEvent{
     public:
       EtherEvent();
-      void etherEventStart(byte macAdd[],IPAddress deviceIP);
+      void etherEventStart(byte macAdd[],IPAddress deviceIP, char password[]);
       byte availableEvent();
       byte availablePayload();
       char readEvent();

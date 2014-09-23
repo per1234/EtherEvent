@@ -19,11 +19,13 @@ Receive Port: the port to receive events on is initially set to 1024 it can be c
 - Parameters: none
 - Returns: none
 
-`etherEvent.etherEventStart(mac,IP)` - Initialize the network
+`etherEvent.etherEventStart(mac, IP, password)` - Initialize the network
 - Parameter: mac - MAC address, if your device has the address printed on it use that or just pick any address that is unique on your network.
   - Type: byte(array)
 - Parameter: IP - the IP Address of the arduino. You can use any IP address on your network that is not being used.
   - Type: IPAddress
+- Parameter: password
+  - Type: char
 
 `etherEvent.availableEvent()` - Returns the number of chars of event including null terminator available to read.
 - Parameters: none

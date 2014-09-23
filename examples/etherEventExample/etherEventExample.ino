@@ -9,6 +9,7 @@
 //network parameters:
 const IPAddress IPdevice(192, 168, 69, 104);  //pick any unused IP address for a static IP
 byte mac[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};  //this can be anything but must be unique on your network
+char password[]="password";  //password for event authentication
 EtherEvent etherEvent;  //create an instance of the EtherEvent class called etherEvent
 
 const unsigned int etherEventSendInterval=7000;
@@ -18,7 +19,7 @@ unsigned long sendTimeStamp=0;
 
 void setup() {
   Serial.begin(9600);
-  etherEvent.etherEventStart(mac,IPdevice);
+  etherEvent.etherEventStart(mac, IPdevice, password);
 }
 
 void loop(){
@@ -34,7 +35,7 @@ void loop(){
     }
     Serial.println();
     Serial.print(F("Received from IP="));
-    Serial.println(etherEvent.senderIP());
+    Serial.println(etherEvent.senderIP());  //this will return 0.0.0.0 if you don't have the modified ethernet library and the flag set in EtherEvent.cpp
   }
 
   if(millis()>sendTimeStamp+etherEventSendInterval){	//send event
