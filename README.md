@@ -22,9 +22,9 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Repeat this process with the other required libraries
 - If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?/topic,82416.0.html and set the library configuration parameter as explained below.
 - EtherEvent library configuration parameters(EtherEvent.cpp):
-  - senderIP() function enable - if you have the modified Arduino Ethernet library then you can enable use of the EtherEvent senderIP() function via the SENDERIP_ENABLE flag
-  - Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of receivePort. Send port is set as a parameter of sendEvent()
-  - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the RANDOM_COOKIE flag  
+  - senderIP() function enable - if you have the modified Arduino Ethernet library then you can enable use of the EtherEvent senderIP() function via the `SENDERIP_ENABLE` flag
+  - Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of `receivePort`. Send port is set as a parameter of sendEvent()
+  - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag  
 - Restart the Arduino IDE
 - File>Examples>etherEventExample
 - Set the device IP address, this can be any available IP address on the network. DHCP not currently implemented.

@@ -17,6 +17,5 @@
       byte sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEvent[],char sendPayload[]);
       IPAddress senderIP();
     private:
-      void sendEventStop();
   };
 #endif
