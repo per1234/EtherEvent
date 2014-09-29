@@ -45,5 +45,4 @@ void loop(){
       Serial.println(F("Event Send Failed"));
     }
   }
-} 
-  
+}
