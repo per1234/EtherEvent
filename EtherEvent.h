@@ -2,19 +2,21 @@
 #ifndef EtherEvent_h
   #define EtherEvent_h
   #include "Arduino.h"
+  #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
+  #include <SPI.h>
   #include <Ethernet.h>
   #include <Entropy.h>  
 
   class EtherEvent{
     public:
       EtherEvent();
-      void etherEventStart(byte macAdd[],IPAddress deviceIP, char password[]);
+      void begin(byte macAdd[],IPAddress deviceIP, char password[]);
       byte availableEvent();
       byte availablePayload();
-      char readEvent();
-      char readPayload();
+      void readEvent(char eventBuffer[]);
+      void readPayload(char payloadBuffer[]);
       void flushReceiver();
-      byte sendEvent(IPAddress sendIP, unsigned int sendPort, char sendEvent[],char sendPayload[]);
+      byte send(IPAddress sendIP, unsigned int sendPort, char sendEvent[],char sendPayload[]);
       IPAddress senderIP();
     private:
   };

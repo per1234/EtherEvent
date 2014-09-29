@@ -57,15 +57,13 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Returns: Number of chars in the payload including the null terminator at the end of the string.
   - Type: byte
 
-`etherEvent.readEvent()` - Returns the next char of the most recently received event
-- Parameters: none
-- Returns: next char of the event
-  - Type: char
+`etherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array
+- Parameter: eventBuffer - size a char array according to the result of availableEvent () and pass it to the readEvent  function. After that it will contain the event.
+- Returns: none
 
-`etherEvent.readPayload()` - Returns the next char of the most recently received payload
-- Parameters: none
-- Returns: next char of the payload
-  - Type: char      
+`etherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array
+- Parameter: payloadBuffer - size a char array according to the result of availablePayload () and pass it to the readPayload  function. After that it will contain the payload.
+- Returns: none   
 
 `etherEvent.flushReceiver()` - clear any buffered event and payload data so a new event can be received
 - Parameters:none
