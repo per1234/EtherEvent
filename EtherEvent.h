@@ -10,13 +10,13 @@
   class EtherEvent{
     public:
       EtherEvent();
-      void begin(byte macAdd[], IPAddress deviceIP, char pass[]);
+      void begin(byte macAdd[], const IPAddress deviceIP, const char pass[]);
       byte availableEvent();
       byte availablePayload();
       void readEvent(char eventBuffer[]);
       void readPayload(char payloadBuffer[]);
       void flushReceiver();
-      byte send(IPAddress sendIP, unsigned int sendPort, char sendEvent[], char sendPayload[]);
+      byte send(const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]);
       IPAddress senderIP();
     private:
       void etherEventStop(EthernetClient &client);

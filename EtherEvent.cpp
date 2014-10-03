@@ -20,8 +20,8 @@
 #define Serial if(DEBUG)Serial
 //#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?/topic,82416.0.html
 
-#define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because findUntil didn't like the const
-#define ACCEPT_MESSAGE "accept\n"  //authentication success message
+#define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
+#define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
 const char withoutRelease[]="withoutRelease";  //eg sends this every time and EtherEvent filters it out
 const byte withoutReleaseLength=14;
 const char payloadSeparator[]="payload ";  //indicates payload
@@ -35,8 +35,8 @@ const byte payloadLengthMax=60;  //Maximum payload length
 const byte availableEventMessageLengthMax=payloadSeparatorLength+withoutReleaseLength+1+payloadSeparatorLength+payloadLengthMax+1+eventLengthMax;  //I'm using globals for these 2 so I can just calculate the buffer size in the setup() instead of every time the functions is called
 byte availableEventSubmessageLengthMax;  //non-const because I have to use max()(in begin())
 
-const unsigned int timeoutDuration=200;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
-const unsigned int listenTimeout=400;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
+const unsigned int timeoutDuration=250;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
+const unsigned int listenTimeout=500;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
 
 const int receivePort = 1024;  //TCP port to receive on
 
@@ -53,9 +53,9 @@ EtherEvent::EtherEvent(){
 }
 
 
-void EtherEvent::begin(byte macAdd[],IPAddress deviceIP, char pass[]){
+void EtherEvent::begin(byte macAdd[], const IPAddress deviceIP, const char pass[]){
   Serial.println(F("etherEventStart: start"));
-  Ethernet.begin(macAdd,deviceIP);
+  Ethernet.begin(macAdd, deviceIP);  //begin() takes byte for macAdd, not const byte
   etherEventServer.begin();
   etherEventClient.setTimeout(timeoutDuration);  //timeout on read/readUntil/find/findUntil/etc      
   strcpy(EEpassword,pass);
@@ -245,7 +245,7 @@ IPAddress EtherEvent::senderIP(){  //returns the ip address the current event wa
 } 
     
 
-byte EtherEvent::send(IPAddress sendIP, unsigned int sendPort, char sendEvent[], char sendPayload[]){
+byte EtherEvent::send(const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]){
   Serial.println(F("sendEvent: attempting connection---------------"));
   byte sendEventSuccess=0;
   if(etherEventClient.connect(sendIP,sendPort)){  //connected to receiver
