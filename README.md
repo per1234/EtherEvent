@@ -37,21 +37,14 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Repeat with other connected devices. The serial monitor will show details of the test communications.
 
 #### Usage
-`EtherEvent etherEvent` - Create an instance of the EtherEvent class called etherEvent. You can use any name you like in place of etherEvent.
-- Parameters: none
+`EtherEvent etherEvent = EtherEvent(password)` - Create an instance of the EtherEvent class called etherEvent and set the authentication password. You can use any name you like in place of etherEvent.
+- Parameters: password
+  - Type: const char
 - Returns: none
 
-`etherEvent.etherEventStart(mac, IP, password)` - Initialize the network
-- Parameter: mac - MAC address, if your device has the address printed on it use that or just pick any address that is unique on your network.
-  - Type: byte(array)
-- Parameter: IP - the IP Address of the arduino. You can use any IP address on your network that is not being used.
-  - Type: IPAddress
-- Parameter: password
-  - Type: char
-- Returns: none
-
-`etherEvent.availableEvent()` - Returns the number of chars of event including null terminator available to read.
-- Parameters: none
+`etherEvent.availableEvent(ethernetServer)` - Returns the number of chars of event including null terminator available to read.
+- Parameters: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
+  - Type: EthernetServer
 - Returns: Number of chars in the event including the null terminator at the end of the string.
   - Type: byte
 
@@ -62,32 +55,43 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 
 `etherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array
 - Parameter: eventBuffer - size a char array according to the result of availableEvent () and pass it to the readEvent  function. After that it will contain the event.
+  - Type: char
 - Returns: none
 
 `etherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array
 - Parameter: payloadBuffer - size a char array according to the result of availablePayload () and pass it to the readPayload  function. After that it will contain the payload.
+  - Type: char
 - Returns: none   
 
 `etherEvent.flushReceiver()` - clear any buffered event and payload data so a new event can be received
 - Parameters:none
 - Returns:none
 
-`etherEvent.sendEvent(sendIP, sendPort, sendEvent[], sendPayload[])` - Send an event and payload
+`etherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[], sendPayload[])` - Send an event and payload
+- Parameters: ethernetClient - the EthernetClient object created in the Ethernet setup of the user's sketch
+  - Type: EthernetClient
 - Parameter: sendIP: IP address to send the event to
   - Type: IPAddress
 - Parameter: sendPort: port to send the event to
   - Type: unsigned int
 - Parameter: sendEvent: string to send as the event(char array).
-  - Type: char
+  - Type: const char
 - Parameter: sendPayload: payload to send with the event(char array). If you don't want a payload then just use "" for this parameter
-  - Type: char
+  - Type: const char
 - Returns: 1 for success, 0 for failure
   - Type: byte
+
+etheEvent.setTimeout(timeout, listenTimeout)
+- Parameter: timeout - the max time to wait for ethenet communication in milliseconds
+  - Type: unsigned int
+- Parameter: listenTimeout - the time to wait for the full message to come through in microseconds
+  -Type: unsigned int
 
 `etherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?/topic,82416.0.html
 - Parameters:none
 - Returns: IP address of the sender
   - Type: IPAddress
+
 
 
 #### Authentication Process

@@ -22,6 +22,7 @@
 
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
+
 const char withoutRelease[]="withoutRelease";  //eg sends this every time and EtherEvent filters it out
 const byte withoutReleaseLength=14;
 const char payloadSeparator[]="payload ";  //indicates payload
@@ -35,13 +36,8 @@ const byte payloadLengthMax=60;  //Maximum payload length
 const byte availableEventMessageLengthMax=payloadSeparatorLength+withoutReleaseLength+1+payloadSeparatorLength+payloadLengthMax+1+eventLengthMax;  //I'm using globals for these 2 so I can just calculate the buffer size in the setup() instead of every time the functions is called
 byte availableEventSubmessageLengthMax;  //non-const because I have to use max()(in begin())
 
-const unsigned int timeoutDuration=250;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
-const unsigned int listenTimeout=500;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
-
-const int receivePort = 1024;  //TCP port to receive on
-
-EthernetServer etherEventServer = EthernetServer(receivePort);
-EthernetClient etherEventClient;
+unsigned int timeout=250;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
+unsigned int listenTimeout=500;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
 
 char EEpassword[passwordLengthMax+1];
 char receivedEvent[eventLengthMax+1];  //event buffer
@@ -49,16 +45,8 @@ char receivedPayload[payloadLengthMax+1];  //payload buffer
 IPAddress fromIP(0,0,0,0);  //IP address of the last event sender
 
 
-EtherEvent::EtherEvent(){
-}
-
-
-void EtherEvent::begin(byte macAdd[], const IPAddress deviceIP, const char pass[]){
-  Serial.println(F("etherEventStart: start"));
-  Ethernet.begin(macAdd, deviceIP);  //begin() takes byte for macAdd, not const byte
-  etherEventServer.begin();
-  etherEventClient.setTimeout(timeoutDuration);  //timeout on read/readUntil/find/findUntil/etc      
-  strcpy(EEpassword,pass);
+EtherEvent::EtherEvent(const char pass[]){
+  strcpy(EEpassword,pass);  //store the password
   
   #ifdef ENTROPY_FLAG
     Entropy.initialize(); //gets truly random numbers from the timer jitter
@@ -67,7 +55,7 @@ void EtherEvent::begin(byte macAdd[], const IPAddress deviceIP, const char pass[
     #endif
   #endif
   
-  byte maxInput=payloadSeparatorLength+withoutReleaseLength;
+  byte maxInput=payloadSeparatorLength+withoutReleaseLength;  //calculate the size of the payload/event buffer
   availableEventSubmessageLengthMax=max(eventLengthMax,maxInput);
   maxInput=payloadSeparatorLength+payloadLengthMax;
   availableEventSubmessageLengthMax=max(availableEventSubmessageLengthMax,maxInput);
@@ -75,7 +63,7 @@ void EtherEvent::begin(byte macAdd[], const IPAddress deviceIP, const char pass[
 }
 
 
-byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
+byte EtherEvent::availableEvent(EthernetServer &etherEventServer){  //checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
   if(byte length=strlen(receivedEvent)){    //strlen(receivedEvent)>0
     return length+1;   //number of bytes including the null terminator remaining to be read of the event
   }
@@ -84,7 +72,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
   }
   if(EthernetClient etherEventClient = etherEventServer.available() ){  //connect to the client
     Serial.println(F("availableEvent: connected--------------"));
-    etherEventClient.setTimeout(timeoutDuration);  //timeout on read/readUntil/find/findUntil/etc    
+    etherEventClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc    
     if(etherEventClient.find(MAGIC_WORD)==1){  //magic word correct
       Serial.println(F("availableEvent: magic word received"));
       #ifdef RANDOM_COOKIE
@@ -121,7 +109,7 @@ byte EtherEvent::availableEvent(){  //checks for senders, connects, authenticate
         byte availableLength=0;
         while(availableLength<2){  //wait for a message. I have to do this because available() doesn't have a timeout, it just gives the currently available
           availableLength=etherEventClient.available();
-          if(millis()>timeStamp+timeoutDuration){  //timeout
+          if(millis()>timeStamp+timeout){  //timeout
             Serial.println(F("availableEvent: timeout"));
             etherEventStop(etherEventClient);
             return 0;
@@ -245,8 +233,9 @@ IPAddress EtherEvent::senderIP(){  //returns the ip address the current event wa
 } 
     
 
-byte EtherEvent::send(const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]){
+byte EtherEvent::send(EthernetClient &etherEventClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]){
   Serial.println(F("sendEvent: attempting connection---------------"));
+  etherEventClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc      
   byte sendEventSuccess=0;
   if(etherEventClient.connect(sendIP,sendPort)){  //connected to receiver
 
@@ -304,3 +293,8 @@ void EtherEvent::etherEventStop(EthernetClient &client){
   Serial.println(F("etherEventStop: stopped"));
 }
 
+
+void EtherEvent::setTimeout(unsigned int timeoutNew, unsigned int timeoutListenNew){
+  timeout=timeoutNew;
+  listenTimeout=timeoutListenNew;
+}
