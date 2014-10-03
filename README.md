@@ -2,6 +2,7 @@ EtherEvent
 ==========
 
 Arduino library for easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
+The current focus of EtherEvent is to provide a common interface with pcs running the automation software and other arduinos at the previously established level of security established by those programs. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
 This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. There is a lot of room for improvement so if you have any issues, bugs, improvements, feature requests feel free to make pull requests or issue reports. Thanks!
 
@@ -13,8 +14,10 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - UIPEthernet library for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
 - EventGhost is a free open source automation tool for Windows http://eventghost.com
 - TCP Events EventGhost plugin by miljbee: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
+- pfodCHAP - a much more rigorous authentication library: http://forward.com.au/pfod/pfodParserLibraries
 
 #### Installation
+- 32k is the minimum recommended flash memory capacity of the MCU
 - Download EtherEvent - Download ZIP button(or Clone in Desktop if you have GitHub Desktop installed)
 - Extract the EtherEvent-master folder from the downloaded zip file
 - Rename the folder EtherEvent
@@ -87,8 +90,8 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
   - Type: IPAddress
 
 
-#### Process
-EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. This library allows the arduino to use this previously established authentication system.
+#### Authentication Process
+EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. The EtherEvent library allows the arduino to use this previously established authentication system.
 - sender: connect to receiver
 - receiver: waits for "quintessence\n"
 - sender: send "quintessence\n" and wait for cookie

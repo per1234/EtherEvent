@@ -13,7 +13,7 @@ void setup() {
   Serial.begin(9600);
   //network parameters:
   IPAddress IPdevice(192, 168, 69, 104);  //pick any unused IP address for a static IP
-  byte mac[] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};  //this can be anything but must be unique on your network
+  byte mac[] = {0x00, 0x01, 0x02, 0x03, 0x04, 4};  //this can be anything but must be unique on your network
   char password[]="password";  //password for event authentication
   etherEvent.begin(mac, IPdevice, password);  //initialize EtherEvent with the given network parameters
 }
@@ -36,10 +36,10 @@ void loop(){
   }
 
   if(millis()>sendTimeStamp+4000){  //periodically send event
+    sendTimeStamp=millis();
     Serial.println(F("Attempting Event Send"));
-    if(etherEvent.send(IPAddress(192,168,69,100), 1024, "123", "test payload")){  //send event to target IP address, port, event, payload
+    if(etherEvent.send(IPAddress(192,168,69,104), 1024, "123", "test payload")){  //send event to target IP address, port, event, payload
       Serial.println(F("Event Send Successful"));
-      sendTimeStamp=millis();
     }
     else{
       Serial.println(F("Event Send Failed"));
