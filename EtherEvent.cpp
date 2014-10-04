@@ -36,8 +36,8 @@ const byte payloadLengthMax=60;  //Maximum payload length
 const byte availableEventMessageLengthMax=payloadSeparatorLength+withoutReleaseLength+1+payloadSeparatorLength+payloadLengthMax+1+eventLengthMax;  //I'm using globals for these 2 so I can just calculate the buffer size in the setup() instead of every time the functions is called
 byte availableEventSubmessageLengthMax;  //non-const because I have to use max()(in begin())
 
-unsigned int timeout=250;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
-unsigned int listenTimeout=500;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
+unsigned int timeout=300;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
+unsigned int listenTimeout=600;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
 
 char EEpassword[passwordLengthMax+1];
 char receivedEvent[eventLengthMax+1];  //event buffer
@@ -217,14 +217,14 @@ void EtherEvent::readEvent(char eventBuffer[]){
 void EtherEvent::readPayload(char payloadBuffer[]){
   strcpy(payloadBuffer,receivedPayload);
   payloadBuffer[strlen(receivedPayload)]=0;  //null terminator - is this needed?
-  receivedPayload[0]=0;  //reset the event buffer
+  receivedPayload[0]=0;  //reset the payload buffer
 }
 
 
 void EtherEvent::flushReceiver(){  //dump the last message received so another one can be received
   Serial.println(F("flushReceiver: start"));
   receivedEvent[0]=0;  //reset the event buffer
-  receivedPayload[0]=0;  //reset the event buffer
+  receivedPayload[0]=0;  //reset the payload buffer
 }
 
 

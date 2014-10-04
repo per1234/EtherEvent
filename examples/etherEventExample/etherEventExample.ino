@@ -5,10 +5,10 @@
 #include <Entropy.h>
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
 
-EthernetServer ethernetServer = EthernetServer(1024);  //TCP port to receive on
+EthernetServer ethernetServer(1024);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
 
-EtherEvent etherEvent=EtherEvent("password");  //create an instance of the EtherEvent class called etherEvent and set the authentication password
+EtherEvent etherEvent("password");  //create an instance of the EtherEvent class called etherEvent and set the authentication password
 
 unsigned long sendTimeStamp=0;  //used by the example to periodically send an event
 
