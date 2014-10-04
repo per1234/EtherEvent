@@ -1,5 +1,5 @@
 //EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
-#include "Arduino.h"  //not needed?
+#include "Arduino.h"
 #include "EtherEvent.h"
 #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #include <SPI.h>
@@ -286,15 +286,15 @@ byte EtherEvent::send(EthernetClient &etherEventClient, const IPAddress sendIP, 
 }
 
 
+void EtherEvent::setTimeout(unsigned int timeoutNew, unsigned int timeoutListenNew){
+  timeout=timeoutNew;
+  listenTimeout=timeoutListenNew;
+}
+
+
 void EtherEvent::etherEventStop(EthernetClient &client){
   Serial.println(F("etherEventStop: stopping..."));
   client.print(closeMessage);  //tell the receiver to close
   client.stop();
   Serial.println(F("etherEventStop: stopped"));
-}
-
-
-void EtherEvent::setTimeout(unsigned int timeoutNew, unsigned int timeoutListenNew){
-  timeout=timeoutNew;
-  listenTimeout=timeoutListenNew;
 }

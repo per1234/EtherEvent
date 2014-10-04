@@ -1,8 +1,8 @@
-EtherEvent   KEYWORD1
-availableEvent    KEYWORD2
-availablePayload    KEYWORD2
-readEvent    KEYWORD2
-readPayload    KEYWORD2
-flushReceiver    KEYWORD2
-sendEvent    KEYWORD2
-senderIP    KEYWORD2    
+EtherEvent	KEYWORD1
+availableEvent	KEYWORD2
+availablePayload	KEYWORD2
+readEvent	KEYWORD2
+readPayload	KEYWORD2
+senderIP	KEYWORD2
+flushReceiver	KEYWORD2
+sendEvent	KEYWORD2
