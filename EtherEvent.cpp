@@ -1,9 +1,9 @@
 //EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
 #include "Arduino.h"
 #include "EtherEvent.h"
-#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #include <SPI.h>
 #include <Ethernet.h>  //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
+#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #define ENTROPY_FLAG  //Comment this line out to disable use of the Entropy true random number library to save memory. Warning this will compromise the security of the authentication process as the cookie will not be truly random
 #ifdef ENTROPY_FLAG  //I don't think this works, the include will go through either way and probably the define too, probably have to comment to disable
   #include <Entropy.h>  //http://sites.google.com/site/astudyofentropy/file-cabinet
@@ -109,7 +109,7 @@ byte EtherEvent::availableEvent(EthernetServer &etherEventServer){  //checks for
         byte availableLength=0;
         while(availableLength<2){  //wait for a message. I have to do this because available() doesn't have a timeout, it just gives the currently available
           availableLength=etherEventClient.available();
-          if(millis()>timeStamp+timeout){  //timeout
+          if(millis() - timeStamp > timeout){  //timeout
             Serial.println(F("availableEvent: timeout"));
             etherEventStop(etherEventClient);
             return 0;
@@ -125,7 +125,7 @@ byte EtherEvent::availableEvent(EthernetServer &etherEventServer){  //checks for
             timeStamp=micros();
             availableLength=etherEventClient.available();
           }
-        }while(micros()<timeStamp+listenTimeout);
+        }while(micros() - timeStamp < listenTimeout);
         Serial.print(F("availableEvent: availableLength="));
         Serial.println(availableLength);
         for(;;){
@@ -233,7 +233,7 @@ IPAddress EtherEvent::senderIP(){  //returns the ip address the current event wa
 } 
     
 
-byte EtherEvent::send(EthernetClient &etherEventClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]){
+boolean EtherEvent::send(EthernetClient &etherEventClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]){
   Serial.println(F("sendEvent: attempting connection---------------"));
   etherEventClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc      
   byte sendEventSuccess=0;

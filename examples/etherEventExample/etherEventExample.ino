@@ -36,7 +36,7 @@ void loop(){
     Serial.println(payload);
   }
 
-  if(millis()>sendTimeStamp+4000){  //periodically send event
+  if(millis() - sendTimeStamp > 4000){  //periodically send event
     sendTimeStamp=millis();  //reset the timestamp for the next event send
     Serial.println(F("Attempting event send"));
     if(etherEvent.send(ethernetClient, IPAddress(192,168,69,100), 1024, "123", "test payload")){  //send event to target IP address, port, event, payload

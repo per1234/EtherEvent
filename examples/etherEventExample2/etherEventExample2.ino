@@ -42,7 +42,7 @@ void loop(){
     Serial.println(etherEvent.senderIP());  //this will return 0.0.0.0 if you don't have the modified ethernet library and the flag set in EtherEvent.cpp
   }
 
-  if(millis()>sendTimeStamp+4000){  //periodically send event
+  if(millis() - sendTimeStamp > 4000){  //periodically send event
     sendTimeStamp=millis();  //reset the timestamp for the next event send
     Serial.println(F("Attempting event send"));
     if(etherEvent.send(ethernetClient, IPAddress(192,168,69,100), 1024, "123", "test payload")){  //send event to target IP address, port, event, payload
