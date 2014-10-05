@@ -11,12 +11,14 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Entropy http://sites.google.com/site/astudyofentropy/file-cabinet
 
 #### Related Programs
-- UIPEthernet library for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
-- EventGhost is a free open source automation tool for Windows http://eventghost.com
+- EtherEventQueue outgoing event queue Arduino library: http://github.com/per1234/EtherEventQueue
+- UIPEthernet Arduino library for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
+- EventGhost is a free open source automation tool for Windows: http://eventghost.com
 - TCP Events EventGhost plugin by miljbee: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
-- pfodCHAP - a much more rigorous authentication library: http://forward.com.au/pfod/pfodParserLibraries
+- pfodCHAP - Arduino authentication library used to parse pfod messages sent from the Android pfodApp: http://forward.com.au/pfod/pfodParserLibraries
 
 #### Installation
+- Make sure you have the current version of EtherEvent: http://github.com/per1234/EtherEvent
 - 32k is the minimum recommended flash memory capacity of the MCU
 - Download EtherEvent - Download ZIP button(or Clone in Desktop if you have GitHub Desktop installed)
 - Extract the EtherEvent-master folder from the downloaded zip file
@@ -37,37 +39,42 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Repeat with other connected devices. The serial monitor will show details of the test communications.
 
 #### Usage
-`EtherEvent etherEvent = EtherEvent(password)` - Create an instance of the EtherEvent class called etherEvent and set the authentication password. You can use any name you like in place of etherEvent.
+`EtherEvent.begin(password)` - initialize EtherEvent and set the authentication password.
 - Parameters: password
   - Type: const char
 - Returns: none
 
-`etherEvent.availableEvent(ethernetServer)` - Returns the number of chars of event including null terminator available to read.
+`EtherEvent.availableEvent(ethernetServer)` - Returns the number of chars of event including null terminator available to read.
 - Parameters: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
   - Type: EthernetServer
 - Returns: Number of chars in the event including the null terminator at the end of the string.
   - Type: byte
 
-`etherEvent.availablePayload()` - Returns the number of chars of payload including null terminator available to read
+`EtherEvent.availablePayload()` - Returns the number of chars of payload including null terminator available to read
 - Parameters: none
 - Returns: Number of chars in the payload including the null terminator at the end of the string.
   - Type: byte
 
-`etherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array
+`EtherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array
 - Parameter: eventBuffer - size a char array according to the result of availableEvent () and pass it to the readEvent  function. After that it will contain the event.
   - Type: char
 - Returns: none
 
-`etherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array
+`EtherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array
 - Parameter: payloadBuffer - size a char array according to the result of availablePayload () and pass it to the readPayload  function. After that it will contain the payload.
   - Type: char
 - Returns: none   
 
-`etherEvent.flushReceiver()` - clear any buffered event and payload data so a new event can be received
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?/topic,82416.0.html
+- Parameters:none
+- Returns: IP address of the sender
+  - Type: IPAddress
+  
+`EtherEvent.flushReceiver()` - clear any buffered event and payload data so a new event can be received
 - Parameters:none
 - Returns:none
 
-`etherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[], sendPayload[])` - Send an event and payload
+`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[], sendPayload[])` - Send an event and payload
 - Parameters: ethernetClient - the EthernetClient object created in the Ethernet setup of the user's sketch
   - Type: EthernetClient
 - Parameter: sendIP: IP address to send the event to
@@ -81,17 +88,11 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Returns: 1 for success, 0 for failure
   - Type: byte
 
-etheEvent.setTimeout(timeout, listenTimeout)
+EtherEvent.setTimeout(timeout, listenTimeout)
 - Parameter: timeout - the max time to wait for ethenet communication in milliseconds
   - Type: unsigned int
 - Parameter: listenTimeout - the time to wait for the full message to come through in microseconds
   -Type: unsigned int
-
-`etherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?/topic,82416.0.html
-- Parameters:none
-- Returns: IP address of the sender
-  - Type: IPAddress
-
 
 
 #### Authentication Process

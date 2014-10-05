@@ -4,21 +4,34 @@
   #include "Arduino.h"
   #include <SPI.h>
   #include <Ethernet.h>
-  #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
+  #include <MD5.h>
   #include <Entropy.h>  
 
-  class EtherEvent{
+  const byte etherEvent_passwordLengthMax=20;
+  const byte etherEvent_eventLengthMax=15;  //Maximum event length
+  const byte etherEvent_payloadLengthMax=60;  //Maximum payload length
+
+  class EtherEventClass{
     public:
-      EtherEvent(const char pass[]);
-      byte availableEvent(EthernetServer &etherEventServer);
+      void begin(const char pass[]);
+      byte availableEvent(EthernetServer &ethernetServer);
       byte availablePayload();
       void readEvent(char eventBuffer[]);
       void readPayload(char payloadBuffer[]);
       IPAddress senderIP();
       void flushReceiver();
-      boolean send(EthernetClient &etherEventClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]);
+      boolean send(EthernetClient &ethernetClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]);
       void setTimeout(unsigned int timeoutDurationNew, unsigned int timeoutListenNew);
     private:
-      void etherEventStop(EthernetClient &client);
+      void etherEventStop(EthernetClient &ethernetClient);
+
+      byte availableEventSubmessageLengthMax;  //non-const because I have to use max()(in begin())
+      unsigned int timeout;
+      unsigned int listenTimeout;
+      char EEpassword[etherEvent_passwordLengthMax+1];
+      char receivedEvent[etherEvent_eventLengthMax+1];  //event buffer
+      char receivedPayload[etherEvent_payloadLengthMax+1];  //payload buffer
+      IPAddress fromIP;  //IP address of the last event sender      
   };
+  extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
 #endif
