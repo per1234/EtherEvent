@@ -1,14 +1,12 @@
 //EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote http://github.com/per1234/EtherEvent
-#include "Arduino.h"
+#include <Arduino.h>
 #include "EtherEvent.h"
 #include <SPI.h>
 #include <Ethernet.h>  //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
-#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
-#define ENTROPY_FLAG  //Comment this line out to disable use of the Entropy true random number library to save memory. Warning this will compromise the security of the authentication process as the cookie will not be truly random
-#ifdef ENTROPY_FLAG  //I don't think this works, the include will go through either way and probably the define too, probably have to comment to disable
-  #include <Entropy.h>  //http://sites.google.com/site/astudyofentropy/file-cabinet
-  //#define RANDOM_COOKIE //Uncomment this line to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory
-#endif
+#include "MD5.h"  //http://github.com/tzikis/ArduinoMD5
+
+//Uncomment the next line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
+//#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet 
 
 //this will disable the compiler warning for F()
 #ifdef PROGMEM
@@ -18,10 +16,13 @@
 
 #define DEBUG 0 // (0==serial debug output off, 1==serial debug output on)The serial debug output will greatly slow down communication time and so different timeout values are enabled.
 #define Serial if(DEBUG)Serial
+
 //#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?/topic,82416.0.html
 
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
+
+const boolean randomCookie=0;  //Set to 1 to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory
 
 const char withoutRelease[]="withoutRelease";  //eg sends this every time and EtherEvent filters it out
 const byte withoutReleaseLength=14;
@@ -39,11 +40,12 @@ void EtherEventClass::begin(const char pass[]){
   strcpy(EEpassword,pass);  //store the password
   timeout=timeoutDefault;
   listenTimeout=listenTimeoutDefault;
-  #ifdef ENTROPY_FLAG
+
+  #ifdef Entropy_h  //the Entropy library is in use
     Entropy.initialize(); //gets truly random numbers from the timer jitter
-    #ifndef RANDOM_COOKIE //randomSeed is not needed if the entropy random function is used via the RANDOM_COOKIE flag. 
+    if(randomCookie==0){ //randomSeed is not needed if the entropy random function is used for every cookie instead of just the randomSeed
       randomSeed(Entropy.random()); //Initialize the random function with a truly random value from the entropy library
-    #endif
+    }
   #endif
   
   byte maxInput=payloadSeparatorLength+withoutReleaseLength;  //calculate the size of the payload/event buffer
@@ -67,12 +69,18 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer){  //checks 
     ethernetClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc    
     if(ethernetClient.find(MAGIC_WORD)==1){  //magic word correct
       Serial.println(F("availableEvent: magic word received"));
-      #ifdef RANDOM_COOKIE
-        Serial.println(F("availableEvent: RANDOM_COOKIE"));
-        int cookieInt=Entropy.random(65536);  //true random cookie for highest security
-      #else  
-        //int cookieInt=random(65536);  //make random 5 digit number to use as cookie and send to the sender
-        int cookieInt=random(10000,32768);  //using this to force a 5 digit cookie so I don't have to find the number of digits of the cookie for faster performance
+      int cookieInt;
+      #ifdef Entropy_h
+        if(randomCookie==1){
+          Serial.println(F("availableEvent: RANDOM_COOKIE"));
+          cookieInt=Entropy.random(65536);  //true random cookie for highest security
+        }
+        else{
+      #endif
+      //int cookieInt=random(65536);  //make random 5 digit number to use as cookie and send to the sender
+      cookieInt=random(10000,32768);  //using this to force a 5 digit cookie so I don't have to find the number of digits of the cookie for faster performance
+      #ifdef Entropy_h
+        }
       #endif
       char cookieChar[6];  //max 5 digits + minus + null terminator
       itoa(cookieInt,cookieChar,10);

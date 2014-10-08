@@ -1,8 +1,8 @@
-//example script for the EtherEvent library
-#include <MD5.h>  //these libraries are required by EtherEvent
-#include <SPI.h>
+//Example script for the EtherEvent library. Demonstrates advanced usage.
+#include <SPI.h>  //these libraries are required by EtherEvent
 #include <Ethernet.h>
-#include <Entropy.h>
+#include "MD5.h"
+//#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
 #include <utility/w5100.h>  //for setting the ethernet send connect timeout
 

@@ -4,18 +4,17 @@ EtherEvent
 Arduino library for easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
 The current focus of EtherEvent is to provide a common interface with pcs running the automation software and other arduinos at the previously established level of security established by those programs. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
-This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. There is a lot of room for improvement so if you have any issues, bugs, improvements, feature requests feel free to make pull requests or issue reports. Thanks!
+This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. Feel free to make pull requests or issue reports. Thanks!
 
 #### Required Libraries
 - ArduinoMD5 http://github.com/tzikis/ArduinoMD5
-- Entropy http://sites.google.com/site/astudyofentropy/file-cabinet
 
 #### Related Programs
-- EtherEventQueue outgoing event queue Arduino library: http://github.com/per1234/EtherEventQueue
-- UIPEthernet Arduino library for ENC28J60 ethernet chip: http://github.com/ntruchsess/arduino_uip
-- EventGhost is a free open source automation tool for Windows: http://eventghost.com
-- TCP Events EventGhost plugin by miljbee: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
-- pfodCHAP - Arduino authentication library used to parse pfod messages sent from the Android pfodApp: http://forward.com.au/pfod/pfodParserLibraries
+- Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
+- EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
+- UIPEthernet ENC28J60 ethernet chip library: http://github.com/ntruchsess/arduino_uip
+- EventGhost free open source automation tool for Windows: http://eventghost.com
+- TCP Events EventGhost plugin: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
 
 #### Installation
 - Make sure you have the current version of EtherEvent: http://github.com/per1234/EtherEvent
@@ -86,7 +85,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Parameter: sendPayload: payload to send with the event(char array). If you don't want a payload then just use "" for this parameter
   - Type: const char
 - Returns: 1 for success, 0 for failure
-  - Type: byte
+  - Type: boolean
 
 EtherEvent.setTimeout(timeout, listenTimeout)
 - Parameter: timeout - the max time to wait for ethenet communication in milliseconds

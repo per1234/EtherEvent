@@ -1,8 +1,8 @@
 //example script for the EtherEvent library
-#include <MD5.h>  //these libraries are required by EtherEvent
-#include <SPI.h>
+#include <SPI.h>  //these libraries are required by EtherEvent
 #include <Ethernet.h>
-#include <Entropy.h>
+#include "MD5.h"
+//#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
 
 EthernetServer ethernetServer(1024);  //TCP port to receive on
