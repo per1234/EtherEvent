@@ -49,22 +49,22 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Returns: Number of chars in the event including the null terminator at the end of the string.
   - Type: byte
 
-`EtherEvent.availablePayload()` - Returns the number of chars of payload including null terminator available to read
+`EtherEvent.availablePayload()` - Returns the number of chars of payload including null terminator available to read. availableEvent() must be called first.
 - Parameters: none
 - Returns: Number of chars in the payload including the null terminator at the end of the string.
   - Type: byte
 
-`EtherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array
+`EtherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array. availableEvent() must be called first.
 - Parameter: eventBuffer - size a char array according to the result of availableEvent () and pass it to the readEvent  function. After that it will contain the event.
   - Type: char
 - Returns: none
 
-`EtherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array
+`EtherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array. availableEvent() must be called first.
 - Parameter: payloadBuffer - size a char array according to the result of availablePayload () and pass it to the readPayload  function. After that it will contain the payload.
   - Type: char
 - Returns: none   
 
-`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?/topic,82416.0.html
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?topic=82416.0
 - Parameters:none
 - Returns: IP address of the sender
   - Type: IPAddress
