@@ -96,9 +96,10 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer){  //checks 
       Serial.println(cookiePassword);
       unsigned char* cookiePasswordHash=MD5::make_hash(cookiePassword);
       char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
+      free(cookiePasswordHash);
       Serial.print(F("EtherEvent.availableEvent: cookiePasswordMD5="));
       Serial.println(cookiePasswordMD5);
-      if(ethernetClient.find(cookiePasswordMD5)==1){
+      if(ethernetClient.find(cookiePasswordMD5)==1){  //authentication successful
         ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
         Serial.println(F("EtherEvent.availableEvent: authentication successful"));
         ethernetClient.print(ACCEPT_MESSAGE);
@@ -133,11 +134,13 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer){  //checks 
           byte receivedMessageSize=min(availableLength,availableEventSubmessageLengthMax);  //determine the max buffer size required
           char receivedMessage[receivedMessageSize];  //initialize the buffer to read into
           byte bytesRead=0;
-          bytesRead=ethernetClient.readBytesUntil(10,receivedMessage,receivedMessageSize);  //put the incoming data up to the newline into receivedMessage
-          availableLength=availableLength-bytesRead;  //used to reduce the buffer size on the next loop
-          receivedMessage[bytesRead]=0;  //add a null terminator
-          Serial.print(F("EtherEvent.availableEvent: bytesRead="));
-          Serial.println(bytesRead);
+          do{
+            bytesRead=ethernetClient.readBytesUntil(10,receivedMessage,receivedMessageSize);  //put the incoming data up to the newline into receivedMessage
+            availableLength=availableLength-bytesRead;  //used to reduce the buffer size on the next loop
+            receivedMessage[bytesRead]=0;  //add a null terminator
+            Serial.print(F("EtherEvent.availableEvent: bytesRead="));
+            Serial.println(bytesRead);
+          }while(bytesRead==0);
           if(strncmp(receivedMessage, payloadSeparator, payloadSeparatorLength)==0){  //received message is a payload
             Serial.println(F("EtherEvent.availableEvent: payload separator received"));
             if(bytesRead>payloadSeparatorLength+1){ //there is a payload
