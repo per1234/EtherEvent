@@ -3,7 +3,7 @@
 #include "EtherEvent.h"
 #include <SPI.h>
 #include <Ethernet.h>  //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
-#include "MD5.h"  //http://github.com/tzikis/ArduinoMD5
+#include "MD5.h"  //http://github.com/mrparp/ArduinoMD5
 
 //Uncomment the next line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
 //#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet 

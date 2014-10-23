@@ -7,7 +7,7 @@ The current focus of EtherEvent is to provide a common interface with pcs runnin
 This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. Feel free to make pull requests or issue reports. Thanks!
 
 #### Required Libraries
-- ArduinoMD5 http://github.com/tzikis/ArduinoMD5
+- ArduinoMD5 http://github.com/mrparp/ArduinoMD5
 
 #### Related Programs
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
