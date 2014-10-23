@@ -255,6 +255,7 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress se
       Serial.println(cookiePassword);
       unsigned char* cookiePasswordHash=MD5::make_hash(cookiePassword);
       char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
+      free(cookiePasswordHash);
       Serial.print(F("EtherEvent.sendEvent: hashWordMD5="));
       Serial.println(cookiePasswordMD5);
       cookiePasswordMD5[32]=10;  //add /n - it fails the authentication with eg without this
