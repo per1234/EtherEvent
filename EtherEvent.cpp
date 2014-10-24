@@ -129,18 +129,19 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer){  //checks 
         }while(micros() - timeStamp < listenTimeout);
         Serial.print(F("EtherEvent.availableEvent: availableLength="));
         Serial.println(availableLength);
-        for(;;){
+        for(byte count=0;count<20;count++){  //the count stuff is just to make sure it will never go into an infinite loop
           Serial.println(F("EtherEvent.availableEvent: payload/event for loop"));
           byte receivedMessageSize=min(availableLength,availableEventSubmessageLengthMax);  //determine the max buffer size required
           char receivedMessage[receivedMessageSize];  //initialize the buffer to read into
           byte bytesRead=0;
-          do{
-            bytesRead=ethernetClient.readBytesUntil(10,receivedMessage,receivedMessageSize);  //put the incoming data up to the newline into receivedMessage
-            availableLength=availableLength-bytesRead;  //used to reduce the buffer size on the next loop
-            receivedMessage[bytesRead]=0;  //add a null terminator
-            Serial.print(F("EtherEvent.availableEvent: bytesRead="));
-            Serial.println(bytesRead);
-          }while(bytesRead==0);
+          bytesRead=ethernetClient.readBytesUntil(10,receivedMessage,receivedMessageSize);  //put the incoming data up to the newline into receivedMessage
+          availableLength=availableLength-bytesRead;  //used to reduce the buffer size on the next loop
+          receivedMessage[bytesRead]=0;  //add a null terminator
+          Serial.print(F("EtherEvent.availableEvent: bytesRead="));
+          Serial.println(bytesRead);
+          if(bytesRead==0){  //with Arduino 1.5 there is a leading char(10) for some reason(maybe flush() doesn't work and it's still left over from the last message?). This will handle null messages
+            continue;
+          }
           if(strncmp(receivedMessage, payloadSeparator, payloadSeparatorLength)==0){  //received message is a payload
             Serial.println(F("EtherEvent.availableEvent: payload separator received"));
             if(bytesRead>payloadSeparatorLength+1){ //there is a payload
