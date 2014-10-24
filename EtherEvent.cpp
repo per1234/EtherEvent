@@ -1,9 +1,9 @@
-//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin,  EventGhost TCPEvents plugin,  Girder,  and NetRemote http://github.com/per1234/EtherEvent
+//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin,  EventGhost TCPEvents plugin,  Girder,  and NetRemote http://github.com/per1234/EtherEvent 
 #include <Arduino.h> 
 #include "EtherEvent.h"
 #include <SPI.h> 
 #include <Ethernet.h>   //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
-#include "MD5.h"  //http://github.com/mrparp/ArduinoMD5
+#include "MD5.h"  //http://github.com/mrparp/ArduinoMD5 
 
 //Uncomment the next line if you have the Entropy library installed. Warning,  not using the library will save memory at the expense of authentication security.
 //#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet 
@@ -17,7 +17,7 @@
 #define DEBUG 0 // (0 == serial debug output off,  1 == serial debug output on)The serial debug output will greatly increase communication time.
 #define Serial if(DEBUG)Serial
 
-//#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?topic = 82416.0
+//#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?topic=82416.0 
 
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
