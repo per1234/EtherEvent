@@ -265,9 +265,8 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress s
       free(cookiePasswordHash);
       Serial.print(F("EtherEvent.sendEvent: hashWordMD5="));
       Serial.println(cookiePasswordMD5);
-      cookiePasswordMD5[32] = 10;   //add /n - it fails the authentication with eg without this
-      cookiePasswordMD5[33] = 0;   //add the null terminator(otherwise it will keep printing garbage after the end of the string and the /n
       ethernetClient.print(cookiePasswordMD5);   //send the MD5 of the hashword
+      ethernetClient.write(10);
       free(cookiePasswordMD5);
 
       if (ethernetClient.find(ACCEPT_MESSAGE) == 1) {
