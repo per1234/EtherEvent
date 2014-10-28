@@ -20,7 +20,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
     - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646 - Philips Pronto Home Control Panel communication
     - Android / Event Ghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite - IP-Symcon(pay software) automation system communication
     - EventGhost + zVirtualScenes Integration: http://stevecross.org/wiki/doku.php?id=eventghost_zvirtualscenes_integration - communication with zVirtualScenes free open-source home automation tool for Windows, Android, iOS, Blackberry and the Web
-    - RemoteGhost: http://forum.xda-developers.com/showthread.php?t=2076716 - Windows phone network event app
+    - RemoteGhost: http://windowsphone.com/en-us/store/app/remoteghost/15e3196b-c62c-4bb3-9ca8-2d7d1f0d2f50 http://forum.xda-developers.com/showthread.php?t=2076716 - Windows phone network event app
     - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
     - MoviePoster: http://movieposterapp.com/ - 
 - Pay
@@ -44,7 +44,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Rename the folder EtherEvent
 - Move the folder to your arduino sketchbook\libraries folder
 - Repeat this process with the other required libraries
-- If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?/topic,82416.0.html and set the library configuration parameter as explained below.
+- If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?topic=82416.0 and set the library configuration parameter as explained below.
 - EtherEvent library configuration parameters(EtherEvent.cpp) - there are a few flags that can be set in the library code to enable extra features.
   - Entropy library - uncomment the line //#include "Entropy.h"
   - Debug - set #define DEBUG 1 to get debug output in the serial monitor, this will slow down communication.
