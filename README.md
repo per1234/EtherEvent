@@ -1,20 +1,40 @@
 EtherEvent
 ==========
 
-Arduino library for easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
-The current focus of EtherEvent is to provide a common interface with pcs running the automation software and other arduinos at the previously established level of security established by those programs. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
+Arduino library for easy to use password authenticated network communication between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
+The current focus of EtherEvent is to allow network communication at the previously established level of security(MD5 password encryption). This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
-This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, or NetRemote. Feel free to make pull requests or issue reports. Thanks!
+This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Feel free to make pull requests or issue reports. Thanks!
 
 #### Required Libraries
 - ArduinoMD5 http://github.com/mrparp/ArduinoMD5
+
+#### Compatible Software
+- Free
+  - Tested to work with this library:
+    - EventGhost: http://eventghost.com -  free open source automation tool for Windows
+    - TCP Events EventGhost plugin: http://eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
+  - Untested:
+    - eventghost-android: http://github.com/timhoeck/eventghost-android - Android network event app
+    - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI
+    - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646 - Philips Pronto Home Control Panel communication
+    - Android / Event Ghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite - IP-Symcon(pay software) automation system communication
+    - EventGhost + zVirtualScenes Integration: http://stevecross.org/wiki/doku.php?id=eventghost_zvirtualscenes_integration - communication with zVirtualScenes free open-source home automation tool for Windows, Android, iOS, Blackberry and the Web
+    - RemoteGhost: http://forum.xda-developers.com/showthread.php?t=2076716 - Windows phone network event app
+    - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
+    - MoviePoster: http://movieposterapp.com/ - 
+- Pay
+  - Untested:
+    - Girder - Automation software
+    - NetRemote - Automation software
+    - terRemote - Android network event app
+    - RemoteGhostPro - Windows phone network event app
+    - EGRemote  - Android network event app
 
 #### Related Programs
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - UIPEthernet ENC28J60 ethernet chip library: http://github.com/ntruchsess/arduino_uip
-- EventGhost free open source automation tool for Windows: http://eventghost.com
-- TCP Events EventGhost plugin: http://www.eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
 
 #### Installation
 - Make sure you have the current version of EtherEvent: http://github.com/per1234/EtherEvent
@@ -25,10 +45,11 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Move the folder to your arduino sketchbook\libraries folder
 - Repeat this process with the other required libraries
 - If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?/topic,82416.0.html and set the library configuration parameter as explained below.
-- EtherEvent library configuration parameters(EtherEvent.cpp):
+- EtherEvent library configuration parameters(EtherEvent.cpp) - there are a few flags that can be set in the library code to enable extra features.
+  - Entropy library - uncomment the line //#include "Entropy.h"
+  - Debug - set #define DEBUG 1 to get debug output in the serial monitor, this will slow down communication.
   - senderIP() function enable - if you have the modified Arduino Ethernet library then you can enable use of the EtherEvent senderIP() function via the `SENDERIP_ENABLE` flag
-  - Receive Port: the port to receive events on is initially set to 1024 it can be changed in EtherEvent.cpp by modifying the value of `receivePort`. Send port is set as a parameter of sendEvent()
-  - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag  
+  - Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag  
 - Restart the Arduino IDE
 - File>Examples>etherEventExample
 - Set the device IP address, this can be any available IP address on the network. DHCP not currently implemented.
@@ -95,12 +116,12 @@ EtherEvent.setTimeout(timeout, listenTimeout)
 
 
 #### Authentication Process
-EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. The EtherEvent library allows the arduino to use this previously established authentication system.
+EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. The EtherEvent library allows the arduino to use this previously established authentication system. Cryptographic use of MD5 is now considered insecure.
 - sender: connect to receiver
-- receiver: waits for "quintessence\n"
-- sender: send "quintessence\n" and wait for cookie
+- receiver: waits for "quintessence\n\r"
+- sender: send "quintessence\n\r" and wait for cookie
 - receiver: send a cookie(EventGhost uses the sock, EtherEvent uses a random number) to the sender and wait for response
 - sender: the password is appended to the cookie and a new md5 digest calculated and sent back to the reciever and waits for "accept"
-- receiver: calculates the proper md5 value and compares it to the one from the sender, if it is correct then it sends back "accept"
+- receiver: calculates the proper MD5 value and compares it to the one from the sender, if it is correct then it sends back "accept"
 - sender: send "payload "{payload string}, event, and "close" to the receiver
 - receiver: handle message and close the connection to the sender

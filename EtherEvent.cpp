@@ -5,8 +5,18 @@
 #include <Ethernet.h>   //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
 #include "MD5.h"  //http://github.com/mrparp/ArduinoMD5 
 
-//Uncomment the next line if you have the Entropy library installed. Warning,  not using the library will save memory at the expense of authentication security.
-//#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet
+
+//----------------User configuration parameters-----------------------
+
+//#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet Uncomment this line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
+
+//#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?topic=82416.0
+const boolean randomCookie = 0;   //Set to 1 to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory
+
+#define DEBUG 0 // (0 == serial debug output off,  1 == serial debug output on)The serial debug output will greatly increase communication time.
+#define Serial if(DEBUG)Serial
+
+//----------------End user configuration parameters-----------------------
 
 //this will disable the compiler warning for F()
 #ifdef PROGMEM
@@ -14,15 +24,8 @@
 #define PROGMEM __attribute__((section(".progmem.data")))
 #endif
 
-#define DEBUG 0 // (0 == serial debug output off,  1 == serial debug output on)The serial debug output will greatly increase communication time.
-#define Serial if(DEBUG)Serial
-
-//#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?topic=82416.0
-
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
-
-const boolean randomCookie = 0;   //Set to 1 to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory
 
 const char withoutRelease[] = "withoutRelease";   //eg sends this every time and EtherEvent filters it out
 const byte withoutReleaseLength = 14;
