@@ -20,12 +20,6 @@ const boolean randomCookie = 0;   //Set to 1 to use the entropy random function 
 //END user configuration parameters
 //-----------------------------------------------------------------------------------------------------------
 
-//this will fix the Arduino 1.0.x compiler warning for F()
-#ifdef PROGMEM
-#undef PROGMEM
-#define PROGMEM __attribute__((section(".progmem.data")))
-#endif
-
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
 
