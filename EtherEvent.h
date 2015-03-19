@@ -1,14 +1,13 @@
-//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote
+//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote http://github.com/per1234/EtherEvent
 #ifndef EtherEvent_h
 #define EtherEvent_h
-#include <Arduino.h>
 #include <SPI.h>
 #include <Ethernet.h>
-#include "MD5.h"
 
+//user configuration parameters
 const byte etherEvent_passwordLengthMax = 20;
 const byte etherEvent_eventLengthMax = 15;  //Maximum event length
-const byte etherEvent_payloadLengthMax = 60;  //Maximum payload length
+const byte etherEvent_payloadLengthMax = 120;  //Maximum payload length
 
 class EtherEventClass {
   public:

@@ -19,7 +19,8 @@ void setup() {
   EtherEvent.begin("password");  //set the password
   EtherEvent.setTimeout(500, 1000); //set timeout values
 #ifdef ethernet_h
-  W5100.setRetransmissionTime(0x07D0);  //used to set the timeout for the w5100 module this will not work if you are using ENC28J60 instead of W5100
+  //These settings only apply if you are using W5100 ethernet chip and will not work if you are using ENC28J60 instead
+  W5100.setRetransmissionTime(0x07D0);  //used to set the timeout for the w5100 module.
   W5100.setRetransmissionCount(1);  //Retransmission Count 1 is the minimum value
 #endif
 }

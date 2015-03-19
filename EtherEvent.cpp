@@ -3,11 +3,12 @@
 #include "EtherEvent.h"
 #include <SPI.h>
 #include <Ethernet.h>   //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
-#include "MD5.h"  //http://github.com/mrparp/ArduinoMD5 
+#include "MD5.h"  //http://github.com/tzikis/ArduinoMD5 
 
 
-//----------------User configuration parameters-----------------------
-
+//-----------------------------------------------------------------------------------------------------------
+//START user configuration parameters
+//-----------------------------------------------------------------------------------------------------------
 //#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet Uncomment this line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
 
 //#define SENDERIP_ENABLE //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?topic=82416.0
@@ -15,10 +16,11 @@ const boolean randomCookie = 0;   //Set to 1 to use the entropy random function 
 
 #define DEBUG 0 // (0 == serial debug output off,  1 == serial debug output on)The serial debug output will greatly increase communication time.
 #define Serial if(DEBUG)Serial
+//-----------------------------------------------------------------------------------------------------------
+//END user configuration parameters
+//-----------------------------------------------------------------------------------------------------------
 
-//----------------End user configuration parameters-----------------------
-
-//this will disable the compiler warning for F()
+//this will fix the Arduino 1.0.x compiler warning for F()
 #ifdef PROGMEM
 #undef PROGMEM
 #define PROGMEM __attribute__((section(".progmem.data")))
@@ -34,11 +36,13 @@ const byte payloadSeparatorLength = 8;   //includes space at the end
 const char closeMessage[] = "close\n";   //sender sends this message to the receiver to close the connection
 const unsigned int timeoutDefault = 300;   //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
 const unsigned int listenTimeoutDefault = 600;   //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
-
 const byte cookieLengthMax = 6;   //EtherEvent sends a 6 digit cookie(5 digit number and negative sign),  eg seems to be a 4 digit cookie(socket),  but it can be set larger if needed
 const byte availableEventMessageLengthMax = payloadSeparatorLength + withoutReleaseLength + 1 + payloadSeparatorLength + etherEvent_payloadLengthMax + 1 + etherEvent_eventLengthMax;   //I'm using globals for these 2 so I can just calculate the buffer size in the setup() instead of every time the functions is called
 
 
+//-----------------------------------------------------------------------------------------------------------
+//begin
+//-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::begin(const char pass[]) {
   strcpy(EEpassword, pass);   //store the password
   timeout = timeoutDefault;
@@ -59,7 +63,9 @@ void EtherEventClass::begin(const char pass[]) {
 }
 
 
-
+//-----------------------------------------------------------------------------------------------------------
+//availableEvent
+//-----------------------------------------------------------------------------------------------------------
 byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) { //checks for senders,  connects,  authenticates,  reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
   if (byte length = strlen(receivedEvent)) {  //strlen(receivedEvent) > 0
     return length + 1;    //number of bytes including the null terminator remaining to be read of the event
@@ -206,6 +212,9 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) { //checks 
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//availablePayload
+//-----------------------------------------------------------------------------------------------------------
 byte EtherEventClass::availablePayload() { //returns the number of chars in the payload including the null terminator if there is one
   if (byte length = strlen(receivedPayload)) { //strlen(receivedPayload) > 0
     return length + 1;   //length of the payload  +  null terminator
@@ -214,6 +223,9 @@ byte EtherEventClass::availablePayload() { //returns the number of chars in the 
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//readEvent
+//-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::readEvent(char eventBuffer[]) {
   strcpy(eventBuffer, receivedEvent);
   eventBuffer[strlen(receivedEvent)] = 0;   //null terminator - is this needed?
@@ -221,6 +233,9 @@ void EtherEventClass::readEvent(char eventBuffer[]) {
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//readPayload
+//-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::readPayload(char payloadBuffer[]) {
   strcpy(payloadBuffer, receivedPayload);
   payloadBuffer[strlen(receivedPayload)] = 0;   //null terminator - is this needed?
@@ -228,6 +243,9 @@ void EtherEventClass::readPayload(char payloadBuffer[]) {
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//flushReceiver
+//-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::flushReceiver() { //dump the last message received so another one can be received
   Serial.println(F("EtherEvent.flushReceiver: start"));
   receivedEvent[0] = 0;   //reset the event buffer
@@ -235,11 +253,17 @@ void EtherEventClass::flushReceiver() { //dump the last message received so anot
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//senderIP
+//-----------------------------------------------------------------------------------------------------------
 IPAddress EtherEventClass::senderIP() { //returns the ip address the current event was sent from. Requires modified ethernet library,  thus the preprocesser direcive system
   return fromIP;
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//send
+//-----------------------------------------------------------------------------------------------------------
 boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress sendIP,  unsigned int sendPort,  const char sendEvent[],  const char sendPayload[]) {
   Serial.println(F("EtherEvent.sendEvent: attempting connection---------------"));
   ethernetClient.setTimeout(timeout);   //timeout on read/readUntil/find/findUntil/etc
@@ -293,12 +317,23 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress s
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//setTimeout
+//-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::setTimeout(unsigned int timeoutNew,  unsigned int timeoutListenNew) {
   timeout = timeoutNew;
   listenTimeout = timeoutListenNew;
 }
 
 
+//-----------------------------------------------------------------------------------------------------------
+//private
+//-----------------------------------------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------------------------------------
+//etherEventStop
+//-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::etherEventStop(EthernetClient &ethernetClient) {
   Serial.println(F("EtherEvent.etherEventStop: stopping..."));
   ethernetClient.print(closeMessage);   //tell the receiver to close
