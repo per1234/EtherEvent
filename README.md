@@ -46,7 +46,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Repeat this process with the other required libraries
 - If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?topic=82416.0 and set the library configuration parameter as explained below.
 - EtherEvent library configuration parameters(EtherEvent.cpp) - there are a few flags that can be set in the library code to enable extra features.
-  - Entropy library - uncomment the line //#include "Entropy.h"
+  - Entropy library - uncomment the line  //#include "Entropy.h"
   - Debug - set #define DEBUG 1 to get debug output in the serial monitor, this will slow down communication.
   - senderIP() function enable - if you have the modified Arduino Ethernet library then you can enable use of the EtherEvent senderIP() function via the `SENDERIP_ENABLE` flag
   - Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag  
@@ -64,7 +64,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
   - Type: const char
 - Returns: none
 
-`EtherEvent.availableEvent(ethernetServer)` - Returns the number of chars of event including null terminator available to read.
+`EtherEvent.availableEvent(ethernetServer)` - Returns the number of chars of event including null terminator available to read. readEvent() or flushReceiver() must be called before the next event can be received.
 - Parameters: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
   - Type: EthernetServer
 - Returns: Number of chars in the event including the null terminator at the end of the string.
@@ -85,7 +85,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
   - Type: char
 - Returns: none   
 
-`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?topic=82416.0
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with  //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?topic=82416.0
 - Parameters:none
 - Returns: IP address of the sender
   - Type: IPAddress

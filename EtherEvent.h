@@ -6,8 +6,8 @@
 
 //user configuration parameters
 const byte etherEvent_passwordLengthMax = 20;
-const byte etherEvent_eventLengthMax = 15;  //Maximum event length
-const byte etherEvent_payloadLengthMax = 120;  //Maximum payload length
+const byte etherEvent_eventLengthMax = 15;  //Maximum event length, maximum value is 254
+const byte etherEvent_payloadLengthMax = 100;  //Maximum payload length, maximum value is 254
 
 class EtherEventClass {
   public:
@@ -23,11 +23,11 @@ class EtherEventClass {
   private:
     void etherEventStop(EthernetClient &ethernetClient);
 
-    byte availableEventSubmessageLengthMax;  //non - const because I have to use max()(in begin())
-    unsigned int timeout;
-    unsigned int listenTimeout;
-    char EEpassword[etherEvent_passwordLengthMax + 1];
+    unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
+    unsigned int listenTimeout;  //default is set in begin() and the user can change the timeout via setTimeout()
+    char password[etherEvent_passwordLengthMax + 1];  //password - this is set in begin()
     char receivedEvent[etherEvent_eventLengthMax + 1];  //event buffer
+    byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
     char receivedPayload[etherEvent_payloadLengthMax + 1];  //payload buffer
     IPAddress fromIP;  //IP address of the last event sender
 };
