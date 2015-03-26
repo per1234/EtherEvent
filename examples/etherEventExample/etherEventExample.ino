@@ -1,4 +1,4 @@
-//example script for the EtherEvent library
+//Example sketch demonstrating basic use of the EtherEvent library
 #include <SPI.h>  //these libraries are required by EtherEvent
 #include <Ethernet.h>
 #include "MD5.h"
@@ -8,7 +8,7 @@
 EthernetServer ethernetServer(1024);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
 
-unsigned long sendTimeStamp = 0; //used by the example to periodically send an event
+unsigned long sendTimeStamp; //used by the example to periodically send an event
 
 void setup() {
   Serial.begin(9600);  //the received event and other information will be displayed in your serial monitor while the sketch is running

@@ -1,15 +1,15 @@
-//Example script for the EtherEvent library. Demonstrates advanced usage.
+//Example sketch demonstrating advanced usage of the EtherEvent library.
 #include <SPI.h>  //these libraries are required by EtherEvent
 #include <Ethernet.h>
 #include "MD5.h"
 //#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
-#include <utility/w5100.h>  //Used for setting the ethernet send connect timeout.
+#include <utility/w5100.h>  //Used for setting the W5100 retransmission time and count
 
 EthernetServer ethernetServer(1024);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
 
-unsigned long sendTimeStamp = 0; //used by the example to periodically send an event
+unsigned long sendTimeStamp; //used by the example to periodically send an event
 
 void setup() {
   Serial.begin(9600);  //the received event and other information will be displayed in your serial monitor while the sketch is running
@@ -17,11 +17,14 @@ void setup() {
   Ethernet.begin(mac, IPAddress(192, 168, 69, 104));  //leave off the IP parameter for DHCP
   ethernetServer.begin();  //begin the server that will be used to receive events
   EtherEvent.begin("password");  //set the password
-  EtherEvent.setTimeout(500); //set timeout values
+
+  //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed ethernet operations.
+  //The default values used when these timeouts are not set are extremely conservative.
+  EtherEvent.setTimeout(20); //set timeout duration
 #ifdef ethernet_h
   //These settings only apply if you are using W5100 ethernet chip and will not work if you are using ENC28J60 instead
-  W5100.setRetransmissionTime(0x07D0);  //used to set the timeout for the w5100 module.
-  W5100.setRetransmissionCount(1);  //Retransmission Count 1 is the minimum value
+  W5100.setRetransmissionTime(100);  //(0.1ms)used to set the timeout for the w5100 module.
+  W5100.setRetransmissionCount(1);  //Retransmission Count - 1 is the minimum value
 #endif
 }
 
