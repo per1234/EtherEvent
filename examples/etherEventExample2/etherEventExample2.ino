@@ -17,7 +17,7 @@ void setup() {
   Ethernet.begin(mac, IPAddress(192, 168, 69, 104));  //leave off the IP parameter for DHCP
   ethernetServer.begin();  //begin the server that will be used to receive events
   EtherEvent.begin("password");  //set the password
-  EtherEvent.setTimeout(500, 1000); //set timeout values
+  EtherEvent.setTimeout(500); //set timeout values
 #ifdef ethernet_h
   //These settings only apply if you are using W5100 ethernet chip and will not work if you are using ENC28J60 instead
   W5100.setRetransmissionTime(0x07D0);  //used to set the timeout for the w5100 module.

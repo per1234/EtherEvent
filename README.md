@@ -109,10 +109,8 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
   - Type: boolean
 
 EtherEvent.setTimeout(timeout, listenTimeout)
-- Parameter: timeout - the max time to wait for ethenet communication in milliseconds
+- Parameter: timeout - the max time to wait for ethernet communication in milliseconds
   - Type: unsigned int
-- Parameter: listenTimeout - the time to wait for the full message to come through in microseconds
-  -Type: unsigned int
 
 
 #### Authentication Process

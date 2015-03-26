@@ -19,12 +19,11 @@ class EtherEventClass {
     IPAddress senderIP();
     void flushReceiver();
     boolean send(EthernetClient &ethernetClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[]);
-    void setTimeout(unsigned int timeoutDurationNew, unsigned int timeoutListenNew);
+    void setTimeout(unsigned int timeoutNew);
   private:
     void etherEventStop(EthernetClient &ethernetClient);
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
-    unsigned int listenTimeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     char password[etherEvent_passwordLengthMax + 1];  //password - this is set in begin()
     char receivedEvent[etherEvent_eventLengthMax + 1];  //event buffer
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
