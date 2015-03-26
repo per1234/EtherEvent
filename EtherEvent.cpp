@@ -29,7 +29,7 @@ const char payloadSeparator[] = "payload ";  //indicates payload
 const byte payloadSeparatorLength = strlen(payloadSeparator);  //includes space at the end
 const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
 const byte closeMessageLength = strlen(closeMessage);
-const unsigned int timeoutDefault = 300;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
+const unsigned int timeoutDefault = 100;  //(ms)Timeout duration for ethernet stream functions.
 const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhost seems to send a 4 digit cookie(socket),  but it can be set larger if needed
 const unsigned int availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + etherEvent_payloadLengthMax), etherEvent_eventLengthMax);
 
