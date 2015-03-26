@@ -32,7 +32,7 @@ const byte closeMessageLength = strlen(closeMessage);
 const unsigned int timeoutDefault = 300;  //(200)(ms)Timeout duration for each ethernet read/find of the availableEvent or sendEvent functions.
 const unsigned int listenTimeoutDefault = 600;  //(400)(us)max time to wait for another char to be available from the client.read function during the availableEvent event/payload read - it was getting ahead of the stream and stopping before getting the whole message. This delay will be on every event receipt so it's important to make it as small as possible
 const byte cookieLengthMax = 6;  //EtherEvent sends a 5 digit cookie,  eg seems to be a 4 digit cookie(socket),  but it can be set larger if needed
-const unsigned int availableEventMessageLengthMax = payloadWithoutReleaseLength + 1 + payloadSeparatorLength + etherEvent_payloadLengthMax + 1 + etherEvent_eventLengthMax;
+const int availableEventMessageLengthMax = payloadWithoutReleaseLength + 1 + payloadSeparatorLength + etherEvent_payloadLengthMax + 1 + etherEvent_eventLengthMax;
 const unsigned int availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + etherEvent_payloadLengthMax), etherEvent_eventLengthMax);
 
 
@@ -41,6 +41,7 @@ const unsigned int availableEventSubmessageLengthMax = max(max(payloadWithoutRel
 //-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::begin(const char pass[]) {
   strcpy(password, pass);  //store the password
+  passwordLength = strlen(password);
   //set default timeout values, these globals can be changed by the user via setTimeout()
   timeout = timeoutDefault;
   listenTimeout = listenTimeoutDefault;
@@ -82,7 +83,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
         Serial.print(F("EtherEvent.availableEvent: cookieChar="));
         Serial.println(cookieChar);
         ethernetClient.print(cookieChar);
-        char cookiePassword[5 + 1 + strlen(password) + 1];  //cookie  +  password separator  +  Password  +  null terminator
+        char cookiePassword[5 + 1 + passwordLength + 1];  //cookie  +  password separator  +  Password  +  null terminator
         strcpy(cookiePassword, cookieChar);  //create the hashword to compare to the received one
         strcat(cookiePassword, ":");  //create the hashword to compare to the received one
         strcat(cookiePassword, password);
@@ -102,7 +103,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
           //wait for the message to arrive
           Serial.println(F("EtherEvent.availableEvent: payload/event handler start"));
           unsigned long timestamp = millis();
-          unsigned int availableLength = 0;
+          int availableLength = 0;  //int because for some reason available() returns int and I get "comparison of int and unsigned int" warning
           while (availableLength < 2) {  //I have to do this because available() doesn't have a timeout,  it just gives the currently available bytes
             availableLength = ethernetClient.available();
             if (millis() - timestamp > timeout) {  //timeout
@@ -258,13 +259,9 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress s
     Serial.println(F("EtherEvent.sendEvent: connected,  sending magic word"));
     ethernetClient.print(MAGIC_WORD);  //send the magic word to the receiver so it will send the cookie
 
-    char receivedMessage[cookieLengthMax + 1];
-    byte bytesRead;
-    if (bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, cookieLengthMax)) {
-
-      receivedMessage[bytesRead] = 0;
-      char cookiePassword[bytesRead + 1 + strlen(password) + 1];  //cookie,  password separator(:),  password,  null terminator
-      strcpy(cookiePassword, receivedMessage);
+    char cookiePassword[cookieLengthMax + 1 + passwordLength + 1];  //cookie,  password separator(:),  password,  null terminator
+    if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
+      cookiePassword[bytesRead] = 0;
       strcat(cookiePassword, ":");  //add the password separator to the cookie
       strcat(cookiePassword, password);  //add password to the cookie
       Serial.print(F("EtherEvent.sendEvent: cookiePassword="));
@@ -275,10 +272,10 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress s
       Serial.print(F("EtherEvent.sendEvent: hashWordMD5="));
       Serial.println(cookiePasswordMD5);
       ethernetClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
-      ethernetClient.write(10);
+      ethernetClient.write(10);  //newline
       free(cookiePasswordMD5);
 
-      if (ethernetClient.find(ACCEPT_MESSAGE) == 1) {
+      if (ethernetClient.find(ACCEPT_MESSAGE) == 1) {  //authentication successful
         Serial.print(F("EtherEvent.sendEvent: Payload="));
         Serial.println(sendPayload);
         Serial.print(F("EtherEvent.sendEvent: event="));
@@ -286,10 +283,10 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress s
         if (sendPayload[0] != 0) {  //check if there is a payload
           ethernetClient.print(payloadSeparator);
           ethernetClient.print(sendPayload);
-          ethernetClient.write(10);
+          ethernetClient.write(10);  //newline
         }
-        ethernetClient.print(sendEvent);
-        ethernetClient.write(10);
+        ethernetClient.print(sendEvent);  //transmit event
+        ethernetClient.write(10);  //newline
         sendEventSuccess = 1;
       }
     }

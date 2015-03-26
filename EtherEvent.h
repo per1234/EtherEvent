@@ -30,6 +30,7 @@ class EtherEventClass {
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
     char receivedPayload[etherEvent_payloadLengthMax + 1];  //payload buffer
     IPAddress fromIP;  //IP address of the last event sender
+    byte passwordLength;
 };
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
 #endif

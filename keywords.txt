@@ -5,4 +5,4 @@ readEvent	KEYWORD2
 readPayload	KEYWORD2
 senderIP	KEYWORD2
 flushReceiver	KEYWORD2
-sendEvent	KEYWORD2
+send	KEYWORD2
