@@ -12,9 +12,9 @@
 //#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet Uncomment this line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
 
 //#define SENDERIP_ENABLE  //Uncomment this line if the ethernet library has been modified to return the client IP address via the remoteIP function. Modification instructions here: http://forum.arduino.cc/index.php?topic=82416.0
-const boolean randomCookie = 0;  //Set to 1 to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory
+const boolean randomCookie = false;  //Set to 1 to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory
 
-#define DEBUG 0  // (0 == serial debug output off,  1 == serial debug output on)The serial debug output will greatly increase communication time.
+#define DEBUG false  // (false == serial debug output off,  true == serial debug output on)The serial debug output will greatly increase communication time.
 #define Serial if(DEBUG)Serial
 //-----------------------------------------------------------------------------------------------------------
 //END user configuration parameters
@@ -31,17 +31,21 @@ const char closeMessage[] = "close\n";  //sender sends this message to the recei
 const byte closeMessageLength = strlen(closeMessage);
 const unsigned int timeoutDefault = 100;  //(ms)Timeout duration for ethernet stream functions.
 const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhost seems to send a 4 digit cookie(socket),  but it can be set larger if needed
-const unsigned int availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + etherEvent_payloadLengthMax), etherEvent_eventLengthMax);
 
 
 //-----------------------------------------------------------------------------------------------------------
 //begin
 //-----------------------------------------------------------------------------------------------------------
-void EtherEventClass::begin(const char pass[]) {
+void EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
   strcpy(password, pass);  //store the password
   passwordLength = strlen(password);
   //set default timeout values, these globals can be changed by the user via setTimeout()
   timeout = timeoutDefault;
+  availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
+  eventLengthMax = eventLengthMaxInput;
+  payloadLengthMax = payloadLengthMaxInput;
+  receivedEvent = (char*)malloc(eventLengthMax + 1);
+  receivedPayload = (char*)malloc(payloadLengthMax + 1);
 
 #ifdef Entropy_h  //the Entropy library is in use
   Entropy.initialize();  //gets truly random numbers from the timer jitter
@@ -120,7 +124,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
                 byte receivedPayloadLength = bytesRead - payloadSeparatorLength;
                 Serial.print(F("EtherEvent.availableEvent: payload length: "));
                 Serial.println(receivedPayloadLength);
-                byte readPayloadLength = min(receivedPayloadLength, etherEvent_payloadLengthMax); //make sure the payload will never be longer than the max length
+                byte readPayloadLength = min(receivedPayloadLength, payloadLengthMax); //make sure the payload will never be longer than the max length
                 for (byte payloadCount = 0; payloadCount < readPayloadLength; payloadCount++) {  //put the payload into the buffer
                   receivedPayload[payloadCount] = receivedMessage[payloadCount + payloadSeparatorLength];
                 }
@@ -142,11 +146,11 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
                 Serial.println(F("EtherEvent.availableEvent: close received,  no event"));
                 break;
               }
-              strncpy(receivedEvent, receivedMessage, etherEvent_eventLengthMax);
-              receivedEvent[min(bytesRead, etherEvent_eventLengthMax)] = 0;
+              strncpy(receivedEvent, receivedMessage, eventLengthMax);
+              receivedEventLength = min(bytesRead, eventLengthMax) + 1; //length including null terminator
+              receivedEvent[receivedEventLength - 1] = 0; //-1 because it is zero indexed and the receivedEventLength includes the null terminator
               Serial.print(F("EtherEvent.availableEvent: event received: "));
               Serial.println(receivedEvent);
-              receivedEventLength = bytesRead + 1;  //length including null terminator
 
 #ifdef SENDERIP_ENABLE
               byte tempIP[4];  //W5100 uses the byte array to return the IP address so I have to do this to convert it to IPAddress type instead of just passing fromIP to getRemoteIP()

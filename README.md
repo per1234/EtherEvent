@@ -59,43 +59,47 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Repeat with other connected devices. The serial monitor will show details of the test communications.
 
 #### Usage
-`EtherEvent.begin(password)` - initialize EtherEvent and set the authentication password.
-- Parameters: password
-  - Type: const char
+`EtherEvent.begin(password, [eventLengthMax,] [payloadLengthMax])` - Initialize EtherEvent. begin() must be called
+- Parameter: password - password used to authenticate event transmission
+  - Type: char array
+- Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value effects the amount of memory used.
+  - Type: byte
+- Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used.
+  - Type: byte
 - Returns: none
 
-`EtherEvent.availableEvent(ethernetServer)` - Returns the number of chars of event including null terminator available to read. readEvent() or flushReceiver() must be called before the next event can be received.
-- Parameters: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
+`EtherEvent.availableEvent(ethernetServer)` - Receives new event if an event is not already buffered.
+- Parameter: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
   - Type: EthernetServer
-- Returns: Number of chars in the event including the null terminator at the end of the string.
+- Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator.
   - Type: byte
 
-`EtherEvent.availablePayload()` - Returns the number of chars of payload including null terminator available to read. availableEvent() must be called first.
-- Parameters: none
-- Returns: Number of chars in the payload including the null terminator at the end of the string.
+`EtherEvent.availablePayload()` - availableEvent() must be called first.
+- Parameter: none
+- Returns: Buffer size required to receive the payload. This is the length of the received payload and the null terminator.
   - Type: byte
 
-`EtherEvent.readEvent(char eventBuffer[])` - Puts the event in the passed array. availableEvent() must be called first.
-- Parameter: eventBuffer - size a char array according to the result of availableEvent () and pass it to the readEvent  function. After that it will contain the event.
-  - Type: char
+`EtherEvent.readEvent(eventBuffer)` - Puts the event in the passed array. availableEvent() must be called first. Size a char array according to the result of availableEvent() and pass it to readEvent(). After that it will contain the event.
+- Parameter: eventBuffer - Buffer to hold the received event.
+  - Type: char array
 - Returns: none
 
-`EtherEvent.readPayload(char payloadBuffer[])` - Puts the payload string in the passed array. availableEvent() must be called first.
-- Parameter: payloadBuffer - size a char array according to the result of availablePayload () and pass it to the readPayload  function. After that it will contain the payload.
-  - Type: char
+`EtherEvent.readPayload(payloadBuffer)` - Puts the payload string in the passed array. availableEvent() must be called first. Size a char array according to the result of availablePayload() and pass it to readPayload(). After that it will contain the payload.
+- Parameter: payloadBuffer - Buffer to hold the received payload.
+  - Type: char array
 - Returns: none   
 
 `EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with  //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?topic=82416.0
-- Parameters:none
+- Parameter:none
 - Returns: IP address of the sender
   - Type: IPAddress
   
-`EtherEvent.flushReceiver()` - clear any buffered event and payload data so a new event can be received
-- Parameters:none
+`EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
+- Parameter:none
 - Returns:none
 
-`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[], sendPayload[])` - Send an event and payload
-- Parameters: ethernetClient - the EthernetClient object created in the Ethernet setup of the user's sketch
+`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[], [sendPayload[]])` - Send an event and payload
+- Parameter: ethernetClient - the EthernetClient object created in the Ethernet setup of the user's sketch
   - Type: EthernetClient
 - Parameter: sendIP: IP address to send the event to
   - Type: IPAddress
@@ -103,14 +107,15 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
   - Type: unsigned int
 - Parameter: sendEvent: string to send as the event(char array).
   - Type: const char
-- Parameter: sendPayload: payload to send with the event(char array). If you don't want a payload then just use "" for this parameter
+- Parameter(optional): sendPayload: payload to send with the event(char array).
   - Type: const char
-- Returns: 1 for success, 0 for failure
+- Returns: true for success, false for failure
   - Type: boolean
 
-EtherEvent.setTimeout(timeout, listenTimeout)
-- Parameter: timeout - the max time to wait for ethernet communication in milliseconds
+EtherEvent.setTimeout(timeout)
+- Parameter: timeout - The max time to wait for ethernet communication in milliseconds.
   - Type: unsigned int
+- Returns:none
 
 
 #### Authentication Process

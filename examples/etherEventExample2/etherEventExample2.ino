@@ -16,7 +16,7 @@ void setup() {
   byte mac[] = {0, 1, 2, 3, 4, 4}; //this can be anything you like, but must be unique on your network
   Ethernet.begin(mac, IPAddress(192, 168, 69, 104));  //leave off the IP parameter for DHCP
   ethernetServer.begin();  //begin the server that will be used to receive events
-  EtherEvent.begin("password");  //set the password
+  EtherEvent.begin("password", 5, 30);  //set the password, maximum event lenght, and maximum payload length
 
   //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed ethernet operations.
   //The default values used when these timeouts are not set are extremely conservative.
