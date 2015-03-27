@@ -190,7 +190,6 @@ byte EtherEventClass::availablePayload() {  //returns the number of chars in the
 //-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::readEvent(char eventBuffer[]) {
   strcpy(eventBuffer, receivedEvent);
-  eventBuffer[strlen(receivedEvent)] = 0;  //null terminator - is this needed?
   receivedEvent[0] = 0;  //reset the event buffer
   receivedEventLength = 0;
 }
@@ -201,7 +200,6 @@ void EtherEventClass::readEvent(char eventBuffer[]) {
 //-----------------------------------------------------------------------------------------------------------
 void EtherEventClass::readPayload(char payloadBuffer[]) {
   strcpy(payloadBuffer, receivedPayload);
-  payloadBuffer[strlen(receivedPayload)] = 0;  //null terminator - is this needed?
   receivedPayload[0] = 0;  //reset the payload buffer
 }
 
