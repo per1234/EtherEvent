@@ -89,7 +89,7 @@ This is a beta release. I have been successfully using it with EventGhost in my 
   - Type: char array
 - Returns: none   
 
-`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library installed for this function to be available
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library installed for this function to be available: http://github.com/per1234/Ethernet
 - Parameter:none
 - Returns: IP address of the sender
   - Type: IPAddress
@@ -124,7 +124,7 @@ EventGhost/Girder use APOP style authentication for TCP communication without se
 - receiver: waits for "quintessence\n\r"
 - sender: send "quintessence\n\r" and wait for cookie
 - receiver: send a cookie(EventGhost uses the sock, EtherEvent uses a random number) to the sender and wait for response
-- sender: the password is appended to the cookie and a new md5 digest calculated and sent back to the reciever and waits for "accept"
+- sender: the password is appended to the cookie and a new md5 digest calculated and sent back to the receiver and waits for "accept"
 - receiver: calculates the proper MD5 value and compares it to the one from the sender, if it is correct then it sends back "accept"
 - sender: send "payload "{payload string}, event, and "close" to the receiver
 - receiver: handle message and close the connection to the sender
