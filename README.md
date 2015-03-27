@@ -1,13 +1,13 @@
 EtherEvent
 ==========
 
-Arduino library for easy to use password authenticated network communication between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
+Easy to use Arduino library for password authenticated network communication between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
 The current focus of EtherEvent is to allow network communication at the previously established level of security(MD5 password encryption). This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
-This is an alpha release. It is not thoroughly tested and has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Feel free to make pull requests or issue reports. Thanks!
+This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 4 months but it has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Feel free to make pull requests or issue reports. Thanks!
 
 #### Required Libraries
-- ArduinoMD5 http://github.com/mrparp/ArduinoMD5
+- ArduinoMD5 http://github.com/tzikis/ArduinoMD5
 
 #### Compatible Software
 - Free
@@ -22,7 +22,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
     - EventGhost + zVirtualScenes Integration: http://stevecross.org/wiki/doku.php?id=eventghost_zvirtualscenes_integration - communication with zVirtualScenes free open-source home automation tool for Windows, Android, iOS, Blackberry and the Web
     - RemoteGhost: http://windowsphone.com/en-us/store/app/remoteghost/15e3196b-c62c-4bb3-9ca8-2d7d1f0d2f50 http://forum.xda-developers.com/showthread.php?t=2076716 - Windows phone network event app
     - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
-    - MoviePoster: http://movieposterapp.com/ - 
+    - MoviePoster: http://movieposterapp.com/
 - Pay
   - Untested:
     - Girder - Automation software
@@ -32,6 +32,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
     - EGRemote  - Android network event app
 
 #### Related Programs
+- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - UIPEthernet ENC28J60 ethernet chip library: http://github.com/ntruchsess/arduino_uip
@@ -44,11 +45,10 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
 - Rename the folder EtherEvent
 - Move the folder to your arduino sketchbook\libraries folder
 - Repeat this process with the other required libraries
-- If you want to use the senderIP() function then you must modify the arduino Ethernet library using these instructions: http://forum.arduino.cc/index.php?topic=82416.0 and set the library configuration parameter as explained below.
+- If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/Ethernet
 - EtherEvent library configuration parameters(EtherEvent.cpp) - there are a few flags that can be set in the library code to enable extra features.
   - Entropy library - uncomment the line  //#include "Entropy.h"
-  - Debug - set #define DEBUG 1 to get debug output in the serial monitor, this will slow down communication.
-  - senderIP() function enable - if you have the modified Arduino Ethernet library then you can enable use of the EtherEvent senderIP() function via the `SENDERIP_ENABLE` flag
+  - Debug - set #define DEBUG true to get debug output in the serial monitor, this will slow down communication.
   - Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag  
 - Restart the Arduino IDE
 - File>Examples>etherEventExample
@@ -89,7 +89,7 @@ This is an alpha release. It is not thoroughly tested and has not been tested at
   - Type: char array
 - Returns: none   
 
-`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must use the modified Ethernet library and enable the function in EtherEvent.cpp the line that starts with  //#define REMOTEIP change to #define REMOTEIP or this will return only 0.0.0.0. Instructions for the ethernet library modification here: http://forum.arduino.cc/index.php?topic=82416.0
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library installed for this function to be available
 - Parameter:none
 - Returns: IP address of the sender
   - Type: IPAddress

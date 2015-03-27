@@ -2,7 +2,7 @@
 #ifndef EtherEvent_h
 #define EtherEvent_h
 #include <SPI.h>
-#include <Ethernet.h>
+#include "Ethernet.h"
 
 const byte etherEvent_passwordLengthMax = 20;
 
@@ -13,7 +13,9 @@ class EtherEventClass {
     byte availablePayload();
     void readEvent(char eventBuffer[]);
     void readPayload(char payloadBuffer[]);
+#ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
     IPAddress senderIP();
+#endif    
     void flushReceiver();
     boolean send(EthernetClient &ethernetClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[] = "");
     void setTimeout(unsigned int timeoutNew);

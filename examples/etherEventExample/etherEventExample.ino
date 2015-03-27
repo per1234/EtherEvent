@@ -1,6 +1,6 @@
 //Example sketch demonstrating basic use of the EtherEvent library
 #include <SPI.h>  //these libraries are required by EtherEvent
-#include <Ethernet.h>
+#include "Ethernet.h"
 #include "MD5.h"
 //#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed

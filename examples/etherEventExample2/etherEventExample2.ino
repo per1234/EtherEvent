@@ -1,6 +1,6 @@
 //Example sketch demonstrating advanced usage of the EtherEvent library.
 #include <SPI.h>  //these libraries are required by EtherEvent
-#include <Ethernet.h>
+#include "Ethernet.h"
 #include "MD5.h"
 //#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
@@ -43,8 +43,10 @@ void loop() {
     EtherEvent.readPayload(payload);
     Serial.print(F("Received payload: "));
     Serial.println(payload);
+#ifdef ethernetclientwithremoteIP_h
     Serial.print(F("Received from IP: "));
-    Serial.println(EtherEvent.senderIP());  //this will return 0.0.0.0 if you don't have the modified ethernet library and the flag set in EtherEvent.cpp
+    Serial.println(EtherEvent.senderIP());  //must have the modified Etherned library installed for this function to be available
+#endif
   }
 
   if (millis() - sendTimeStamp > 4000) { //periodically send event
