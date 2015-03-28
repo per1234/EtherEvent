@@ -18,9 +18,9 @@ void setup() {
   ethernetServer.begin();  //begin the server that will be used to receive events
   EtherEvent.begin("password", 5, 30);  //set the password, maximum event lenght, and maximum payload length
 
-  //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed ethernet operations.
-  //The default values used when these timeouts are not set are extremely conservative.
-  EtherEvent.setTimeout(20); //set timeout duration
+  //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
+  //The default values used when these timeouts are not set are fairly conservative.
+  EtherEvent.setTimeout(500); //set timeout duration
 #ifdef ethernet_h
   //These settings only apply if you are using W5100 ethernet chip and will not work if you are using ENC28J60 instead
   W5100.setRetransmissionTime(100);  //(0.1ms)used to set the timeout for the w5100 module.

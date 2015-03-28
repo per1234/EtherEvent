@@ -28,7 +28,7 @@ const char payloadSeparator[] = "payload ";  //indicates payload
 const byte payloadSeparatorLength = strlen(payloadSeparator);  //includes space at the end
 const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
 const byte closeMessageLength = strlen(closeMessage);
-const unsigned int timeoutDefault = 100;  //(ms)Timeout duration for ethernet stream functions.
+const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
 const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhost seems to send a 4 digit cookie(socket),  but it can be set larger if needed
 
 
@@ -66,6 +66,8 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
 
       if (ethernetClient.find(MAGIC_WORD) == 1) {  //magic word correct
         Serial.println(F("EtherEvent.availableEvent: magic word received"));
+        
+        //create and send cookie
         int cookie;
 #ifdef Entropy_h
         if (randomCookie == 1) {
@@ -82,7 +84,9 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
         sprintf_P(cookiePassword, PSTR("%u"), cookie);  //convert the unsigned long cookie to char
         Serial.print(F("EtherEvent.availableEvent: cookie: "));
         Serial.println(cookiePassword);
-        ethernetClient.print(cookiePassword);
+        ethernetClient.print(cookiePassword);  //send the cookie
+        
+        //calculate the hashword
         strcat(cookiePassword, ":");  //create the hashword to compare to the received one
         strcat(cookiePassword, password);
         Serial.print(F("EtherEvent.availableEvent: cookiePassword: "));
@@ -93,6 +97,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
         Serial.print(F("EtherEvent.availableEvent: cookiePasswordMD5: "));
         Serial.println(cookiePasswordMD5);
 
+        //verify the received hashword
         if (ethernetClient.find(cookiePasswordMD5) == 1) {  //authentication successful
           ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
           Serial.println(F("EtherEvent.availableEvent: authentication successful"));
@@ -151,6 +156,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
               Serial.print(F("EtherEvent.availableEvent: event received: "));
               Serial.println(receivedEvent);
 
+              //save the sender IP address
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
               byte tempIP[4];  //W5100 uses the byte array to return the IP address so I have to do this to convert it to IPAddress type instead of just passing fromIP to getRemoteIP()
               ethernetClient.remoteIP(tempIP);  //Save the IP address of the sender. Requires modified ethernet library
@@ -161,6 +167,8 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {  //checks
             }
           }
         }
+        
+        //authentication failed
         else {
           free(cookiePasswordMD5);
           Serial.println(F("EtherEvent.availableEvent: authentication failed"));

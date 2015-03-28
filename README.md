@@ -112,7 +112,7 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Returns: true for success, false for failure
   - Type: boolean
 
-EtherEvent.setTimeout(timeout)
+`EtherEvent.setTimeout(timeout)`
 - Parameter: timeout - The max time to wait for ethernet communication in milliseconds.
   - Type: unsigned int
 - Returns:none
