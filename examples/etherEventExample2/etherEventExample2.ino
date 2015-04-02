@@ -16,14 +16,16 @@ void setup() {
   byte mac[] = {0, 1, 2, 3, 4, 4}; //this can be anything you like, but must be unique on your network
   Ethernet.begin(mac, IPAddress(192, 168, 69, 104));  //leave off the IP parameter for DHCP
   ethernetServer.begin();  //begin the server that will be used to receive events
-  EtherEvent.begin("password", 5, 30);  //set the password, maximum event lenght, and maximum payload length
-
+  if (EtherEvent.begin("password", 5, 30) == false) { //set the password, maximum event lenght, and maximum payload length
+    Serial.print(F("ERROR: Buffer size exceeds available memory, use smaller values."));
+    while (1);  //abort execution of the rest of the program
+  }
   //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
   //The default values used when these timeouts are not set are fairly conservative.
   EtherEvent.setTimeout(500); //set timeout duration
 #ifdef ethernet_h
   //These settings only apply if you are using W5100 ethernet chip and will not work if you are using ENC28J60 instead
-  W5100.setRetransmissionTime(100);  //(0.1ms)used to set the timeout for the w5100 module.
+  W5100.setRetransmissionTime(400);  //(0.1ms)used to set the timeout for the w5100 module.
   W5100.setRetransmissionCount(1);  //Retransmission Count - 1 is the minimum value
 #endif
 }

@@ -35,7 +35,7 @@ const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhos
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
+boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
   strcpy(password, pass);  //store the password
   passwordLength = strlen(password);
   //set default timeout values, these globals can be changed by the user via setTimeout()
@@ -45,6 +45,11 @@ void EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte pa
   payloadLengthMax = payloadLengthMaxInput;
   receivedEvent = (char*)malloc((eventLengthMax + 1) * sizeof(char));
   receivedPayload = (char*)malloc((payloadLengthMax + 1) * sizeof(char));
+  if (receivedEvent == NULL || receivedPayload == NULL) {
+    Serial.println(F("memory allocation failed"));
+    return false;
+  }
+
 
 #ifdef Entropy_h  //the Entropy library is in use
   Entropy.initialize();  //gets truly random numbers from the timer jitter
@@ -52,6 +57,7 @@ void EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte pa
     randomSeed(Entropy.random());  //Initialize the random function with a truly random value from the entropy library
   }
 #endif
+  return true;
 }
 
 

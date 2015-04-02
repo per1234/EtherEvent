@@ -8,7 +8,7 @@ const byte etherEvent_passwordLengthMax = 20;
 
 class EtherEventClass {
   public:
-    void begin(const char pass[], byte eventLengthMaxInput = 15, byte payloadLengthMaxInput = 100);  //these are the default max length values
+    boolean begin(const char pass[], byte eventLengthMaxInput = 15, byte payloadLengthMaxInput = 100);  //these are the default max length values
     byte availableEvent(EthernetServer &ethernetServer);
     byte availablePayload();
     void readEvent(char eventBuffer[]);

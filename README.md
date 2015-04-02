@@ -66,7 +66,7 @@ This is a beta release. I have been successfully using it with EventGhost in my 
   - Type: byte
 - Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
-- Returns: none
+- Returns: boolean - true = success, false = memory allocation failure
 
 `EtherEvent.availableEvent(ethernetServer)` - Receives new event if an event is not already buffered.
 - Parameter: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
