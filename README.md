@@ -13,7 +13,7 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Free
   - Tested to work with this library:
     - EventGhost: http://eventghost.com -  free open source automation tool for Windows
-    - TCP Events EventGhost plugin: http://eventghost.org/forum/viewtopic.php?p=16803 - Improved network event sender/receiver allows sending events to multiple IP addresses
+    - TCP Events EventGhost plugin: http://eventghost.org/forum/viewtopic.php?p=16803 download link: http://docs.google.com/uc?id=0B3RTucUBY2bwVW5MQWdvRU90eTA - Improved network event sender/receiver allows sending events to multiple IP addresses
   - Untested:
     - eventghost-android: http://github.com/timhoeck/eventghost-android - Android network event app
     - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI
@@ -32,7 +32,7 @@ This is a beta release. I have been successfully using it with EventGhost in my 
     - EGRemote  - Android network event app
 
 #### Related Programs
-- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet
+- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - UIPEthernet ENC28J60 ethernet chip library: http://github.com/ntruchsess/arduino_uip
@@ -59,12 +59,12 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Repeat with other connected devices. The serial monitor will show details of the test communications.
 
 #### Usage
-`EtherEvent.begin(password, [eventLengthMax,] [payloadLengthMax])` - Initialize EtherEvent. begin() must be called
+`EtherEvent.begin(password[, eventLengthMax, payloadLengthMax])` - Initialize EtherEvent. begin() must be called
 - Parameter: password - password used to authenticate event transmission
   - Type: char array
-- Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value effects the amount of memory used.
+- Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
-- Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used.
+- Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
 - Returns: none
 
@@ -98,7 +98,7 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Parameter:none
 - Returns:none
 
-`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[], [sendPayload[]])` - Send an event and payload
+`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[, sendPayload])` - Send an event and payload
 - Parameter: ethernetClient - the EthernetClient object created in the Ethernet setup of the user's sketch
   - Type: EthernetClient
 - Parameter: sendIP: IP address to send the event to

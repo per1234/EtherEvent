@@ -15,7 +15,7 @@ class EtherEventClass {
     void readPayload(char payloadBuffer[]);
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
     IPAddress senderIP();
-#endif    
+#endif
     void flushReceiver();
     boolean send(EthernetClient &ethernetClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[] = "");
     void setTimeout(unsigned int timeoutNew);
