@@ -36,6 +36,8 @@ const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhos
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
+  Serial.begin(9600);  //for debugging
+  Serial.println(F("\n\n\nEtherEvent.begin"));
   strcpy(password, pass);  //store the password
   passwordLength = strlen(password);
   //set default timeout values, these globals can be changed by the user via setTimeout()
