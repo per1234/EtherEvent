@@ -41,8 +41,9 @@ boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte
 #endif
   Serial.begin(9600);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
+  passwordLength = strlen(pass);
+  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
   strcpy(password, pass);  //store the password
-  passwordLength = strlen(password);
   //set default timeout values, these globals can be changed by the user via setTimeout()
   timeout = timeoutDefault;
   availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);

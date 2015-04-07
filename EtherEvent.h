@@ -4,8 +4,6 @@
 #include <SPI.h>
 #include "Ethernet.h"
 
-const byte etherEvent_passwordLengthMax = 20;
-
 class EtherEventClass {
   public:
     boolean begin(const char pass[], byte eventLengthMaxInput = 15, byte payloadLengthMaxInput = 100);  //these are the default max length values
@@ -23,7 +21,7 @@ class EtherEventClass {
     void etherEventStop(EthernetClient &ethernetClient);
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
-    char password[etherEvent_passwordLengthMax + 1];  //password - this is set in begin()
+    char* password;
     byte eventLengthMax;
     char* receivedEvent;  //event buffer
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
