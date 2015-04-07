@@ -38,12 +38,11 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - UIPEthernet ENC28J60 ethernet chip library: http://github.com/ntruchsess/arduino_uip
 
 #### Installation
-- Make sure you have the current version of EtherEvent: http://github.com/per1234/EtherEvent
 - 32k is the minimum recommended flash memory capacity of the MCU
-- Download EtherEvent - Download ZIP button(or Clone in Desktop if you have GitHub Desktop installed)
+- Download the most recent version of EtherEvent here: http://github.com/per1234/EtherEvent - Click the "Download ZIP" button(or "Clone in Desktop" if you have GitHub Desktop installed)
 - Extract the EtherEvent-master folder from the downloaded zip file
 - Rename the folder EtherEvent
-- Move the folder to your arduino sketchbook\libraries folder
+- Move the folder to the libraries folder under your Arduino sketchbook folder as configured in Arduino IDE File>Preferences>Sketchbook location.
 - Repeat this process with the other required libraries
 - If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/Ethernet
 - EtherEvent library configuration parameters(EtherEvent.cpp) - there are a few flags that can be set in the library code to enable extra features.
