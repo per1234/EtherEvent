@@ -48,9 +48,9 @@ boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte
   availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
-  receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(char));
+  receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
   receivedEvent[0] = 0; //clear buffer - realloc does not zero initialize so the buffer could contain anything
-  receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(char));
+  receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(*receivedPayload));
   receivedPayload[0] = 0; //clear buffer - realloc does not zero initialize so the buffer could contain anything
   if (receivedEvent == NULL || receivedPayload == NULL) {
     Serial.println(F("memory allocation failed"));
