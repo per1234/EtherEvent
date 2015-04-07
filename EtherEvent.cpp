@@ -36,6 +36,9 @@ const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhos
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
+#if DEBUG == true  
+  delay(15);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
+#endif  
   Serial.begin(9600);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
   strcpy(password, pass);  //store the password
