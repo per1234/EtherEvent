@@ -36,9 +36,9 @@ const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhos
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
-#if DEBUG == true  
+#if DEBUG == true
   delay(15);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
-#endif  
+#endif
   Serial.begin(9600);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
   strcpy(password, pass);  //store the password
@@ -48,8 +48,8 @@ boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte
   availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
-  receivedEvent = (char*)malloc((eventLengthMax + 1) * sizeof(char));
-  receivedPayload = (char*)malloc((payloadLengthMax + 1) * sizeof(char));
+  receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(char));
+  receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(char));
   if (receivedEvent == NULL || receivedPayload == NULL) {
     Serial.println(F("memory allocation failed"));
     return false;
