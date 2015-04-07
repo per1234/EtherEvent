@@ -33,6 +33,14 @@ const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhos
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//constructor
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+EtherEventClass::EtherEventClass() {
+  timeout = timeoutDefault;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
@@ -45,7 +53,6 @@ boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
   strcpy(password, pass);  //store the password
   //set default timeout values, these globals can be changed by the user via setTimeout()
-  timeout = timeoutDefault;
   availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
@@ -58,10 +65,9 @@ boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte
     return false;
   }
 
-
 #ifdef Entropy_h  //the Entropy library is in use
   Entropy.initialize();  //gets truly random numbers from the timer jitter
-  if (randomCookie == 0) {  //randomSeed is not needed if the entropy random function is used for every cookie instead of just the randomSeed
+  if (randomCookie == false) {  //randomSeed is not needed if the entropy random function is used for every cookie instead of just the randomSeed
     randomSeed(Entropy.random());  //Initialize the random function with a truly random value from the entropy library
   }
 #endif
