@@ -5,6 +5,7 @@
 //#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
 #include <utility/w5100.h>  //Used for setting the W5100 retransmission time and count
+//#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
 EthernetServer ethernetServer(1024);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
@@ -16,10 +17,11 @@ void setup() {
   byte mac[] = {0, 1, 2, 3, 4, 4}; //this can be anything you like, but must be unique on your network
   Ethernet.begin(mac, IPAddress(192, 168, 69, 104));  //leave off the IP parameter for DHCP
   ethernetServer.begin();  //begin the server that will be used to receive events
-  if (EtherEvent.begin("password", 5, 30) == false) { //set the password, maximum event lenght, and maximum payload length
+  if (EtherEvent.begin(5, 30) == false) { //set the password, maximum event lenght, and maximum payload length
     Serial.print(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (1);  //abort execution of the rest of the program
   }
+  EtherEvent.setPassword("password");  //set the EtherEvent password
   //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
   //The default values used when these timeouts are not set are fairly conservative.
   EtherEvent.setTimeout(500); //set timeout duration

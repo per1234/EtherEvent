@@ -35,7 +35,9 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
-- UIPEthernet ENC28J60 ethernet chip library: http://github.com/ntruchsess/arduino_uip
+- UIPEthernet ENC28J60 Ethernet chip library: http://github.com/ntruchsess/arduino_uip
+- Flash library to allow passing payload strings stored in flash memory without a string length argument: http://github.com/rkhamilton/Flash
+
 
 #### Installation
 - 32k is the minimum recommended flash memory capacity of the MCU
@@ -58,14 +60,25 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Repeat with other connected devices. The serial monitor will show details of the test communications.
 
 #### Usage
-`EtherEvent.begin(password[, eventLengthMax, payloadLengthMax])` - Initialize EtherEvent. begin() must be called
-- Parameter: password - password used to authenticate event transmission
-  - Type: char array
+`EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent. begin() must be called
 - Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
 - Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
+<<<<<<< HEAD
 - Returns: boolean - true = success, false = memory allocation failure
+=======
+- Returns: true = success, false = memory allocation failed
+  - Type: boolean
+
+`EtherEvent.setPassword(password[, passwordLength])` - Set the password.
+- Parameter: password - Password used to authenticate event transmission.
+  - Type: char array or _FLASH_STRING(Flash library)
+- Parameter: passwordLength - Length of the password. Use this parameter only with __FlashStringHelper/F() password type.
+  - Type: byte
+- Returns: true = success, false = memory allocation failed
+  - Type: boolean
+>>>>>>> 9af0e87... setPassword() __FlashStringHelper and _FLASH_STRING
 
 `EtherEvent.availableEvent(ethernetServer)` - Receives new event if an event is not already buffered.
 - Parameter: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
@@ -115,6 +128,22 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Parameter: timeout - The max time to wait for ethernet communication in milliseconds.
   - Type: unsigned int
 - Returns:none
+
+
+<<<<<<< HEAD
+`EtherEvent.setPassword(password)` - Set the password.
+- Parameter: password - Password used to authenticate event transmission.
+  - Type: char array
+- Returns: true == success, false == memory allocation failed
+  - Type: boolean
+=======
+#### Configuration Parameters
+There are a few flags that can be set in the file **EtherEvent.cpp** to enable extra features:
+- If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**.
+- Debug - set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication.
+- Entropy library - uncomment the line  `//#include "Entropy.h"`.
+- Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
+>>>>>>> 9af0e87... setPassword() __FlashStringHelper and _FLASH_STRING
 
 
 #### Authentication Process

@@ -3,11 +3,12 @@
 #define EtherEvent_h
 #include <SPI.h>
 #include "Ethernet.h"
+//#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
 class EtherEventClass {
   public:
     EtherEventClass();
-    boolean begin(const char pass[], byte eventLengthMaxInput = 15, byte payloadLengthMaxInput = 100);  //these are the default max length values
+    boolean begin(byte eventLengthMaxInput = 15, byte payloadLengthMaxInput = 100);  //these are the default max length values
     byte availableEvent(EthernetServer &ethernetServer);
     byte availablePayload();
     void readEvent(char eventBuffer[]);
@@ -18,6 +19,11 @@ class EtherEventClass {
     void flushReceiver();
     boolean send(EthernetClient &ethernetClient, const IPAddress sendIP, unsigned int sendPort, const char sendEvent[], const char sendPayload[] = "");
     void setTimeout(unsigned int timeoutNew);
+    boolean setPassword(const char passwordInput[]);
+    boolean setPassword(const __FlashStringHelper* passwordInput, const byte passwordLengthInput);
+#ifdef __FLASH_H__
+    boolean setPassword(const _FLASH_STRING passwordInput);
+#endif
   private:
     void etherEventStop(EthernetClient &ethernetClient);
 

@@ -6,3 +6,4 @@ readPayload	KEYWORD2
 senderIP	KEYWORD2
 flushReceiver	KEYWORD2
 send	KEYWORD2
+setPassword	KEYWORD2

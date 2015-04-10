@@ -2,14 +2,15 @@
 #include <Arduino.h>
 #include "EtherEvent.h"
 #include <SPI.h>
-#include "Ethernet.h"  //change to UIPEthernet.h(http://github.com/ntruchsess/arduino_uip) if using the ENC28J60 ethernet module  
-#include "MD5.h"  //http://github.com/tzikis/ArduinoMD5 
+#include "Ethernet.h"  //change to UIPEthernet.h if using the ENC28J60 ethernet module  
+#include "MD5.h"
+//#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //START user configuration parameters
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#include "Entropy.h"  //http://sites.google.com/site/astudyofentropy/file-cabinet Uncomment this line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
+//#include "Entropy.h"  //Uncomment this line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
 
 const boolean randomCookie = false;  //Set to true to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory.
 
@@ -43,15 +44,12 @@ EtherEventClass::EtherEventClass() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-boolean EtherEventClass::begin(const char pass[], byte eventLengthMaxInput, byte payloadLengthMaxInput) {
+boolean EtherEventClass::begin(byte eventLengthMaxInput, byte payloadLengthMaxInput) {
 #if DEBUG == true
-  delay(15);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
+  delay(20);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
   Serial.begin(9600);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
-  passwordLength = strlen(pass);
-  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
-  strcpy(password, pass);  //store the password
   //set default timeout values, these globals can be changed by the user via setTimeout()
   availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
   eventLengthMax = eventLengthMaxInput;
@@ -310,6 +308,48 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress s
 void EtherEventClass::setTimeout(unsigned int timeoutNew) {
   timeout = timeoutNew;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//setPassword
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+boolean EtherEventClass::setPassword(const char passwordInput[]) {
+  Serial.println(F("EtherEvent.setPassword(char)"));
+  passwordLength = strlen(passwordInput);
+  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
+  strcpy(password, passwordInput);  //store the password
+  if (password == NULL) {
+    Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
+    return false;
+  }
+  return true;
+}
+
+boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput, const byte passwordLengthInput) {
+  Serial.println(F("EtherEvent.setPassword(F())"));
+  passwordLength = passwordLengthInput;
+  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
+  memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
+  if (password == NULL) {
+    Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
+    return false;
+  }
+  return true;
+}
+
+#ifdef __FLASH_H__
+boolean EtherEventClass::setPassword(const _FLASH_STRING passwordInput) {
+  Serial.println(F("EtherEvent.setPassword(Flash)"));
+  passwordLength = passwordInput.length();
+  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
+  passwordInput.copy(password, passwordLength + 1, 0);  //+1 for null terminator
+  if (password == NULL) {
+    Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
+    return false;
+  }
+  return true;
+}
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
