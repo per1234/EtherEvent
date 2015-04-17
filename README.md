@@ -60,14 +60,12 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Repeat with other connected devices. The serial monitor will show details of the test communications.
 
 #### Usage
-`EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent. begin() must be called
-- Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
+See the example sketches and EventGhost tree file for demonstration of library usage.
+`EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent.
+- Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
 - Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
-<<<<<<< HEAD
-- Returns: boolean - true = success, false = memory allocation failure
-=======
 - Returns: true = success, false = memory allocation failed
   - Type: boolean
 
