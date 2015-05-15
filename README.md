@@ -1,13 +1,15 @@
 EtherEvent
 ==========
 
-Easy to use Arduino library for password authenticated network communication between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
-The current focus of EtherEvent is to allow network communication at the previously established level of security(MD5 password encryption). This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
+Easy to use Arduino library for password authenticated network communication via Ethernet between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
+The current focus of EtherEvent is to allow network communication at the level of security(MD5 password encryption) previously established by EventGhost. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
 This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 4 months but it has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Feel free to make pull requests or issue reports. Thanks!
 
+
 #### Required Libraries
 - ArduinoMD5 http://github.com/tzikis/ArduinoMD5
+
 
 #### Compatible Software
 - Free
@@ -31,40 +33,47 @@ This is a beta release. I have been successfully using it with EventGhost in my 
     - RemoteGhostPro - Windows phone network event app
     - EGRemote  - Android network event app
 
+
 #### Related Programs
 - Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - UIPEthernet ENC28J60 Ethernet chip library: http://github.com/ntruchsess/arduino_uip
+<<<<<<< HEAD
 - Flash library to allow passing payload strings stored in flash memory without a string length argument: http://github.com/rkhamilton/Flash
+
+=======
+>>>>>>> 9e19770... Format documentation
 
 
 #### Installation
-- 32k is the minimum recommended flash memory capacity of the MCU
-- Download the most recent version of EtherEvent here: http://github.com/per1234/EtherEvent - Click the "Download ZIP" button(or "Clone in Desktop" if you have GitHub Desktop installed)
-- Extract the EtherEvent-master folder from the downloaded zip file
-- Rename the folder EtherEvent
-- Move the folder to the libraries folder under your Arduino sketchbook folder as configured in Arduino IDE File>Preferences>Sketchbook location.
-- Repeat this process with the other required libraries
+- 32k is the minimum recommended flash memory capacity for use of this library.
+- Download the most recent version of EtherEvent here: https://github.com/per1234/EtherEvent/archive/master.zip
+- Extract the **EtherEvent-master** folder from the downloaded zip file.
+- Rename the folder **EtherEvent**.
+- Move the folder to the libraries folder under your Arduino sketchbook folder as configured in Arduino IDE **File > Preferences > Sketchbook** location.
+- Repeat this process with the other required libraries.
 - If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/Ethernet
-- EtherEvent library configuration parameters(EtherEvent.cpp) - there are a few flags that can be set in the library code to enable extra features.
-  - Entropy library - uncomment the line  //#include "Entropy.h"
-  - Debug - set #define DEBUG true to get debug output in the serial monitor, this will slow down communication.
-  - Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag  
-- Restart the Arduino IDE
-- File>Examples>etherEventExample
-- Set the device IP address, this can be any available IP address on the network. DHCP not currently implemented.
-- Set the device MAC address. This can be any address not already used on the network
-- Set the EtherEvent password. The password must be the same on all connected devices.
-- Upload to device
-- Repeat with other connected devices. The serial monitor will show details of the test communications.
+- Restart the Arduino IDE if it is open.
+- Running the example sketch:
+  - File > Examples > EtherEventExample
+  - Enable DHCP or set the device IP address, this can be any available IP address on your network.
+  - Set the device MAC address. This can be any address not already used on your network
+  - Set the EtherEvent password. The password must be the same on all connected devices.
+  - Upload to device
+  - Repeat with other connected devices. The serial monitor will show details of the test communications.
+
+
+#### About Events and Payloads
+Events are used to trigger an action. The payload is information that accompanies the event. An example is an event code that triggers the display of the payload. Some events don't require a payload and in this case the payload may be left blank.
+
 
 #### Usage
-See the example sketches and EventGhost tree file for demonstration of library usage.
+See the example sketches and EventGhost tree files for demonstration of library usage.
 `EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent.
 - Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
-- Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value effects the amount of memory used. If this parameter is not passed then the default will be used.
+- Parameter(optional): payloadLengthMax - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
 - Returns: true = success, false = memory allocation failed
   - Type: boolean
@@ -76,10 +85,9 @@ See the example sketches and EventGhost tree file for demonstration of library u
   - Type: byte
 - Returns: true = success, false = memory allocation failed
   - Type: boolean
->>>>>>> 9af0e87... setPassword() __FlashStringHelper and _FLASH_STRING
 
 `EtherEvent.availableEvent(ethernetServer)` - Receives new event if an event is not already buffered.
-- Parameter: ethernetServer - the EthernetServer object created in the Ethernet setup of the user's sketch
+- Parameter: ethernetServer - The EthernetServer object created in the Ethernet setup of the user's sketch.
   - Type: EthernetServer
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator.
   - Type: byte
@@ -97,37 +105,38 @@ See the example sketches and EventGhost tree file for demonstration of library u
 `EtherEvent.readPayload(payloadBuffer)` - Puts the payload string in the passed array. availableEvent() must be called first. Size a char array according to the result of availablePayload() and pass it to readPayload(). After that it will contain the payload.
 - Parameter: payloadBuffer - Buffer to hold the received payload.
   - Type: char array
-- Returns: none   
+- Returns: none
 
-`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library installed for this function to be available: http://github.com/per1234/Ethernet
-- Parameter:none
-- Returns: IP address of the sender
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library(http://github.com/per1234/Ethernet) installed for this function to be available.
+- Parameter: none
+- Returns: IP address of the sender.
   - Type: IPAddress
-  
+
 `EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
 - Parameter:none
 - Returns:none
 
-`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[, sendPayload])` - Send an event and payload
-- Parameter: ethernetClient - the EthernetClient object created in the Ethernet setup of the user's sketch
+`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[, sendPayload])` - Send an event and payload.
+- Parameter: ethernetClient - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
-- Parameter: sendIP: IP address to send the event to
+- Parameter: sendIP - IP address to send the event to.
   - Type: IPAddress
-- Parameter: sendPort: port to send the event to
+- Parameter: sendPort: port to send the event to.
   - Type: unsigned int
-- Parameter: sendEvent: string to send as the event(char array).
-  - Type: const char
-- Parameter(optional): sendPayload: payload to send with the event(char array).
-  - Type: const char
-- Returns: true for success, false for failure
+- Parameter: sendEvent - String to send as the event.
+  - Type: const char(char array)
+- Parameter(optional): sendPayload - payload to send with the event(char array).
+  - Type: const char(char array)
+- Returns: true = success, false = failure
   - Type: boolean
 
 `EtherEvent.setTimeout(timeout)`
-- Parameter: timeout - The max time to wait for ethernet communication in milliseconds.
+- Parameter: timeout - The max time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
 - Returns:none
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 `EtherEvent.setPassword(password)` - Set the password.
 - Parameter: password - Password used to authenticate event transmission.
@@ -142,15 +151,30 @@ There are a few flags that can be set in the file **EtherEvent.cpp** to enable e
 - Entropy library - uncomment the line  `//#include "Entropy.h"`.
 - Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
 >>>>>>> 9af0e87... setPassword() __FlashStringHelper and _FLASH_STRING
+=======
+#### Configuration Parameters
+<<<<<<< HEAD
+There are a few flags that can be set in the file EtherEvent.cpp to enable extra features:
+- Entropy library - uncomment the line  //#include "Entropy.h"
+- Debug - set #define DEBUG true to get debug output in the serial monitor, this will slow down communication.
+- Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag.
+>>>>>>> 9e19770... Format documentation
+=======
+There are a few flags that can be set in the file **EtherEvent.cpp** to enable extra features:
+- Entropy library - uncomment the line  `//#include "Entropy.h"`.
+- Debug - set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication.
+- Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
+>>>>>>> 95a2af3... Update documentation
 
 
 #### Authentication Process
-EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. The EtherEvent library allows the arduino to use this previously established authentication system. Cryptographic use of MD5 is now considered insecure.
-- sender: connect to receiver
-- receiver: waits for "quintessence\n\r"
-- sender: send "quintessence\n\r" and wait for cookie
-- receiver: send a cookie(EventGhost uses the sock, EtherEvent uses a random number) to the sender and wait for response
-- sender: the password is appended to the cookie and a new md5 digest calculated and sent back to the receiver and waits for "accept"
-- receiver: calculates the proper MD5 value and compares it to the one from the sender, if it is correct then it sends back "accept"
-- sender: send "payload "{payload string}, event, and "close" to the receiver
-- receiver: handle message and close the connection to the sender
+EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. The EtherEvent library allows the Arduino to use this previously established authentication system. Cryptographic use of MD5 is now considered insecure.
+- sender: Connect to receiver.
+- receiver: Waits for `quintessence\n\r`.
+- sender: Send `quintessence\n\r` and wait for cookie.
+- receiver: Send a cookie(EventGhost uses the sock, EtherEvent uses a random number) to the sender and wait for response.
+- sender: The password is appended to the cookie and a new md5 digest calculated and sent back to the receiver and waits for `accept`.
+- receiver: Calculates the proper MD5 value and compares it to the one from the sender. If it is correct then it sends back `accept`.
+- sender: Send `payload {payload string}\n{event}\nclose\n` to the receiver.
+- receiver: Handle message and close the connection to the sender.
+
