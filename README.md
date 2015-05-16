@@ -116,17 +116,21 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter:none
 - Returns:none
 
-`EtherEvent.sendEvent(ethenetClient, sendIP, sendPort, sendEvent[, sendPayload])` - Send an event and payload.
+`EtherEvent.send(ethenetClient, target, port, event[, eventLength][, payload[, payloadLength]])` - Send an event and payload.
 - Parameter: ethernetClient - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
-- Parameter: sendIP - IP address to send the event to.
-  - Type: IPAddress
-- Parameter: sendPort: port to send the event to.
+- Parameter: target - IP address to send the event to.
+  - Type: IPAddress or byte(4 byte array)
+- Parameter: port: port to send the event to.
   - Type: unsigned int
-- Parameter: sendEvent - String to send as the event.
+- Parameter: event - String to send as the event.
   - Type: const char(char array)
-- Parameter(optional): sendPayload - payload to send with the event(char array).
-  - Type: const char(char array)
+- Parameter: eventLength - Length of the event. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
+  - Type: byte
+- Parameter(optional): payload - payload to send with the event(char array). The payload is not optional when the event is of type __FlashStringHelper(F() macro).
+  - Type: char/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
+- Parameter: payloadLength:- length of the payload. This parameter should only be used if event is of type type __FlashStringHelper(F() macro).
+  - Type: byte
 - Returns: true = success, false = failure
   - Type: boolean
 
