@@ -74,7 +74,7 @@ void loop() {
   if (millis() - sendTimeStamp > queueEventInterval) { //periodically send event
     sendTimeStamp = millis(); //reset the timestamp for the next event send
     Serial.println(F("Attempting event send"));
-    if (EtherEvent.send(ethernetClient, sendIP, sendPort, "123", "test payload")) { //send event to target IP address, port, event, payload
+    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("123"), 3, F("test payload"), 12)) { //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
     }
     else {
