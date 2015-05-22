@@ -1,6 +1,8 @@
 //EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote http://github.com/per1234/EtherEvent
 #ifndef EtherEvent_h
 #define EtherEvent_h
+
+#include <Arduino.h>
 #include <SPI.h>
 #include "Ethernet.h"
 //#include "Flash.h"  //uncomment this line if you have the Flash library installed
