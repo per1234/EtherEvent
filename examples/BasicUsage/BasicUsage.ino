@@ -1,10 +1,14 @@
-//Example sketch demonstrating basic use of the EtherEvent library
+// Example sketch demonstrating basic use of the EtherEvent library
+// Periodically sends a test event, receives events and prints them to the serial monitor.
+// Use with the EventGhost-example-trees.
+
 #include <SPI.h>  //these libraries are required by EtherEvent
 #include "Ethernet.h"
 #include "MD5.h"
 //#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
 //#include "Flash.h"  //uncomment this line if you have the Flash library installed
+
 
 //configuration parameters - modify these values to your desired settings
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
@@ -24,6 +28,7 @@ EthernetServer ethernetServer(port);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
 unsigned long sendTimeStamp;  //used by the example to periodically send an event
 
+
 void setup() {
   Serial.begin(9600);  //the received event and other information will be displayed in your serial monitor while the sketch is running
 #if DHCP == true
@@ -38,15 +43,16 @@ void setup() {
   }
 }
 
+
 void loop() {
   if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
-    Serial.print(F("Received event length="));
+    Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
     char event[availableLength];  //create the event buffer of the correct size
     EtherEvent.readEvent(event);  //read the event into the event buffer
     Serial.print(F("Received event: "));
     Serial.println(event);  //now the event is in your buffer
-    availableLength = EtherEvent.availablePayload(); //receiving the payload works the same as the event
+    availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
     Serial.print(F("Received payload length="));
     Serial.println(availableLength);
     char payload[availableLength];
@@ -56,9 +62,9 @@ void loop() {
   }
 
   if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
-    sendTimeStamp = millis(); //reset the timestamp for the next event send
-    Serial.println(F("Attempting event send"));
-    if (EtherEvent.send(ethernetClient, targetIP, targetPort, "123", "test payload")) {  //send event to target IP address, port, event, payload
+    sendTimeStamp = millis();  //reset the timestamp for the next event send
+    Serial.println(F("\nAttempting event send"));
+    if (EtherEvent.send(ethernetClient, targetIP, targetPort, "test", "test payload")) {  //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
     }
     else {
@@ -66,3 +72,4 @@ void loop() {
     }
   }
 }
+

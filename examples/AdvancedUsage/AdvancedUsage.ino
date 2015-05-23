@@ -1,4 +1,7 @@
-//Example sketch demonstrating advanced usage of the EtherEvent library.
+// Example sketch demonstrating advanced usage of the EtherEvent library.
+// Periodically sends a test event, receives events and prints them to the serial monitor.
+// For use with the EventGhost-example-trees.
+
 #include <SPI.h>  //these libraries are required by EtherEvent
 #include "Ethernet.h"
 #include "MD5.h"
@@ -6,6 +9,7 @@
 #include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
 #include <utility/w5100.h>  //Used for setting the W5100 retransmission time and count
 //#include "Flash.h"  //uncomment this line if you have the Flash library installed
+
 
 //configuration parameters - modify these values to your desired settings
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
@@ -26,9 +30,11 @@ const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the 
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
 const unsigned int sendPort = 1024;  //The port to send the test events to.
 
+
 EthernetServer ethernetServer(port);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
 unsigned long sendTimeStamp;  //used by the example to periodically send an event
+
 
 void setup() {
   Serial.begin(9600);  //the received event and other information will be displayed in your serial monitor while the sketch is running
@@ -42,7 +48,7 @@ void setup() {
     Serial.print(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
   }
-  EtherEvent.setTimeout(etherEventTimeout); //set timeout duration
+  EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
 #ifdef ethernet_h
   //These settings only apply if you are using W5100 ethernet chip and will have no effect if you are using ENC28J60 instead
   W5100.setRetransmissionTime(W5100timeout);  //set the timeout for the w5100 module.
@@ -50,15 +56,16 @@ void setup() {
 #endif
 }
 
+
 void loop() {
-  if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) { //this checks for a new event and gets the length of the event including the null terminator
-    Serial.print(F("Received event length="));
+  if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
+    Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
     char event[availableLength];  //create the event buffer of the correct size
     EtherEvent.readEvent(event);  //read the event into the event buffer
     Serial.print(F("Received event: "));
     Serial.println(event);  //now the event is in your buffer
-    availableLength = EtherEvent.availablePayload(); //receiving the payload works the same as the event
+    availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
     Serial.print(F("Received payload length="));
     Serial.println(availableLength);
     char payload[availableLength];
@@ -71,10 +78,10 @@ void loop() {
 #endif
   }
 
-  if (millis() - sendTimeStamp > queueEventInterval) { //periodically send event
-    sendTimeStamp = millis(); //reset the timestamp for the next event send
-    Serial.println(F("Attempting event send"));
-    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("123"), 3, F("test payload"), 12)) { //send event to target IP address, port, event, payload
+  if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
+    sendTimeStamp = millis();  //reset the timestamp for the next event send
+    Serial.println(F("\nAttempting event send"));
+    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), 4, F("test payload"), 12)) {  //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
     }
     else {
@@ -82,3 +89,4 @@ void loop() {
     }
   }
 }
+
