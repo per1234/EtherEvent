@@ -54,9 +54,9 @@ boolean EtherEventClass::begin(byte eventLengthMaxInput, byte payloadLengthMaxIn
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
   receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
-  receivedEvent[0] = 0; //clear buffer - realloc does not zero initialize so the buffer could contain anything
+  receivedEvent[0] = 0;  //clear buffer - realloc does not zero initialize so the buffer could contain anything
   receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(*receivedPayload));
-  receivedPayload[0] = 0; //clear buffer - realloc does not zero initialize so the buffer could contain anything
+  receivedPayload[0] = 0;  //clear buffer - realloc does not zero initialize so the buffer could contain anything
   if (receivedEvent == NULL || receivedPayload == NULL) {
     Serial.println(F("memory allocation failed"));
     return false;
@@ -191,7 +191,9 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {
           Serial.println(F("EtherEvent.availableEvent: authentication failed"));
         }
       }
-      etherEventStop(ethernetClient);
+      ethernetClient.print(closeMessage);  //tell the receiver to close
+      ethernetClient.stop();
+      Serial.println(F("EtherEvent.availableEvent: connection closed"));
     }
   }
   return receivedEventLength;
@@ -305,7 +307,9 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress t
         eventSuccess = true;
       }
     }
-    etherEventStop(ethernetClient);  //close the connection
+    ethernetClient.print(closeMessage);  //tell the receiver to close
+    ethernetClient.stop();
+    Serial.println(F("EtherEvent.send: connection closed"));
   }
   else {
     Serial.println(F("EtherEvent.send: connection failed"));
@@ -364,19 +368,5 @@ boolean EtherEventClass::setPassword(const _FLASH_STRING passwordInput) {
 #endif
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//private
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//etherEventStop
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::etherEventStop(EthernetClient &ethernetClient) {
-  ethernetClient.print(closeMessage);  //tell the receiver to close
-  ethernetClient.stop();
-  Serial.println(F("EtherEvent.etherEventStop: stopped"));
-}
-
-
 EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
+

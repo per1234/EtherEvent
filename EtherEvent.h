@@ -127,23 +127,25 @@ class EtherEventClass {
     boolean setPassword(const _FLASH_STRING passwordInput);
 #endif
   private:
+    //used for the convesions to char array
     const byte uint16_tLengthMax = 5;  //5 digits
     const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
     const byte uint32_tLengthMax = 10;  //10 digits
     const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
 
-    void etherEventStop(EthernetClient &ethernetClient);
-
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
+    unsigned int availableEventSubmessageLengthMax;  //value set in begin()
+
     char* password;
+    byte passwordLength;
+
+    IPAddress fromIP;  //IP address of the last event sender
     byte eventLengthMax;
     char* receivedEvent;  //event buffer
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
     byte payloadLengthMax;
     char* receivedPayload;  //payload buffer
-    IPAddress fromIP;  //IP address of the last event sender
-    byte passwordLength;
-    unsigned int availableEventSubmessageLengthMax;  //value set in begin()
 };
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
 #endif
+
