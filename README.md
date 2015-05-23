@@ -4,7 +4,7 @@ EtherEvent
 Easy to use Arduino library for password authenticated network communication via Ethernet between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
 The current focus of EtherEvent is to allow network communication at the level of security(MD5 password encryption) previously established by EventGhost. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
-This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 4 months but it has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Feel free to make pull requests or issue reports. Thanks!
+This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 5 months but it has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Pull requests and issue reports are welcome.
 
 
 #### Required Libraries
@@ -39,15 +39,11 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - UIPEthernet ENC28J60 Ethernet chip library: http://github.com/ntruchsess/arduino_uip
-<<<<<<< HEAD
 - Flash library to allow passing payload strings stored in flash memory without a string length argument: http://github.com/rkhamilton/Flash
-
-=======
->>>>>>> 9e19770... Format documentation
 
 
 #### Installation
-- 32k is the minimum recommended flash memory capacity for use of this library.
+- 32KB is the minimum recommended flash memory capacity for use of this library.
 - Download the most recent version of EtherEvent here: https://github.com/per1234/EtherEvent/archive/master.zip
 - Extract the **EtherEvent-master** folder from the downloaded zip file.
 - Rename the folder **EtherEvent**.
@@ -113,23 +109,23 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - Type: IPAddress
 
 `EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
-- Parameter:none
-- Returns:none
+- Parameter: none
+- Returns: none
 
 `EtherEvent.send(ethenetClient, target, port, event[, eventLength][, payload[, payloadLength]])` - Send an event and payload.
 - Parameter: ethernetClient - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
 - Parameter: target - IP address to send the event to.
   - Type: IPAddress or byte(4 byte array)
-- Parameter: port: port to send the event to.
+- Parameter: port - Port to send the event to.
   - Type: unsigned int
-- Parameter: event - String to send as the event.
-  - Type: const char(char array)
+- Parameter: event
+  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
 - Parameter: eventLength - Length of the event. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
   - Type: byte
-- Parameter(optional): payload - payload to send with the event(char array). The payload is not optional when the event is of type __FlashStringHelper(F() macro).
-  - Type: char/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
-- Parameter: payloadLength:- length of the payload. This parameter should only be used if event is of type type __FlashStringHelper(F() macro).
+- Parameter(optional): payload - Payload to send with the event. The payload is not optional when the event is of type __FlashStringHelper(F() macro).
+  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
+- Parameter: payloadLength - Length of the payload. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
   - Type: byte
 - Returns: true = success, false = failure
   - Type: boolean
@@ -137,38 +133,15 @@ See the example sketches and EventGhost tree files for demonstration of library 
 `EtherEvent.setTimeout(timeout)`
 - Parameter: timeout - The max time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
-- Returns:none
+- Returns: none
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-`EtherEvent.setPassword(password)` - Set the password.
-- Parameter: password - Password used to authenticate event transmission.
-  - Type: char array
-- Returns: true == success, false == memory allocation failed
-  - Type: boolean
-=======
 #### Configuration Parameters
-There are a few flags that can be set in the file **EtherEvent.cpp** to enable extra features:
-- If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**.
-- Debug - set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication.
-- Entropy library - uncomment the line  `//#include "Entropy.h"`.
-- Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
->>>>>>> 9af0e87... setPassword() __FlashStringHelper and _FLASH_STRING
-=======
-#### Configuration Parameters
-<<<<<<< HEAD
 There are a few flags that can be set in the file EtherEvent.cpp to enable extra features:
-- Entropy library - uncomment the line  //#include "Entropy.h"
-- Debug - set #define DEBUG true to get debug output in the serial monitor, this will slow down communication.
-- Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by enabling the `RANDOM_COOKIE` flag.
->>>>>>> 9e19770... Format documentation
-=======
-There are a few flags that can be set in the file **EtherEvent.cpp** to enable extra features:
-- Entropy library - uncomment the line  `//#include "Entropy.h"`.
-- Debug - set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication.
-- Truly random cookie - A higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
->>>>>>> 95a2af3... Update documentation
+- If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**. This will allow easy use of program memory with send() and setPassword().
+- Debug - set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication so only enable when needed.
+- Entropy library - If you are using the Entropy library uncomment the line `//#include "Entropy.h"`. This will ensure a truly random seed and the option of generating a truly random cookie at the cost of higher memory usage.
+- Truly random cookie - If the Entropy library is installed and enabled then a higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
 
 
 #### Authentication Process
