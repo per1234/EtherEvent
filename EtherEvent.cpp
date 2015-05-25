@@ -118,7 +118,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {
         if (ethernetClient.find(cookiePasswordMD5) == 1) {  //authentication successful
           ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
           Serial.println(F("EtherEvent.availableEvent: authentication successful"));
-          ethernetClient.print(ACCEPT_MESSAGE);
+          ethernetClient.print(ACCEPT_MESSAGE);  //for some reason I can't use F() on this one
           free(cookiePasswordMD5);
 
           //Read and process the message
@@ -274,7 +274,7 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress ta
   if (ethernetClient.connect(target, port)) {  //connected to receiver
 
     Serial.println(F("EtherEvent.send: connected, sending magic word"));
-    ethernetClient.print(MAGIC_WORD);  //send the magic word to the receiver so it will send the cookie
+    ethernetClient.print(F(MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
 
     char cookiePassword[cookieLengthMax + 1 + passwordLength + 1];  //cookie,  password separator(:),  password,  null terminator
     if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
