@@ -1,4 +1,4 @@
-//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin,  EventGhost TCPEvents plugin,  Girder,  and NetRemote http://github.com/per1234/EtherEvent
+// EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin,  EventGhost TCPEvents plugin,  Girder,  and NetRemote http://github.com/per1234/EtherEvent
 #include "EtherEvent.h"
 #include <SPI.h>
 #include "Ethernet.h"  //change to UIPEthernet.h if using the ENC28J60 ethernet module  
@@ -43,7 +43,7 @@ EtherEventClass::EtherEventClass() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-boolean EtherEventClass::begin(byte eventLengthMaxInput, byte payloadLengthMaxInput) {
+boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloadLengthMaxInput) {
 #if DEBUG == true
   delay(20);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
@@ -125,7 +125,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {
           for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop
             Serial.println(F("EtherEvent.availableEvent: payload/event for loop"));
             char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
-            byte bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax);  //put the incoming data up to the newline into receivedMessage
+            const byte bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax);  //put the incoming data up to the newline into receivedMessage
             Serial.print(F("EtherEvent.availableEvent: bytesRead: "));
             Serial.println(bytesRead);
             if (bytesRead == 0) {  //with Arduino 1.5 there is a leading char(10) for some reason(maybe flush() doesn't work and it's still left over from the last message?). This will handle null messages
@@ -142,10 +142,10 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {
                   continue;
                 }
 
-                byte receivedPayloadLength = bytesRead - payloadSeparatorLength;
+                const byte receivedPayloadLength = bytesRead - payloadSeparatorLength;
                 Serial.print(F("EtherEvent.availableEvent: payload length: "));
                 Serial.println(receivedPayloadLength);
-                byte readPayloadLength = min(receivedPayloadLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
+                const byte readPayloadLength = min(receivedPayloadLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
                 for (byte payloadCount = 0; payloadCount < readPayloadLength; payloadCount++) {  //put the payload into the buffer
                   receivedPayload[payloadCount] = receivedMessage[payloadCount + payloadSeparatorLength];
                 }
@@ -254,12 +254,12 @@ IPAddress EtherEventClass::senderIP() {  //returns the ip address the current ev
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //send
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-boolean EtherEventClass::send(EthernetClient &ethernetClient,  const byte target[],  unsigned int port,  const char event[],  const char payload[]) {
+boolean EtherEventClass::send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[]) {
   IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
   return send(ethernetClient, targetIP, port, event, payload);
 }
 
-boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress target,  unsigned int port,  const char event[],  const char payload[]) {
+boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress target, const unsigned int port, const char event[], const char payload[]) {
   Serial.println(F("EtherEvent.send: attempting connection"));
   Serial.print(F("EtherEvent.send: target: "));
   Serial.println(target);
@@ -321,8 +321,8 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient,  const IPAddress t
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //setTimeout
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::setTimeout(unsigned int timeoutNew) {
-  timeout = timeoutNew;
+void EtherEventClass::setTimeout(const unsigned int timeoutInput) {
+  timeout = timeoutInput;
 }
 
 

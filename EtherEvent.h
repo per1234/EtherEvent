@@ -1,4 +1,4 @@
-//EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote http://github.com/per1234/EtherEvent
+// EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin, EventGhost TCPEvents plugin, Girder, and NetRemote http://github.com/per1234/EtherEvent
 #ifndef EtherEvent_h
 #define EtherEvent_h
 
@@ -10,7 +10,7 @@
 class EtherEventClass {
   public:
     EtherEventClass();
-    boolean begin(byte eventLengthMaxInput = 15, byte payloadLengthMaxInput = 100);  //these are the default max length values
+    boolean begin(const byte eventLengthMaxInput = 15, const byte payloadLengthMaxInput = 100);  //these are the default max length values
     byte availableEvent(EthernetServer &ethernetServer);
     byte availablePayload();
     void readEvent(char eventBuffer[]);
@@ -21,36 +21,36 @@ class EtherEventClass {
     void flushReceiver();
 
 
-    boolean send(EthernetClient &ethernetClient, const IPAddress target, unsigned int port, const char event[], const char payload[] = "");
-    boolean send(EthernetClient &ethernetClient, const byte target[], unsigned int port, const char event[], const char payload[] = "");
+    boolean send(EthernetClient &ethernetClient, const IPAddress target, const unsigned int port, const char event[], const char payload[] = "");
+    boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[] = "");
 
     //convert event
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, int16_t event, const char payload[] = "") {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
       char eventChar[int16_tLengthMax + 1];
       itoa(event, eventChar, 10);
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, uint16_t event, const char payload[] = "") {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
       char eventChar[uint16_tLengthMax + 1];
       sprintf_P(eventChar, PSTR("%u"), event);
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, int32_t event, const char payload[] = "") {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
       char eventChar[int32_tLengthMax + 1];
       ltoa(event, eventChar, 10);
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, uint32_t event, const char payload[] = "") {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
       char eventChar[uint32_tLengthMax + 1];
       ultoa(event, eventChar, 10);
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType, typename payloadType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const __FlashStringHelper* event, byte eventLength, const payloadType payload) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const payloadType payload) {
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, eventChar, payload);
@@ -58,31 +58,31 @@ class EtherEventClass {
 
     //convert payload
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const eventType event, int16_t payload) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
       char payloadChar[int16_tLengthMax + 1];
       itoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const eventType event, uint16_t payload) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
       char payloadChar[uint16_tLengthMax + 1];
       sprintf_P(payloadChar, PSTR("%u"), payload);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const eventType event, int32_t payload) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
       char payloadChar[int32_tLengthMax + 1];
       ltoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const eventType event, uint32_t payload) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
       char payloadChar[uint32_tLengthMax + 1];
       ultoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, eventType event, const __FlashStringHelper* payload, byte payloadLength) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const byte payloadLength) {
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, event, payloadChar);
@@ -91,7 +91,7 @@ class EtherEventClass {
 
     //convert F() event and payload
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const __FlashStringHelper* event, byte eventLength, const __FlashStringHelper* payload, byte payloadLength) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const __FlashStringHelper* payload, const byte payloadLength) {
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
 
@@ -104,15 +104,15 @@ class EtherEventClass {
     //Flash templates
 #ifdef __FLASH_H__
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const _FLASH_STRING event, const char payload[] = "") {
-      byte stringLength = event.length();
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const _FLASH_STRING event, const char payload[] = "") {
+      const byte stringLength = event.length();
       char eventChar[stringLength + 1];
       event.copy(eventChar, stringLength + 1, 0);  //+1 for null terminator
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, unsigned int port, const eventType event, const _FLASH_STRING payload) {
-      byte stringLength = payload.length();
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const _FLASH_STRING payload) {
+      const byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
       payload.copy(payloadChar, stringLength + 1, 0);  //+1 for null terminator
       return send(ethernetClient, target, port, event, payloadChar);
@@ -120,7 +120,7 @@ class EtherEventClass {
 #endif
 
 
-    void setTimeout(unsigned int timeoutNew);
+    void setTimeout(const unsigned int timeoutInput);
     boolean setPassword(const char passwordInput[]);
     boolean setPassword(const __FlashStringHelper* passwordInput, const byte passwordLengthInput);
 #ifdef __FLASH_H__
