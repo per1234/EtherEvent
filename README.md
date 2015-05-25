@@ -130,7 +130,11 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: true = success, false = failure
   - Type: boolean
 
-`EtherEvent.setTimeout(timeout)`
+`EtherEvent.getTimeout()` - Returns the current timeout duration setting.
+- Returns: The current timeout duration setting.
+  - Type: unsigned int
+
+`EtherEvent.setTimeout(timeout)` - Set the timeout duration.
 - Parameter: timeout - The max time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
 - Returns: none

@@ -1,4 +1,5 @@
 EtherEvent	KEYWORD1
+begin	KEYWORD2
 availableEvent	KEYWORD2
 availablePayload	KEYWORD2
 readEvent	KEYWORD2
@@ -6,5 +7,7 @@ readPayload	KEYWORD2
 senderIP	KEYWORD2
 flushReceiver	KEYWORD2
 send	KEYWORD2
+getTimeout	KEYWORD2
+setTimeout	KEYWORD2
 setPassword	KEYWORD2
 
