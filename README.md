@@ -1,10 +1,10 @@
 EtherEvent
 ==========
 
-Easy to use Arduino library for password authenticated network communication via Ethernet between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins.
+Easy to use Arduino library for password authenticated network communication via Ethernet between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins. Compatible with Arduino Ethernet, Ethernet Shield, and other devices using the W5100 Ethernet controller. Not compatible with ENC28J60.
 The current focus of EtherEvent is to allow network communication at the level of security(MD5 password encryption) previously established by EventGhost. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
 
-This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 5 months but it has not been tested at all with UIPEthernet, Girder, NetRemote, and terRemote. Pull requests and issue reports are welcome.
+This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 5 months but it has not been tested at all with Girder, NetRemote, and terRemote. Pull requests and issue reports are welcome.
 
 
 #### Required Libraries
@@ -38,7 +38,6 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
 - Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
-- UIPEthernet ENC28J60 Ethernet chip library: http://github.com/ntruchsess/arduino_uip
 - Flash library to allow passing payload strings stored in flash memory without a string length argument: http://github.com/rkhamilton/Flash
 
 
