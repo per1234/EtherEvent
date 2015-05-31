@@ -2,13 +2,14 @@
 // Periodically sends a test event, receives events and prints them to the serial monitor.
 // Use with the EventGhost-example-trees.
 
-#include <SPI.h>  //these libraries are required by EtherEvent
-#include "Ethernet.h"
+//These libraries are required by EtherEvent:
+#include <SPI.h>
+#include <Ethernet.h>
 #include "MD5.h"
-//#include "Entropy.h"  //uncomment this line if you have the Entropy library installed
-#include "EtherEvent.h"  //include the EtherEvent library so its functions can be accessed
-//#include "Flash.h"  //uncomment this line if you have the Flash library installed
+#include "EtherEvent.h"
 
+//#include "Flash.h"  //Uncomment this line if you are using the Flash library.
+//#include "Entropy.h"  //Uncomment this line if you are using the Entropy library.
 
 //configuration parameters - modify these values to your desired settings
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.

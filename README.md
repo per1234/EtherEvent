@@ -1,10 +1,9 @@
 EtherEvent
 ==========
 
-Easy to use Arduino library for password authenticated network communication via Ethernet between Arduinos and other devices running EventGhost, Girder, or any other program compatible with the EventGhost Network Event Sender and Receiver plugins. Compatible with Arduino Ethernet, Ethernet Shield, and other devices using the W5100 Ethernet controller. Not compatible with ENC28J60.
-The current focus of EtherEvent is to allow network communication at the level of security(MD5 password encryption) previously established by EventGhost. This is not very secure and should not be used for critical applications without a thorough analysis of possible attacks.
+Easy to use [Arduino](http://arduino.cc/) library for password authenticated network communication via Ethernet between Arduinos and [EventGhost](http://eventghost.com), or any other program compatible with the EventGhost Network Event Sender and Receiver plugins. Compatible with Arduino Ethernet, Ethernet Shield, and other devices using the W5100/W5200/W5500 Ethernet controller.
 
-This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 5 months but it has not been tested at all with Girder, NetRemote, and terRemote. Pull requests and issue reports are welcome.
+This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 5 months. Pull requests and issue reports are welcome.
 
 
 #### Required Libraries
@@ -14,38 +13,34 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 #### Compatible Software
 - Free
   - Tested to work with this library:
-    - EventGhost: http://eventghost.com -  free open source automation tool for Windows
-    - TCP Events EventGhost plugin: http://eventghost.org/forum/viewtopic.php?p=16803 download link: http://docs.google.com/uc?id=0B3RTucUBY2bwVW5MQWdvRU90eTA - Improved network event sender/receiver allows sending events to multiple IP addresses
+    - EventGhost: http://eventghost.com - Free open source automation tool for Windows
+    - TCPEvents EventGhost plugin: https://github.com/per1234/TCPEvents - Improved network event sender/receiver allows sending events to multiple IP addresses.
+    - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI. The receiver requires a large timeout value.
   - Untested:
     - eventghost-android: http://github.com/timhoeck/eventghost-android - Android network event app
-    - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI
-    - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646 - Philips Pronto Home Control Panel communication
-    - Android / Event Ghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite - IP-Symcon(pay software) automation system communication
-    - EventGhost + zVirtualScenes Integration: http://stevecross.org/wiki/doku.php?id=eventghost_zvirtualscenes_integration - communication with zVirtualScenes free open-source home automation tool for Windows, Android, iOS, Blackberry and the Web
-    - RemoteGhost: http://windowsphone.com/en-us/store/app/remoteghost/15e3196b-c62c-4bb3-9ca8-2d7d1f0d2f50 http://forum.xda-developers.com/showthread.php?t=2076716 - Windows phone network event app
     - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
-    - MoviePoster: http://movieposterapp.com/
+    - RemoteGhost: http://forum.xda-developers.com/showthread.php?t=2076716 - Windows phone network event app
+    - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646 - Philips Pronto Home Control Panel communication
+    - Android/Eventghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite - IP-Symcon(pay software) automation system communication
 - Pay
   - Untested:
-    - Girder - Automation software
-    - NetRemote - Automation software
     - terRemote - Android network event app
-    - RemoteGhostPro - Windows phone network event app
     - EGRemote  - Android network event app
+    - RemoteGhostPro - Windows Phone network event app
 
 
 #### Related Programs
-- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
-- Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
-- Flash library to allow passing payload strings stored in flash memory without a string length argument: http://github.com/rkhamilton/Flash
+- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
+- Wiznet Ethernet library for use with W5200 or W5500 Ethernet controller: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
+- Flash library to allow passing payload strings stored in flash memory without a string length argument: https://github.com/schinken/Flash/tree/patch-2
+- Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 
 
 #### Installation
 - 32KB is the minimum recommended flash memory capacity for use of this library.
 - Download the most recent version of EtherEvent here: https://github.com/per1234/EtherEvent/archive/master.zip
 - Extract the **EtherEvent-master** folder from the downloaded zip file.
-- Rename the folder **EtherEvent**.
 - Move the folder to the libraries folder under your Arduino sketchbook folder as configured in Arduino IDE **File > Preferences > Sketchbook** location.
 - Repeat this process with the other required libraries.
 - If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/Ethernet
@@ -64,7 +59,7 @@ Events are used to trigger an action. The payload is information that accompanie
 
 
 #### Usage
-See the example sketches and EventGhost tree files for demonstration of library usage.
+See the example sketches and EventGhost tree file for demonstration of library usage.
 `EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent.
 - Parameter(optional): eventLengthMax - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
@@ -139,20 +134,29 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: none
 
 
+#### Troubleshooting
+- Network configuration:
+  - The MAC address you choose for the device must be unique on your network.
+  - If using a static IP address it must also be unique on your network.
+  - The firewall on computers running EventGhost must allow it to communicate via the network.
+- Timeouts: When using the ***BasicUsage.ino*** example sketch you may notice sending or receiving an event sometimes will hang for a long time before failing. This is caused by the conservative default timeout values. ***AdvancedUsage.ino*** demonstrates setting the EtherEvent timeout via `setTimeout()` and the W5x00 Ethernet controller timeout and retry count via `W5100.setRetransmissionTime()` and `W5100.setRetransmissionCount()`. `setTimeout()` controls the amount of time that EtherEvent will wait for the authentication process communications. `W5100.setRetransmissionTime()` controls the amount of time that the W5x00 will wait after a connection attempt before retrying. `W5100.setRetransmissionCount()` controls the number of attempts the W5x00 will make before failing the connection attempt. By reducing the timeout values you can shorten the amount of time that the system will hang during a failed event transmission. If the timeout values are too small then you will see frequent transmission failures. By experimenting with different values you can find appropriate timeouts for your system. Be aware that the timeout requirements for Arduino to EventGhost event transmission may be different than Arduino to Arduino transmission.
+- Debug output: By turning debug output on you can get details of the authentication process in the serial monitor.
+
+
 #### Configuration Parameters
-There are a few flags that can be set in the file EtherEvent.cpp to enable extra features:
-- If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**. This will allow easy use of program memory with send() and setPassword().
-- Debug - set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication so only enable when needed.
-- Entropy library - If you are using the Entropy library uncomment the line `//#include "Entropy.h"`. This will ensure a truly random seed and the option of generating a truly random cookie at the cost of higher memory usage.
-- Truly random cookie - If the Entropy library is installed and enabled then a higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
+There are a few parameters that can be set in the file **EtherEvent.cpp** to enable extra features:
+- Flash library: If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**. This will allow easy use of program memory with send() and setPassword().
+- Debug output: Set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication so only enable when needed.
+- Entropy library: If you are using the Entropy library uncomment the line `//#include "Entropy.h"`. This will ensure a truly random seed and the option of generating a truly random cookie at the cost of higher memory usage.
+- Truly random cookie: If the Entropy library is installed and enabled then a higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
 
 
 #### Authentication Process
-EventGhost/Girder use APOP style authentication for TCP communication without sending passwords in plaintext. The EtherEvent library allows the Arduino to use this previously established authentication system. Cryptographic use of MD5 is now considered insecure.
+EventGhost uses MD5 encrypted APOP style authentication to avoid sending passwords in plaintext.
 - sender: Connect to receiver.
 - receiver: Waits for `quintessence\n\r`.
 - sender: Send `quintessence\n\r` and wait for cookie.
-- receiver: Send a cookie(EventGhost uses the sock, EtherEvent uses a random number) to the sender and wait for response.
+- receiver: Send a cookie to the sender and wait for response.
 - sender: The password is appended to the cookie and a new md5 digest calculated and sent back to the receiver and waits for `accept`.
 - receiver: Calculates the proper MD5 value and compares it to the one from the sender. If it is correct then it sends back `accept`.
 - sender: Send `payload {payload string}\n{event}\nclose\n` to the receiver.
