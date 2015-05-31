@@ -293,10 +293,6 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress ta
       free(cookiePasswordMD5);
 
       if (ethernetClient.find(ACCEPT_MESSAGE) == 1) {  //authentication successful
-        Serial.print(F("EtherEvent.send: Payload: "));
-        Serial.println(payload);
-        Serial.print(F("EtherEvent.send: event: "));
-        Serial.println(event);
         if (payload[0] != 0) {  //check if there is a payload
           ethernetClient.print(payloadSeparator);
           ethernetClient.print(payload);
