@@ -5,13 +5,22 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "Ethernet.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//START user configuration parameters
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //#include "Flash.h"  //uncomment this line if you have the Flash library installed
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//END user configuration parameters
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class EtherEventClass {
   public:
     EtherEventClass();
     boolean begin(const byte eventLengthMaxInput = 15, const byte payloadLengthMaxInput = 100);  //these are the default max length values
-    byte availableEvent(EthernetServer &ethernetServer);
+    byte availableEvent(EthernetServer &ethernetServer, int cookieInput = false);
     byte availablePayload();
     void readEvent(char eventBuffer[]);
     void readPayload(char payloadBuffer[]);

@@ -1,4 +1,5 @@
-// Example sketch demonstrating advanced usage of the EtherEvent library.
+// Example sketch demonstrating use of the Entropy library with EtherEvent.
+// Requires Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 // Periodically sends a test event, receives events and prints them to the serial monitor.
 // For use with the EventGhost-example-trees.
 
@@ -8,10 +9,12 @@
 #include <utility/w5100.h>  //Used for setting the W5100 retransmission time and count.
 #include "MD5.h"
 #include "EtherEvent.h"
+#include "Entropy.h"
 
 //#include "Flash.h"  //Uncomment this line if you are using the Flash library.
 
 //configuration parameters - modify these values to your desired settings
+const boolean randomCookie = false;  //Set to true to use the Entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory.
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
 byte MACaddress[] = {0, 1, 2, 3, 4, 4};  //this can be anything you like as long as it's unique on your network
 const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use for the device. This can be any valid address on the network as long as it is unique. If you are using DHCP then this doesn't need to be configured.
@@ -26,7 +29,7 @@ const byte etherEventTimeout = 20;  //(ms)The max time to wait for ethernet comm
 const unsigned int W5100timeout = 400;  //(0.1ms)used to set the timeout for the w5100 module.
 const byte W5100retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
 
-const byte randomSeedPin=A0;  //analog pin to use to seed the random() function
+const byte randomSeedPin = A0; //analog pin to use to seed the random() function
 
 const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
@@ -50,19 +53,26 @@ void setup() {
     Serial.print(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
   }
-  
+
   EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
   W5100.setRetransmissionTime(W5100timeout);  //set the timeout for the w5100 module.
   W5100.setRetransmissionCount(W5100retransmissionCount);  //Retransmission Count - 1 is the minimum value
 
-  //random() yields a pseudorandom number that will follow the same sequence after each reset unless it is seeded.
   //By using a random cookie in the authentication process, event sending can be made more secure.
-  randomSeed(analogRead(randomSeedPin));  //this will seed the random() function with the analog input value of the pin
+  Entropy.initialize();  //gets truly random numbers from the timer jitter
+  if (randomCookie == false) {  //randomSeed is not needed if the entropy random function is used for every cookie instead of just the randomSeed
+    //random() yields a pseudorandom number that will follow the same sequence after each reset unless it is seeded.
+    randomSeed(Entropy.random());  //seed the random function with a truly random value from the entropy library
+  }
 }
 
 
 void loop() {
-  if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
+  int cookie = false;
+  if (randomCookie == true) {
+    cookie = Entropy.random(); //true random cookie for highest security
+  }
+  if (byte availableLength = EtherEvent.availableEvent(ethernetServer, cookie)) {  //this checks for a new event and gets the length of the event including the null terminator
     Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
     char event[availableLength];  //create the event buffer of the correct size

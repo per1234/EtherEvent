@@ -34,7 +34,6 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
 - Wiznet Ethernet library for use with W5200 or W5500 Ethernet controller: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
 - Flash library to allow passing payload strings stored in flash memory without a string length argument: https://github.com/schinken/Flash/tree/patch-2
-- Entropy truly random numbers library: http://sites.google.com/site/astudyofentropy/file-cabinet
 
 
 #### Installation
@@ -76,9 +75,11 @@ See the example sketches and EventGhost tree file for demonstration of library u
 - Returns: true = success, false = memory allocation failed
   - Type: boolean
 
-`EtherEvent.availableEvent(ethernetServer)` - Receives new event if an event is not already buffered.
+`EtherEvent.availableEvent(ethernetServer, cookie)` - Receives new event if an event is not already buffered.
 - Parameter: ethernetServer - The EthernetServer object created in the Ethernet setup of the user's sketch.
   - Type: EthernetServer
+- Parameter(optional): cookie - Cookie value to use in the authentication process. This can be used to provide a truly random cookie for enhanced security. If this parameter is not specified then a pseudorandom cookie will be generated with the random() function.
+  - Type: int
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator.
   - Type: byte
 
@@ -147,8 +148,6 @@ See the example sketches and EventGhost tree file for demonstration of library u
 There are a few parameters that can be set in the file **EtherEvent.cpp** to enable extra features:
 - Flash library: If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**. This will allow easy use of program memory with send() and setPassword().
 - Debug output: Set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication so only enable when needed.
-- Entropy library: If you are using the Entropy library uncomment the line `//#include "Entropy.h"`. This will ensure a truly random seed and the option of generating a truly random cookie at the cost of higher memory usage.
-- Truly random cookie: If the Entropy library is installed and enabled then a higher level of security can be achieved at the cost of slower receipt of events via availableEvent() by setting `const boolean randomCookie = true`.
 
 
 #### Authentication Process

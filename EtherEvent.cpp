@@ -3,21 +3,20 @@
 #include <SPI.h>
 #include "Ethernet.h"
 #include "MD5.h"
-//#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //START user configuration parameters
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#include "Entropy.h"  //Uncomment this line if you have the Entropy library installed. Warning, not using the library will save memory at the expense of authentication security.
 
-const boolean randomCookie = false;  //Set to true to use the entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory.
+//#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
 #define DEBUG false  //(false == serial debug output off,  true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when in use.
-#define Serial if(DEBUG)Serial
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //END user configuration parameters
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define Serial if(DEBUG)Serial
 
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
@@ -61,13 +60,6 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloa
     Serial.println(F("memory allocation failed"));
     return false;
   }
-
-#ifdef Entropy_h  //the Entropy library is in use
-  Entropy.initialize();  //gets truly random numbers from the timer jitter
-  if (randomCookie == false) {  //randomSeed is not needed if the entropy random function is used for every cookie instead of just the randomSeed
-    randomSeed(Entropy.random());  //Initialize the random function with a truly random value from the entropy library
-  }
-#endif
   return true;
 }
 
@@ -75,7 +67,7 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloa
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //availableEvent - checks for senders,  connects,  authenticates,  reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {
+byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, int cookieInput) {
   if (receivedEventLength == 0) {  //no event buffered
     if (EthernetClient ethernetClient = ethernetServer.available() ) {  //connect to the client
       Serial.println(F("EtherEvent.availableEvent: connected"));
@@ -86,20 +78,16 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer) {
 
         //create and send cookie
         int cookie;
-#ifdef Entropy_h
-        if (randomCookie == 1) {
-          Serial.println(F("EtherEvent.availableEvent: RANDOM_COOKIE"));
-          cookie = Entropy.random();  //true random cookie for highest security - returns unsigned long
+        if (cookieInput != false) { //use user-defined cookie
+          Serial.print(F("EtherEvent.availableEvent: user defined cookie: "));
+          cookie = cookieInput;
         }
         else {
-#endif
+          Serial.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
           cookie = random(65536);  //make random 5 digit number to use as cookie and send to the sender, random returns a long but I'm limiting it to
-#ifdef Entropy_h
         }
-#endif
         char cookiePassword[5 + 1 + passwordLength + 1];  //cookie  +  password separator  +  Password  +  null terminator
         sprintf_P(cookiePassword, PSTR("%u"), cookie);  //convert the unsigned long cookie to char
-        Serial.print(F("EtherEvent.availableEvent: cookie: "));
         Serial.println(cookiePassword);
         ethernetClient.print(cookiePassword);  //send the cookie
 
