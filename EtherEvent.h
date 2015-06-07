@@ -43,7 +43,7 @@ class EtherEventClass {
     template <typename targetType>
     byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
       char eventChar[uint16_tLengthMax + 1];
-      sprintf_P(eventChar, PSTR("%u"), event);
+      utoa(event, eventChar, 10);
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType>
@@ -75,7 +75,7 @@ class EtherEventClass {
     template <typename targetType, typename eventType>
     byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
       char payloadChar[uint16_tLengthMax + 1];
-      sprintf_P(payloadChar, PSTR("%u"), payload);
+      utoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
