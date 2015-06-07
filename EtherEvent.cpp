@@ -164,9 +164,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
 
               //save the sender IP address
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-              byte tempIP[4];  //W5100 uses the byte array to return the IP address so I have to do this to convert it to IPAddress type instead of just passing fromIP to getRemoteIP()
-              ethernetClient.remoteIP(tempIP);  //Save the IP address of the sender. Requires modified ethernet library
-              fromIP = tempIP;
+              fromIP = ethernetClient.remoteIP(); //Save the IP address of the sender. Requires modified ethernet library
 #endif
 
               break;  //exit the payload/event message handler loop
