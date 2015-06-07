@@ -79,7 +79,7 @@ See the example sketches and EventGhost tree file for demonstration of library u
 - Parameter: ethernetServer - The EthernetServer object created in the Ethernet setup of the user's sketch.
   - Type: EthernetServer
 - Parameter(optional): cookie - Cookie value to use in the authentication process. This can be used to provide a truly random cookie for enhanced security. If this parameter is not specified then a pseudorandom cookie will be generated with the random() function.
-  - Type: int
+  - Type: long
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator.
   - Type: byte
 

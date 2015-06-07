@@ -28,7 +28,7 @@ const byte payloadSeparatorLength = strlen(payloadSeparator);  //includes space 
 const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
 const byte closeMessageLength = strlen(closeMessage);
 const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
-const byte cookieLengthMax = 5;  //EtherEvent sends a 5 digit cookie,  EventGhost seems to send a 4 digit cookie(socket),  but it can be set larger if needed
+const byte cookieLengthMax = 8;  //EtherEvent's cookie is a long sent in hexadecimal which is 8 digits max,  EventGhost's cookie is 4 digits,  but it can be set larger if needed
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloa
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //availableEvent - checks for senders,  connects,  authenticates,  reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, int cookieInput) {
+byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookieInput) {
   if (receivedEventLength == 0) {  //no event buffered
     if (EthernetClient ethernetClient = ethernetServer.available() ) {  //connect to the client
       Serial.println(F("EtherEvent.availableEvent: connected"));
@@ -77,17 +77,18 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, int cookieI
         Serial.println(F("EtherEvent.availableEvent: magic word received"));
 
         //create and send cookie
-        int cookie;
+        long cookie;
         if (cookieInput != false) { //use user-defined cookie
           Serial.print(F("EtherEvent.availableEvent: user defined cookie: "));
           cookie = cookieInput;
         }
         else {
           Serial.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
-          cookie = random(65536);  //make random 5 digit number to use as cookie and send to the sender, random returns a long but I'm limiting it to
+          randomSeed(micros());
+          cookie = random(RANDOM_MAX);  //make random number to use as cookie
         }
-        char cookiePassword[5 + 1 + passwordLength + 1];  //cookie  +  password separator  +  Password  +  null terminator
-        sprintf_P(cookiePassword, PSTR("%u"), cookie);  //convert the unsigned long cookie to char
+        char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
+        ltoa(cookie, cookiePassword, HEX);
         Serial.println(cookiePassword);
         ethernetClient.print(cookiePassword);  //send the cookie
 

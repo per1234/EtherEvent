@@ -26,8 +26,6 @@ const byte etherEventTimeout = 20;  //(ms)The max time to wait for ethernet comm
 const unsigned int W5100timeout = 400;  //(0.1ms)used to set the timeout for the w5100 module.
 const byte W5100retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
 
-const byte randomSeedPin=A0;  //analog pin to use to seed the random() function
-
 const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
 const unsigned int sendPort = 1024;  //The port to send the test events to.
@@ -50,14 +48,10 @@ void setup() {
     Serial.print(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
   }
-  
+
   EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
   W5100.setRetransmissionTime(W5100timeout);  //set the timeout for the w5100 module.
   W5100.setRetransmissionCount(W5100retransmissionCount);  //Retransmission Count - 1 is the minimum value
-
-  //random() yields a pseudorandom number that will follow the same sequence after each reset unless it is seeded.
-  //By using a random cookie in the authentication process, event sending can be made more secure.
-  randomSeed(analogRead(randomSeedPin));  //this will seed the random() function with the analog input value of the pin
 }
 
 

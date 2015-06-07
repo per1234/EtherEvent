@@ -14,7 +14,6 @@
 //#include "Flash.h"  //Uncomment this line if you are using the Flash library.
 
 //configuration parameters - modify these values to your desired settings
-const boolean randomCookie = false;  //Set to true to use the Entropy random function for the cookie instead of the arduino random function for added security. This will increase the time required for the availableEvent() function to receive a new message and use more memory.
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
 byte MACaddress[] = {0, 1, 2, 3, 4, 4};  //this can be anything you like as long as it's unique on your network
 const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use for the device. This can be any valid address on the network as long as it is unique. If you are using DHCP then this doesn't need to be configured.
@@ -60,19 +59,11 @@ void setup() {
 
   //By using a random cookie in the authentication process, event sending can be made more secure.
   Entropy.initialize();  //gets truly random numbers from the timer jitter
-  if (randomCookie == false) {  //randomSeed is not needed if the entropy random function is used for every cookie instead of just the randomSeed
-    //random() yields a pseudorandom number that will follow the same sequence after each reset unless it is seeded.
-    randomSeed(Entropy.random());  //seed the random function with a truly random value from the entropy library
-  }
 }
 
 
 void loop() {
-  int cookie = false;
-  if (randomCookie == true) {
-    cookie = Entropy.random(); //true random cookie for highest security
-  }
-  if (byte availableLength = EtherEvent.availableEvent(ethernetServer, cookie)) {  //this checks for a new event and gets the length of the event including the null terminator
+  if (byte availableLength = EtherEvent.availableEvent(ethernetServer, Entropy.random())) {  //this checks for a new event and gets the length of the event including the null terminator
     Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
     char event[availableLength];  //create the event buffer of the correct size

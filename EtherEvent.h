@@ -20,7 +20,7 @@ class EtherEventClass {
   public:
     EtherEventClass();
     boolean begin(const byte eventLengthMaxInput = 15, const byte payloadLengthMaxInput = 100);  //these are the default max length values
-    byte availableEvent(EthernetServer &ethernetServer, int cookieInput = false);
+    byte availableEvent(EthernetServer &ethernetServer, long cookieInput = false);
     byte availablePayload();
     void readEvent(char eventBuffer[]);
     void readPayload(char payloadBuffer[]);
