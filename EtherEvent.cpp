@@ -20,7 +20,6 @@
 
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
-
 const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
 const byte payloadWithoutReleaseLength = strlen(payloadWithoutRelease);
 const char payloadSeparator[] = "payload ";  //indicates payload
@@ -73,7 +72,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
       Serial.println(F("EtherEvent.availableEvent: connected"));
       ethernetClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc
 
-      if (ethernetClient.find(MAGIC_WORD) == 1) {  //magic word correct
+      if (ethernetClient.find((char*)MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to ‘char*’" compile error
         Serial.println(F("EtherEvent.availableEvent: magic word received"));
 
         //create and send cookie
@@ -104,14 +103,14 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
         Serial.println(cookiePasswordMD5);
 
         //verify the received hashword
-        if (ethernetClient.find(cookiePasswordMD5) == 1) {  //authentication successful
+        if (ethernetClient.find(cookiePasswordMD5) == true) {  //authentication successful
           ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
           Serial.println(F("EtherEvent.availableEvent: authentication successful"));
           ethernetClient.print(ACCEPT_MESSAGE);  //for some reason I can't use F() on this one
           free(cookiePasswordMD5);
 
           //Read and process the message
-          for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop
+          for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
             Serial.println(F("EtherEvent.availableEvent: payload/event for loop"));
             char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
             const byte bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax);  //put the incoming data up to the newline into receivedMessage
@@ -279,7 +278,7 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress &t
       ethernetClient.write(10);  //newline
       free(cookiePasswordMD5);
 
-      if (ethernetClient.find(ACCEPT_MESSAGE) == 1) {  //authentication successful
+      if (ethernetClient.find((char*)ACCEPT_MESSAGE) == true) {  //authentication successful - the (char*) thing is to get rid of the "warning: deprecated conversion from string constant to ‘char*’" compiler warning
         if (payload[0] != 0) {  //check if there is a payload
           ethernetClient.print(payloadSeparator);
           ethernetClient.print(payload);
