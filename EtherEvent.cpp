@@ -246,7 +246,7 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient, const byte target[
   return send(ethernetClient, targetIP, port, event, payload);
 }
 
-boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress target, const unsigned int port, const char event[], const char payload[]) {
+boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[]) {
   Serial.println(F("EtherEvent.send: attempting connection"));
   Serial.print(F("EtherEvent.send: target: "));
   Serial.println(target);
@@ -345,7 +345,7 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput, c
 }
 
 #ifdef __FLASH_H__
-boolean EtherEventClass::setPassword(const _FLASH_STRING passwordInput) {
+boolean EtherEventClass::setPassword(const _FLASH_STRING &passwordInput) {
   Serial.println(F("EtherEvent.setPassword(Flash)"));
   passwordLength = passwordInput.length();
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password

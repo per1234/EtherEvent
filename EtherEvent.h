@@ -30,7 +30,7 @@ class EtherEventClass {
     void flushReceiver();
 
 
-    boolean send(EthernetClient &ethernetClient, const IPAddress target, const unsigned int port, const char event[], const char payload[] = "");
+    boolean send(EthernetClient &ethernetClient, const IPAddress& target, const unsigned int port, const char event[], const char payload[] = "");
     boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[] = "");
 
     //convert event
@@ -113,14 +113,14 @@ class EtherEventClass {
     //Flash templates
 #ifdef __FLASH_H__
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const _FLASH_STRING event, const char payload[] = "") {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const _FLASH_STRING &event, const char payload[] = "") {
       const byte stringLength = event.length();
       char eventChar[stringLength + 1];
       event.copy(eventChar, stringLength + 1, 0);  //+1 for null terminator
       return send(ethernetClient, target, port, eventChar, payload);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const _FLASH_STRING payload) {
+    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const _FLASH_STRING &payload) {
       const byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
       payload.copy(payloadChar, stringLength + 1, 0);  //+1 for null terminator
@@ -134,7 +134,7 @@ class EtherEventClass {
     boolean setPassword(const char passwordInput[]);
     boolean setPassword(const __FlashStringHelper* passwordInput, const byte passwordLengthInput);
 #ifdef __FLASH_H__
-    boolean setPassword(const _FLASH_STRING passwordInput);
+    boolean setPassword(const _FLASH_STRING &passwordInput);
 #endif
   private:
     //used for the convesions to char array
