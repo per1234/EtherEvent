@@ -138,10 +138,10 @@ class EtherEventClass {
 #endif
   private:
     //used for the convesions to char array
-    const byte uint16_tLengthMax = 5;  //5 digits
-    const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
-    const byte uint32_tLengthMax = 10;  //10 digits
-    const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
+    static const byte uint16_tLengthMax = 5;  //5 digits
+    static const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
+    static const byte uint32_tLengthMax = 10;  //10 digits
+    static const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
