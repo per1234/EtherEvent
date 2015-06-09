@@ -30,97 +30,116 @@ class EtherEventClass {
     void flushReceiver();
 
 
-    boolean send(EthernetClient &ethernetClient, const IPAddress& target, const unsigned int port, const char event[], const char payload[] = "");
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "");
     boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[] = "");
 
     //convert event
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[]) {
+      return send(ethernetClient, target, port, (const char*)event, payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "") {
+      return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "") {
+      return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
       char eventChar[int16_tLengthMax + 1];
       itoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, eventChar, payload);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
       char eventChar[uint16_tLengthMax + 1];
       utoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, eventChar, payload);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
       char eventChar[int32_tLengthMax + 1];
       ltoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, eventChar, payload);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
       char eventChar[uint32_tLengthMax + 1];
       ultoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, eventChar, payload);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType, typename payloadType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const payloadType payload) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const payloadType payload) {
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
-      return send(ethernetClient, target, port, eventChar, payload);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
 
     //convert payload
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[]) {
+      return send(ethernetClient, target, port, event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+    }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
       char payloadChar[int16_tLengthMax + 1];
       itoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
       char payloadChar[uint16_tLengthMax + 1];
       utoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
       char payloadChar[int32_tLengthMax + 1];
       ltoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
       char payloadChar[uint32_tLengthMax + 1];
       ultoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const byte payloadLength) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const byte payloadLength) {
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, event, payloadChar);
     }
 
-
-    //convert F() event and payload
+    //convert event and payload
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const __FlashStringHelper* payload, const byte payloadLength) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const __FlashStringHelper* payload, const byte payloadLength) {
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
 
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
 
-      return send(ethernetClient, target, port, eventChar, payloadChar);
+      return send(ethernetClient, target, port, (const char*)eventChar, payloadChar);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[]) {
+      return send(ethernetClient, target, port, (const char*)event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
 
     //Flash templates
 #ifdef __FLASH_H__
     template <typename targetType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const _FLASH_STRING &event, const char payload[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const _FLASH_STRING &event, const char payload[] = "") {
       const byte stringLength = event.length();
       char eventChar[stringLength + 1];
       event.copy(eventChar, stringLength + 1, 0);  //+1 for null terminator
-      return send(ethernetClient, target, port, eventChar, payload);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType, typename eventType>
-    byte send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const _FLASH_STRING &payload) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const _FLASH_STRING &payload) {
       const byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
       payload.copy(payloadChar, stringLength + 1, 0);  //+1 for null terminator
