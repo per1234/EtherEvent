@@ -8,7 +8,6 @@
 #include "MD5.h"
 #include "EtherEvent.h"
 
-//#include "Flash.h"  //Uncomment this line if you are using the Flash library.
 
 //configuration parameters - modify these values to your desired settings
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.

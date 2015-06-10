@@ -33,7 +33,6 @@ This is a beta release. I have been successfully using it with EventGhost in my 
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
 - Wiznet Ethernet library for use with W5200 or W5500 Ethernet controller: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
-- Flash library to allow passing payload strings stored in flash memory without a string length argument: https://github.com/schinken/Flash/tree/patch-2
 
 
 <a id="installation"></a>
@@ -73,9 +72,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 
 `EtherEvent.setPassword(password[, passwordLength])` - Set the password.
 - Parameter: **password** - Password used to authenticate event transmission.
-  - Type: char array or _FLASH_STRING(Flash library)
-- Parameter: **passwordLength** - Length of the password. Use this parameter only with __FlashStringHelper/F() password type.
-  - Type: byte
+  - Type: char array or __FlashStringHelper/F()
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
@@ -108,7 +105,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 `EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
 - Returns: none
 
-`EtherEvent.send(ethernetClient, target, port, event[, eventLength][, payload[, payloadLength]])` - Send an event and payload.
+`EtherEvent.send(ethernetClient, target, port, event[, payload])` - Send an event and payload.
 - Parameter: **ethernetClient** - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
 - Parameter: **target** - IP address to send the event to.
@@ -116,13 +113,9 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
-- Parameter: **eventLength** - Length of the event. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
-  - Type: byte
+  - Type: char/char array/int8_t/byte/int/unsigned int/long/unsigned long/float/double/String/__FlashStringHelper(F() macro)
 - Parameter(optional): **payload** - Payload to send with the event. The payload is not optional when the event is of type __FlashStringHelper(F() macro).
-  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
-- Parameter: **payloadLength** - Length of the payload. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
-  - Type: byte
+  - Type: char/char array/int8_t/byte/int/unsigned int/long/unsigned long/float/double/IPAddress/String/__FlashStringHelper(F() macro)
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 
@@ -143,14 +136,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - If using a static IP address it must also be unique on your network.
   - The firewall on computers running EventGhost must allow it to communicate via the network.
 - Timeouts: When using the **BasicUsage.ino** example sketch you may notice sending or receiving an event sometimes will hang for a long time before failing. This is caused by the conservative default timeout values. **AdvancedUsage.ino** demonstrates setting the EtherEvent timeout via `setTimeout()` and the W5x00 Ethernet controller timeout and retry count via `W5100.setRetransmissionTime()` and `W5100.setRetransmissionCount()`. `setTimeout()` controls the amount of time that EtherEvent will wait for the authentication process communications. `W5100.setRetransmissionTime()` controls the amount of time that the W5x00 will wait after a connection attempt before retrying. `W5100.setRetransmissionCount()` controls the number of attempts the W5x00 will make before failing the connection attempt. By reducing the timeout values you can shorten the amount of time that the system will hang during a failed event transmission. If the timeout values are too small then you will see frequent transmission failures. By experimenting with different values you can find appropriate timeouts for your system. Be aware that the timeout requirements for Arduino to EventGhost event transmission may be different than Arduino to Arduino transmission.
-- Debug output: By turning debug output on you can get details of the authentication process in the serial monitor.
-
-
-<a id="configuration"></a>
-#### Configuration
-There are a few configuration options that can be set in the file **EtherEvent.cpp** to enable extra features:
-- Flash library: If you are using the Flash library then uncomment `//#include "Flash.h"` in **EtherEvent.cpp** and **EtherEvent.h**. This will allow easy use of program memory with send() and setPassword().
-- Debug output: Set `#define DEBUG true` to get debug output in the serial monitor, this will slow down communication so only enable when needed.
+- Debug output: By turning debug output on you can get details of the authentication process in the serial monitor. Set `#define ETHEREVENT_DEBUG true` in EtherEvent.h, this will slow down communication so only enable when needed.
 
 
 <a id="security"></a>

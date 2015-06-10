@@ -11,7 +11,6 @@
 #include "EtherEvent.h"
 #include "Entropy.h"
 
-//#include "Flash.h"  //Uncomment this line if you are using the Flash library.
 
 //configuration parameters - modify these values to your desired settings
 #define DHCP false  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
@@ -86,7 +85,7 @@ void loop() {
   if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
-    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), 4, F("test payload"), 12)) {  //send event to target IP address, port, event, payload
+    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), F("test payload"))) {  //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
     }
     else {
