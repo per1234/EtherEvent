@@ -101,10 +101,8 @@ class EtherEventClass {
     void setTimeout(const unsigned int timeoutInput);
     unsigned int getTimeout();
     boolean setPassword(const char passwordInput[]);
-    boolean setPassword(const __FlashStringHelper* passwordInput, const byte passwordLengthInput);
-#ifdef __FLASH_H__
-    boolean setPassword(const _FLASH_STRING &passwordInput);
-#endif
+    boolean setPassword(const __FlashStringHelper* passwordInput);
+
   private:
     //used for the convesions to char array
     static const byte uint16_tLengthMax = 5;  //5 digits

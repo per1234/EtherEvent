@@ -70,7 +70,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
-`EtherEvent.setPassword(password[, passwordLength])` - Set the password.
+`EtherEvent.setPassword(password)` - Set the password.
 - Parameter: **password** - Password used to authenticate event transmission.
   - Type: char array or __FlashStringHelper/F()
 - Returns: `true` = success, `false` = memory allocation failed

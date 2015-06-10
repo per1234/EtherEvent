@@ -251,31 +251,23 @@ boolean EtherEventClass::setPassword(const char passwordInput[]) {
   return true;
 }
 
-boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput, const byte passwordLengthInput) {
+boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
   Serial.println(F("EtherEvent.setPassword(F())"));
-  passwordLength = passwordLengthInput;
-  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
-  memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
+  const char* passwordInputPointer = (const char PROGMEM *)passwordInput;
+  size_t stringLength = 0;
+  while (1) {
+    unsigned char c = pgm_read_byte(passwordInputPointer++);
+    if (c == 0) break;
+    stringLength++;
+  }
+  password = (char*)realloc(password, (stringLength + 1) * sizeof(*password));  //allocate memory for the password
+  memcpy_P(password, passwordInput, stringLength + 1);  //+1 for the null terminator
   if (password == NULL) {
     Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
     return false;
   }
   return true;
 }
-
-#ifdef __FLASH_H__
-boolean EtherEventClass::setPassword(const _FLASH_STRING &passwordInput) {
-  Serial.println(F("EtherEvent.setPassword(Flash)"));
-  passwordLength = passwordInput.length();
-  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
-  passwordInput.copy(password, passwordLength + 1, 0);  //+1 for null terminator
-  if (password == NULL) {
-    Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
-    return false;
-  }
-  return true;
-}
-#endif
 
 
 EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
