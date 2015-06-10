@@ -11,12 +11,10 @@
 
 //#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
-#define DEBUG false  //(false == serial debug output off,  true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when in use.
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //END user configuration parameters
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define Serial if(DEBUG)Serial
+#define Serial if(ETHEREVENT_DEBUG)Serial
 
 #define MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const

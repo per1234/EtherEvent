@@ -10,6 +10,9 @@
 //START user configuration parameters
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define ETHEREVENT_DEBUG true  //(false == serial debug output off,  true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when needed.
+#define ETHEREVENT_SERIAL if(ETHEREVENT_DEBUG)Serial  //I have to use a different name for Serial in this file otherwise the debug statement control also affects any other file that includes this file.
+
 //#include "Flash.h"  //uncomment this line if you have the Flash library installed
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
