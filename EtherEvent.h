@@ -33,31 +33,31 @@ class EtherEventClass {
 
     template <typename target_t, typename event_t>
     boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {
-      Serial.println(F("EtherEvent.send(no payload)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload)"));
       noPayload = true;  //set the flag to indicate there is no payload
       return send(ethernetClient, target, port, event, false);
     }
     template <typename event_t, typename payload_t>
     boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const event_t event, const payload_t payload) {
-      Serial.println(F("EtherEvent.send(byte array IP address)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte array IP address)"));
       IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
       return send(ethernetClient, targetIP, port, event, payload);
     }
     template <typename event_t, typename payload_t>
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload) {
-      Serial.println(F("EtherEvent.send: attempting connection"));
-      Serial.print(F("EtherEvent.send: target: "));
-      Serial.println(target);
-      Serial.print(F("EtherEvent.send: port: "));
-      Serial.println(port);
-      Serial.print(F("EtherEvent.send: event: "));
-      Serial.println(event);
-      Serial.print(F("EtherEvent.send: payload: "));
-      Serial.println(payload);
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send: attempting connection"));
+      ETHEREVENT_SERIAL.print(F("EtherEvent.send: target: "));
+      ETHEREVENT_SERIAL.println(target);
+      ETHEREVENT_SERIAL.print(F("EtherEvent.send: port: "));
+      ETHEREVENT_SERIAL.println(port);
+      ETHEREVENT_SERIAL.print(F("EtherEvent.send: event: "));
+      ETHEREVENT_SERIAL.println(event);
+      ETHEREVENT_SERIAL.print(F("EtherEvent.send: payload: "));
+      ETHEREVENT_SERIAL.println(payload);
       ethernetClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc
       byte eventSuccess = false;
       if (ethernetClient.connect(target, port)) {  //connected to receiver
-        Serial.println(F("EtherEvent.send: connected, sending magic word"));
+        ETHEREVENT_SERIAL.println(F("EtherEvent.send: connected, sending magic word"));
         ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
 
         char cookiePassword[cookieLengthMax + 1 + passwordLength + 1];  //cookie,  password separator(:),  password,  null terminator
@@ -65,13 +65,13 @@ class EtherEventClass {
           cookiePassword[bytesRead] = 0;
           strcat(cookiePassword, ":");  //add the password separator to the cookie
           strcat(cookiePassword, password);  //add password to the cookie
-          Serial.print(F("EtherEvent.send: cookiePassword: "));
-          Serial.println(cookiePassword);
+          ETHEREVENT_SERIAL.print(F("EtherEvent.send: cookiePassword: "));
+          ETHEREVENT_SERIAL.println(cookiePassword);
           unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
           char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash,  16);
           free(cookiePasswordHash);
-          Serial.print(F("EtherEvent.send: hashWordMD5: "));
-          Serial.println(cookiePasswordMD5);
+          ETHEREVENT_SERIAL.print(F("EtherEvent.send: hashWordMD5: "));
+          ETHEREVENT_SERIAL.println(cookiePasswordMD5);
           ethernetClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
           ethernetClient.write(10);  //newline
           free(cookiePasswordMD5);
@@ -90,10 +90,10 @@ class EtherEventClass {
         }
         ethernetClient.print(etherEvent::closeMessage);  //tell the receiver to close
         ethernetClient.stop();
-        Serial.println(F("EtherEvent.send: connection closed"));
+        ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection closed"));
       }
       else {
-        Serial.println(F("EtherEvent.send: connection failed"));
+        ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection failed"));
       }
       return eventSuccess;  //send finished
     }
