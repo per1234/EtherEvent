@@ -5,7 +5,7 @@
 //These libraries are required by EtherEvent:
 #include <SPI.h>
 #include <Ethernet.h>
-#include <utility/w5100.h>  //Used for setting the W5100 retransmission time and count.
+#include <utility/w5100.h>  //Used for setting the W5x00 retransmission time and count.
 #include "MD5.h"
 #include "EtherEvent.h"
 
@@ -22,8 +22,8 @@ const byte maxReceivedPayloadLength = 25;  //Maximum payload length to receive. 
 //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
 //The default values used when these timeouts are not set are fairly conservative.
 const byte etherEventTimeout = 20;  //(ms)The max time to wait for ethernet communication.
-const unsigned int W5100timeout = 400;  //(0.1ms)used to set the timeout for the w5100 module.
-const byte W5100retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
+const unsigned int W5x00timeout = 400;  //(0.1ms)used to set the timeout for the W5x00 module.
+const byte W5x00retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
 
 const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
@@ -49,8 +49,8 @@ void setup() {
   }
 
   EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
-  W5100.setRetransmissionTime(W5100timeout);  //set the timeout for the w5100 module.
-  W5100.setRetransmissionCount(W5100retransmissionCount);  //Retransmission Count - 1 is the minimum value
+  W5100.setRetransmissionTime(W5x00timeout);  //set the timeout for the W5x00 module.
+  W5100.setRetransmissionCount(W5x00retransmissionCount);  //Retransmission Count - 1 is the minimum value
 }
 
 
