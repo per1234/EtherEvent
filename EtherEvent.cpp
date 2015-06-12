@@ -18,6 +18,7 @@ const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet s
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EtherEventClass::EtherEventClass() {
   timeout = timeoutDefault;
+  noPayload = false;
 }
 
 

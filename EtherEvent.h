@@ -117,7 +117,7 @@ class EtherEventClass {
 
     char* password;
     byte passwordLength;
-    boolean noPayload = false;
+    boolean noPayload;
 
     IPAddress fromIP;  //IP address of the last event sender
     byte eventLengthMax;
