@@ -3,8 +3,7 @@
 #define EtherEvent_h
 
 #include <Arduino.h>
-#include <SPI.h>
-#include "Ethernet.h"
+#include <Ethernet.h>
 #include "MD5.h"
 
 #define ETHEREVENT_DEBUG false  //(false == serial debug output off,  true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when needed.
