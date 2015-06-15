@@ -330,6 +330,20 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//IPtoa - convert IPAddress to char array and put it in the passed buffer
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void EtherEventClass::IPtoa(const IPAddress &IP, char IPcharBuffer[]) {
+  utoa(IP[0], IPcharBuffer, 10);  //convert the first octet
+  for (byte octetCount = 1; octetCount < 4; octetCount++) {  //convert the other 3 octets
+    strcat(IPcharBuffer, ".");
+    char octetChar[3 + 1];  //3 digit byte + null terminator
+    utoa(IP[octetCount], octetChar, 10);  //convert the first octet
+    strcat(IPcharBuffer, octetChar);
+  }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //FSHlength - determine length of __FlashStringHelper
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 byte EtherEventClass::FSHlength(const __FlashStringHelper* passwordInput) {

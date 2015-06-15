@@ -11,4 +11,5 @@ getTimeout	KEYWORD2
 setTimeout	KEYWORD2
 setPassword	KEYWORD2
 FSHlength KEYWORD2
+IPtoa KEYWORD2
 

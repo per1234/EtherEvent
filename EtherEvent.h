@@ -76,9 +76,15 @@ class EtherEventClass {
       byte stringLength = event.length();
       char eventChar[stringLength + 1];
       for (byte counter = 0; counter < stringLength; counter++) {
-        eventChar[counter] = event[counter]; //I could probably just use c_str() instead but then I have to deal with the pointer
+        eventChar[counter] = event[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
       }
       eventChar[stringLength] = 0;
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "") {
+      char eventChar[IPAddressLengthMax + 1];
+      IPtoa(event, eventChar);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
 
@@ -123,9 +129,15 @@ class EtherEventClass {
       byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
       for (byte counter = 0; counter < stringLength; counter++) {
-        payloadChar[counter] = payload[counter]; //I could probably just use c_str() instead but then I have to deal with the pointer
+        payloadChar[counter] = payload[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
       }
       payloadChar[stringLength] = 0;
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload) {
+      char payloadChar[IPAddressLengthMax + 1];
+      IPtoa(payload, payloadChar);
       return send(ethernetClient, target, port, event, payloadChar);
     }
 
@@ -141,6 +153,7 @@ class EtherEventClass {
     boolean setPassword(const char passwordInput[]);
     boolean setPassword(const __FlashStringHelper* passwordInput);
     byte FSHlength(const __FlashStringHelper * passwordInput);
+    void IPtoa(const IPAddress & IP, char IPcharBuffer[]);
 
 
   private:
@@ -149,6 +162,8 @@ class EtherEventClass {
     static const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
     static const byte uint32_tLengthMax = 10;  //10 digits
     static const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
+    static const byte IPAddressLengthMax = 3 + 1 + 3 + 1 + 3 + 1 + 3;  //4 x octet + 3 x dot
+
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
