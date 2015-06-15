@@ -71,6 +71,16 @@ class EtherEventClass {
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "") {
+      byte stringLength = event.length();
+      char eventChar[stringLength + 1];
+      for (byte counter = 0; counter < stringLength; counter++) {
+        eventChar[counter] = event[counter]; //I could probably just use c_str() instead but then I have to deal with the pointer
+      }
+      eventChar[stringLength] = 0;
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
 
     //convert payload
     template <typename targetType>
@@ -106,6 +116,16 @@ class EtherEventClass {
       byte payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload) {
+      byte stringLength = payload.length();
+      char payloadChar[stringLength + 1];
+      for (byte counter = 0; counter < stringLength; counter++) {
+        payloadChar[counter] = payload[counter]; //I could probably just use c_str() instead but then I have to deal with the pointer
+      }
+      payloadChar[stringLength] = 0;
       return send(ethernetClient, target, port, event, payloadChar);
     }
 
