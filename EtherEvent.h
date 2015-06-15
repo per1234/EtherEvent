@@ -30,42 +30,50 @@ class EtherEventClass {
     //convert event
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
       return send(ethernetClient, target, port, (const char*)event, payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
       return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte event)"));
       return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int event)"));
       char eventChar[int16_tLengthMax + 1];
       itoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int event)"));
       char eventChar[uint16_tLengthMax + 1];
       utoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(long event)"));
       char eventChar[int32_tLengthMax + 1];
       ltoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long event)"));
       char eventChar[uint32_tLengthMax + 1];
       ultoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() event)"));
       byte eventLength = FSHlength(event);
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
@@ -73,6 +81,7 @@ class EtherEventClass {
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String event)"));
       byte stringLength = event.length();
       char eventChar[stringLength + 1];
       for (byte counter = 0; counter < stringLength; counter++) {
@@ -83,52 +92,61 @@ class EtherEventClass {
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
       char eventChar[IPAddressLengthMax + 1];
       IPtoa(event, eventChar);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
       char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
       dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
       return send(ethernetClient, target, port, (double)event, payload);  //needed to fix ambiguous compiler warning
     }
 
     //convert payload
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
       return send(ethernetClient, target, port, event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
       char payloadChar[int16_tLengthMax + 1];
       itoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int payload)"));
       char payloadChar[uint16_tLengthMax + 1];
       utoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(long payload)"));
       char payloadChar[int32_tLengthMax + 1];
       ltoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long payload)"));
       char payloadChar[uint32_tLengthMax + 1];
       ultoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
       byte payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
@@ -136,6 +154,7 @@ class EtherEventClass {
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
       byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
       for (byte counter = 0; counter < stringLength; counter++) {
@@ -146,12 +165,14 @@ class EtherEventClass {
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress payload)"));
       char payloadChar[IPAddressLengthMax + 1];
       IPtoa(payload, payloadChar);
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
       char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
       dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
       return send(ethernetClient, target, port, event, payloadChar);
@@ -160,6 +181,7 @@ class EtherEventClass {
     //convert event and payload
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event, char payload)"));
       return send(ethernetClient, target, port, (const char*)event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
 

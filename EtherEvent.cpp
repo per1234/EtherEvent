@@ -336,6 +336,7 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
   Serial.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
+  Serial.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
   sendDoubleDecimalPlaces = decimalPlaces;
 }
 
