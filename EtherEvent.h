@@ -87,6 +87,16 @@ class EtherEventClass {
       IPtoa(event, eventChar);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "") {
+      char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+      dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "") {
+      return send(ethernetClient, target, port, (double)event, payload);  //needed to fix ambiguous compiler warning
+    }
 
     //convert payload
     template <typename targetType>
@@ -140,6 +150,12 @@ class EtherEventClass {
       IPtoa(payload, payloadChar);
       return send(ethernetClient, target, port, event, payloadChar);
     }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload) {
+      char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+      dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
 
     //convert event and payload
     template <typename targetType>
@@ -163,6 +179,7 @@ class EtherEventClass {
     static const byte uint32_tLengthMax = 10;  //10 digits
     static const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
     static const byte IPAddressLengthMax = 3 + 1 + 3 + 1 + 3 + 1 + 3;  //4 x octet + 3 x dot
+    static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
@@ -177,6 +194,7 @@ class EtherEventClass {
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
     byte payloadLengthMax;
     char* receivedPayload;  //payload buffer
+    byte sendDoubleDecimalPlaces;
 };
 
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch

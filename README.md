@@ -113,9 +113,9 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/__FlashStringHelper(F() macro)/String/IPAddress
+  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/__FlashStringHelper(F() macro)/String/IPAddress/float/double
 - Parameter(optional): **payload** - Payload to send with the event.
-  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/__FlashStringHelper(F() macro)/String/IPAddress
+  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/__FlashStringHelper(F() macro)/String/IPAddress/float/double
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 
@@ -128,6 +128,11 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - Type: unsigned int
 - Returns: none
 
+`EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)` - Set the number of decimal places when sending double/float type event or password.
+- Parameter: **decimalPlaces** - The default value is 3.
+  - Type: byte
+- Returns: none
+
 
 <a id="troubleshooting"></a>
 #### Troubleshooting
@@ -137,6 +142,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - The firewall on computers running EventGhost must allow it to communicate via the network.
 - Timeouts: When using the **BasicUsage.ino** example sketch you may notice sending or receiving an event sometimes will hang for a long time before failing. This is caused by the conservative default timeout values. **AdvancedUsage.ino** demonstrates setting the EtherEvent timeout via `setTimeout()` and the W5x00 Ethernet controller timeout and retry count via `W5100.setRetransmissionTime()` and `W5100.setRetransmissionCount()`. `setTimeout()` controls the amount of time that EtherEvent will wait for the authentication process communications. `W5100.setRetransmissionTime()` controls the amount of time that the W5x00 will wait after a connection attempt before retrying. `W5100.setRetransmissionCount()` controls the number of attempts the W5x00 will make before failing the connection attempt. By reducing the timeout values you can shorten the amount of time that the system will hang during a failed event transmission. If the timeout values are too small then you will see frequent transmission failures. By experimenting with different values you can find appropriate timeouts for your system. Be aware that the timeout requirements for Arduino to EventGhost event transmission may be different than Arduino to Arduino transmission.
 - Debug output: By turning debug output on you can get details of the authentication process in the serial monitor. Set `#define ETHEREVENT_DEBUG true` in EtherEvent.h, this will slow down communication so only enable when needed.
+- If EventGhost recieves an event that contain '.' the standard event prefix will disappear from that event. This is a problem with EventGhost, not EtherEvent.
 
 
 <a id="security"></a>

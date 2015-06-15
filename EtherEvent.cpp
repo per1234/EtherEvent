@@ -13,6 +13,7 @@ const char closeMessage[] = "close\n";  //sender sends this message to the recei
 const byte closeMessageLength = strlen(closeMessage);
 const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
 const byte cookieLengthMax = 8;  //EtherEvent's cookie is a long sent in hexadecimal which is 8 digits max,  EventGhost's cookie is 4 digits,  but it can be set larger if needed
+const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +21,7 @@ const byte cookieLengthMax = 8;  //EtherEvent's cookie is a long sent in hexadec
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EtherEventClass::EtherEventClass() {
   timeout = timeoutDefault;
+  sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
 }
 
 
@@ -326,6 +328,15 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
     return false;
   }
   return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//setSendDoubleDecimalPlaces
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void EtherEventClass::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
+  Serial.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
+  sendDoubleDecimalPlaces = decimalPlaces;
 }
 
 
