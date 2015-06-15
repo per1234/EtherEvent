@@ -7,20 +7,9 @@
 #include "MD5.h"
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//START user configuration parameters
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//#include "Flash.h"  //uncomment this line if you have the Flash library installed
-
 #define ETHEREVENT_DEBUG false  //(false == serial debug output off,  true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when needed.
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//END user configuration parameters
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 #define ETHEREVENT_SERIAL if(ETHEREVENT_DEBUG)Serial  //I have to use a different name for Serial in this file otherwise the debug statement control also affects any other file that includes this file.
+
 
 class EtherEventClass {
   public:
@@ -75,8 +64,9 @@ class EtherEventClass {
       ultoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
     }
-    template <typename targetType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const payloadType payload) {
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "") {
+      byte eventLength = FSHlength(event);
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, (const char*)eventChar, payload);
@@ -112,7 +102,8 @@ class EtherEventClass {
       return send(ethernetClient, target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const byte payloadLength) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload) {
+      byte payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, event, payloadChar);
@@ -120,42 +111,17 @@ class EtherEventClass {
 
     //convert event and payload
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const byte eventLength, const __FlashStringHelper* payload, const byte payloadLength) {
-      char eventChar[eventLength + 1];
-      memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
-
-      char payloadChar[payloadLength + 1];
-      memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
-
-      return send(ethernetClient, target, port, (const char*)eventChar, payloadChar);
-    }
-    template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[]) {
       return send(ethernetClient, target, port, (const char*)event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
 
-    //Flash templates
-#ifdef __FLASH_H__
-    template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const _FLASH_STRING &event, const char payload[] = "") {
-      const byte stringLength = event.length();
-      char eventChar[stringLength + 1];
-      event.copy(eventChar, stringLength + 1, 0);  //+1 for null terminator
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
-    }
-    template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const _FLASH_STRING &payload) {
-      const byte stringLength = payload.length();
-      char payloadChar[stringLength + 1];
-      payload.copy(payloadChar, stringLength + 1, 0);  //+1 for null terminator
-      return send(ethernetClient, target, port, event, payloadChar);
-    }
-#endif
 
     void setTimeout(const unsigned int timeoutInput);
     unsigned int getTimeout();
     boolean setPassword(const char passwordInput[]);
     boolean setPassword(const __FlashStringHelper* passwordInput);
+    byte FSHlength(const __FlashStringHelper * passwordInput);
+
 
   private:
     //used for the convesions to char array
@@ -163,7 +129,6 @@ class EtherEventClass {
     static const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
     static const byte uint32_tLengthMax = 10;  //10 digits
     static const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
-
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()

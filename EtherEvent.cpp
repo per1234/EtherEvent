@@ -1,7 +1,6 @@
 // EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin,  EventGhost TCPEvents plugin,  Girder,  and NetRemote http://github.com/per1234/EtherEvent
 #include "EtherEvent.h"
 
-
 #define Serial if(ETHEREVENT_DEBUG)Serial
 
 #define ETHEREVENT_MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
@@ -319,20 +318,29 @@ boolean EtherEventClass::setPassword(const char passwordInput[]) {
 
 boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
   Serial.println(F("EtherEvent.setPassword(F())"));
-  const char* passwordInputPointer = (const char PROGMEM *)passwordInput;
-  size_t stringLength = 0;
-  while (1) {
-    unsigned char c = pgm_read_byte(passwordInputPointer++);
-    if (c == 0) break;
-    stringLength++;
-  }
-  password = (char*)realloc(password, (stringLength + 1) * sizeof(*password));  //allocate memory for the password
-  memcpy_P(password, passwordInput, stringLength + 1);  //+1 for the null terminator
+  passwordLength = FSHlength(passwordInput);
+  password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
+  memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
   if (password == NULL) {
     Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
     return false;
   }
   return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//FSHlength - determine length of __FlashStringHelper
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+byte EtherEventClass::FSHlength(const __FlashStringHelper* passwordInput) {
+  const char* passwordInputPointer = (const char PROGMEM *)passwordInput;
+  byte stringLength = 0;
+  while (true) {
+    unsigned char character = pgm_read_byte(passwordInputPointer++);
+    if (character == 0) break;
+    stringLength++;
+  }
+  return stringLength;
 }
 
 

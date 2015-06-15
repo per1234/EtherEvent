@@ -10,4 +10,5 @@ send	KEYWORD2
 getTimeout	KEYWORD2
 setTimeout	KEYWORD2
 setPassword	KEYWORD2
+FSHlength KEYWORD2
 
