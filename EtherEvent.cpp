@@ -1,13 +1,19 @@
 // EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver plugin,  EventGhost TCPEvents plugin,  Girder,  and NetRemote http://github.com/per1234/EtherEvent
 #include "EtherEvent.h"
 
+
 #define Serial if(ETHEREVENT_DEBUG)Serial
 
+#define ETHEREVENT_MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
+#define ETHEREVENT_ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
 const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
 const byte payloadWithoutReleaseLength = strlen(payloadWithoutRelease);
-const byte payloadSeparatorLength = strlen(etherEvent::payloadSeparator);  //includes space at the end
-const byte closeMessageLength = strlen(etherEvent::closeMessage);
+const char payloadSeparator[] = "payload ";  //indicates payload
+const byte payloadSeparatorLength = strlen(payloadSeparator);  //includes space at the end
+const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
+const byte closeMessageLength = strlen(closeMessage);
 const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
+const byte cookieLengthMax = 8;  //EtherEvent's cookie is a long sent in hexadecimal which is 8 digits max,  EventGhost's cookie is 4 digits,  but it can be set larger if needed
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,7 +21,6 @@ const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet s
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EtherEventClass::EtherEventClass() {
   timeout = timeoutDefault;
-  noPayload = false;
 }
 
 
@@ -102,7 +107,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
             }
             receivedMessage[bytesRead] = 0;  //add a null terminator
 
-            if (strncmp(receivedMessage,  etherEvent::payloadSeparator,  payloadSeparatorLength) == 0) {  //received message is a payload
+            if (strncmp(receivedMessage,  payloadSeparator,  payloadSeparatorLength) == 0) {  //received message is a payload
               Serial.println(F("EtherEvent.availableEvent: payload separator received"));
               if (bytesRead > payloadSeparatorLength) {  //there is a payload
 
@@ -132,7 +137,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
             else {  //received message is event
               Serial.print(F("EtherEvent.availableEvent: event length: "));
               Serial.println(bytesRead);
-              if (strncmp(receivedMessage, etherEvent::closeMessage, closeMessageLength) == 0) {
+              if (strncmp(receivedMessage, closeMessage, closeMessageLength) == 0) {
                 Serial.println(F("EtherEvent.availableEvent: close received,  no event"));
                 break;
               }
@@ -158,7 +163,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
           Serial.println(F("EtherEvent.availableEvent: authentication failed"));
         }
       }
-      ethernetClient.print(etherEvent::closeMessage);  //tell the receiver to close
+      ethernetClient.print(closeMessage);  //tell the receiver to close
       ethernetClient.stop();
       Serial.println(F("EtherEvent.availableEvent: connection closed"));
     }
@@ -216,6 +221,69 @@ IPAddress EtherEventClass::senderIP() {  //returns the ip address the current ev
   return fromIP;
 }
 #endif
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//send
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+boolean EtherEventClass::send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[]) {
+  IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
+  return send(ethernetClient, targetIP, port, event, payload);
+}
+
+boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[]) {
+  Serial.println(F("EtherEvent.send: attempting connection"));
+  Serial.print(F("EtherEvent.send: target: "));
+  Serial.println(target);
+  Serial.print(F("EtherEvent.send: port: "));
+  Serial.println(port);
+  Serial.print(F("EtherEvent.send: event: "));
+  Serial.println(event);
+  Serial.print(F("EtherEvent.send: payload: "));
+  Serial.println(payload);
+  ethernetClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc
+  byte eventSuccess = false;
+  if (ethernetClient.connect(target, port)) {  //connected to receiver
+
+    Serial.println(F("EtherEvent.send: connected, sending magic word"));
+    ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
+
+    char cookiePassword[cookieLengthMax + 1 + passwordLength + 1];  //cookie,  password separator(:),  password,  null terminator
+    if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
+      cookiePassword[bytesRead] = 0;
+      strcat(cookiePassword, ":");  //add the password separator to the cookie
+      strcat(cookiePassword, password);  //add password to the cookie
+      Serial.print(F("EtherEvent.send: cookiePassword: "));
+      Serial.println(cookiePassword);
+      unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
+      char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash,  16);
+      free(cookiePasswordHash);
+      Serial.print(F("EtherEvent.send: hashWordMD5: "));
+      Serial.println(cookiePasswordMD5);
+      ethernetClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
+      ethernetClient.write(10);  //newline
+      free(cookiePasswordMD5);
+
+      if (ethernetClient.find((char*)ETHEREVENT_ACCEPT_MESSAGE) == true) {  //authentication successful - the (char*) thing is to get rid of the "warning: deprecated conversion from string constant to ‘char*’" compiler warning
+        if (payload[0] != 0) {  //check if there is a payload
+          ethernetClient.print(payloadSeparator);
+          ethernetClient.print(payload);
+          ethernetClient.write(10);  //newline
+        }
+        ethernetClient.print(event);  //transmit event
+        ethernetClient.write(10);  //newline
+        eventSuccess = true;
+      }
+    }
+    ethernetClient.print(closeMessage);  //tell the receiver to close
+    ethernetClient.stop();
+    Serial.println(F("EtherEvent.send: connection closed"));
+  }
+  else {
+    Serial.println(F("EtherEvent.send: connection failed"));
+  }
+  return eventSuccess;  //send finished
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -69,7 +69,7 @@ void loop() {
     EtherEvent.readPayload(payload);
     Serial.print(F("Received payload: "));
     Serial.println(payload);
-#ifdef ethernetclientwithremoteIP_h  //must have the modified Etherned library installed for this function to be available
+#ifdef ethernetclientwithremoteIP_h  //must have the modified Ethernet library installed for this function to be available
     Serial.print(F("Received from IP: "));
     Serial.println(EtherEvent.senderIP());
 #endif
@@ -78,7 +78,7 @@ void loop() {
   if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
-    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), F("test payload"))) {  //send event to target IP address, port, event, payload
+    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), 4, F("test payload"), 12)) {  //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
     }
     else {

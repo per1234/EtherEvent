@@ -105,7 +105,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 `EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
 - Returns: none
 
-`EtherEvent.send(ethernetClient, target, port, event[, payload])` - Send an event and payload.
+`EtherEvent.send(ethernetClient, target, port, event[, eventLength][, payload[, payloadLength]])` - Send an event and payload.
 - Parameter: **ethernetClient** - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
 - Parameter: **target** - IP address to send the event to.
@@ -113,9 +113,13 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char/char array/int8_t/byte/int/unsigned int/long/unsigned long/float/double/String/__FlashStringHelper(F() macro)
+  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
+- Parameter: **eventLength** - Length of the event. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
+  - Type: byte
 - Parameter(optional): **payload** - Payload to send with the event. The payload is not optional when the event is of type __FlashStringHelper(F() macro).
-  - Type: char/char array/int8_t/byte/int/unsigned int/long/unsigned long/float/double/IPAddress/String/__FlashStringHelper(F() macro)
+  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/_FLASH_STRING/__FlashStringHelper(F() macro)
+- Parameter: **payloadLength** - Length of the payload. This parameter should only be used if event is of type __FlashStringHelper(F() macro).
+  - Type: byte
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 
@@ -127,6 +131,13 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter: **timeout** - The max time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
 - Returns: none
+
+
+<a id="configuration"></a>
+#### Configuration
+There are a few configuration options that can be set in the library source file **EtherEvent.h** to enable extra features:
+- Debug output: By turning debug output on you can get details of the authentication process in the serial monitor. Set `#define ETHEREVENT_DEBUG true` in EtherEvent.h, this will slow down communication so only enable when needed.
+- Flash library: https://github.com/schinken/Flash/tree/patch-2 If you are using the Flash library then uncomment `//#include "Flash.h"`. This will allow easy use of program memory with send() and setPassword().
 
 
 <a id="troubleshooting"></a>
