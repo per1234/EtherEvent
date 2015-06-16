@@ -322,11 +322,11 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
   Serial.println(F("EtherEvent.setPassword(F())"));
   passwordLength = FSHlength(passwordInput);
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
-  memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
   if (password == NULL) {
     Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
     return false;
   }
+  memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
   return true;
 }
 
@@ -335,7 +335,6 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
 //setSendDoubleDecimalPlaces
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
-  Serial.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
   Serial.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
   sendDoubleDecimalPlaces = decimalPlaces;
 }

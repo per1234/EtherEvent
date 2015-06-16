@@ -190,19 +190,19 @@ class EtherEventClass {
     unsigned int getTimeout();
     boolean setPassword(const char passwordInput[]);
     boolean setPassword(const __FlashStringHelper* passwordInput);
+    void setSendDoubleDecimalPlaces(const byte decimalPlaces);
+    void IPtoa(const IPAddress &IP, char IPcharBuffer[]);
     byte FSHlength(const __FlashStringHelper * passwordInput);
-    void IPtoa(const IPAddress & IP, char IPcharBuffer[]);
 
 
   private:
-    //used for the convesions to char array
+    //used for the char array conversions
     static const byte uint16_tLengthMax = 5;  //5 digits
     static const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
     static const byte uint32_tLengthMax = 10;  //10 digits
     static const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
     static const byte IPAddressLengthMax = 3 + 1 + 3 + 1 + 3 + 1 + 3;  //4 x octet + 3 x dot
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
-
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()

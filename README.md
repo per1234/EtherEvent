@@ -72,7 +72,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 
 `EtherEvent.setPassword(password)` - Set the password.
 - Parameter: **password** - Password used to authenticate event transmission.
-  - Type: char array or __FlashStringHelper/F()
+  - Type: char array or __FlashStringHelper(F() macro)
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
@@ -113,11 +113,16 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/__FlashStringHelper(F() macro)/String/IPAddress/float/double
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double
 - Parameter(optional): **payload** - Payload to send with the event.
-  - Type: char array/int8_t/byte/int/unsigned int/long/unsigned long/__FlashStringHelper(F() macro)/String/IPAddress/float/double
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double
 - Returns: `true` = success, `false` = failure
   - Type: boolean
+
+`EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)` - Set the number of decimal places when sending double or float type events and payloads.
+- Parameter: **decimalPlaces** - The default value is 3.
+  - Type: byte
+- Returns: none
 
 `EtherEvent.getTimeout()` - Returns the current timeout duration setting.
 - Returns: The current timeout duration setting.
@@ -126,11 +131,6 @@ See the example sketches and EventGhost tree files for demonstration of library 
 `EtherEvent.setTimeout(timeout)` - Set the timeout duration.
 - Parameter: **timeout** - The max time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
-- Returns: none
-
-`EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)` - Set the number of decimal places when sending double/float type event or password.
-- Parameter: **decimalPlaces** - The default value is 3.
-  - Type: byte
 - Returns: none
 
 
