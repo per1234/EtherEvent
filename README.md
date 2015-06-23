@@ -3,8 +3,6 @@ EtherEvent
 
 Easy to use [Arduino](http://arduino.cc/) library for password authenticated network communication via Ethernet between Arduinos and [EventGhost](http://eventghost.com), or any other program compatible with the EventGhost Network Event Sender and Receiver plugins. Compatible with Arduino Ethernet, Ethernet Shield, and other devices using the W5100/W5200/W5500 Ethernet controller.
 
-This is a beta release. I have been successfully using it with EventGhost in my home automation system constantly for the last 5 months. Pull requests and issue reports are welcome.
-
 
 #### Required Libraries
 - ArduinoMD5 http://github.com/tzikis/ArduinoMD5
