@@ -3,6 +3,9 @@
 #define EtherEvent_h
 
 #include <Arduino.h>
+#ifndef ARDUINO_ARCH_AVR
+#include <avr/dtostrf.h>
+#endif
 #include <Ethernet.h>
 #include "MD5.h"
 

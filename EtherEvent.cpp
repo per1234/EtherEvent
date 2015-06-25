@@ -1,4 +1,5 @@
 // EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver and TCPEvents plugins: http://github.com/per1234/EtherEvent
+#define __STDC_LIMIT_MACROS
 #include "EtherEvent.h"
 
 #define Serial if(ETHEREVENT_DEBUG)Serial
@@ -71,7 +72,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
         else {
           Serial.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
           randomSeed(micros());
-          cookie = random(RANDOM_MAX);  //make random number to use as cookie
+          cookie = random(INT32_MAX);  //make random number to use as cookie
         }
         char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
         ltoa(cookie, cookiePassword, HEX);
