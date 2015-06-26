@@ -29,8 +29,8 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
 
 #### Related Programs
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
-- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/Ethernet - make sure to choose the correct branch for your Arduino IDE version
-- Wiznet Ethernet library for use with W5200 or W5500 Ethernet controller: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
+- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/EthernetMod - make sure to choose the correct branch for your Arduino IDE version. The [W5x00 branch](https://github.com/per1234/EthernetMod/tree/W5x00) supports W5100, W5200 and W5500 Ethernet controllers.
+- Wiznet Ethernet library provides another option for use with W5200 or W5500 Ethernet controller: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
 
 
 <a id="installation"></a>
