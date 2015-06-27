@@ -21,7 +21,7 @@ const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal plac
 //constructor
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 EtherEventClass::EtherEventClass() {
-  timeout = timeoutDefault;
+  timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
   sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
 }
 
@@ -30,12 +30,12 @@ EtherEventClass::EtherEventClass() {
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloadLengthMaxInput) {
-#if DEBUG == true
+#if ETHEREVENT_DEBUG == true
   delay(20);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
   Serial.begin(9600);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
-  //set default timeout values, these globals can be changed by the user via setTimeout()
+
   availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
@@ -58,7 +58,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
   if (receivedEventLength == 0) {  //no event buffered
     if (EthernetClient ethernetClient = ethernetServer.available() ) {  //connect to the client
       Serial.println(F("EtherEvent.availableEvent: connected"));
-      ethernetClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc
+      ethernetClient.setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
 
       if (ethernetClient.find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to ‘char*’" compile error
         Serial.println(F("EtherEvent.availableEvent: magic word received"));
@@ -243,7 +243,9 @@ boolean EtherEventClass::send(EthernetClient &ethernetClient, const IPAddress &t
   Serial.println(event);
   Serial.print(F("EtherEvent.send: payload: "));
   Serial.println(payload);
-  ethernetClient.setTimeout(timeout);  //timeout on read/readUntil/find/findUntil/etc
+
+  ethernetClient.setTimeout(timeout);  //Timeout on Stream functions. I only have to set it once here for the send() timeout but I can't set it in begin because ethernetClient isn't defined there so it's most efficient to just set it every time
+
   byte eventSuccess = false;
   if (ethernetClient.connect(target, port)) {  //connected to receiver
 

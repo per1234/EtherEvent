@@ -126,7 +126,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: The current timeout duration setting.
   - Type: unsigned int
 
-`EtherEvent.setTimeout(timeout)` - Set the timeout duration.
+`EtherEvent.setTimeout(timeout)` - Set the timeout duration(Stream functions).
 - Parameter: **timeout** - The max time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
 - Returns: none
