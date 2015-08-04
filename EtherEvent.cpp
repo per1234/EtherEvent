@@ -36,9 +36,10 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloa
   Serial.begin(9600);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
 
-  availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
+  availableEventSubmessageLengthMax = max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), eventLengthMax);
+
   receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
   receivedEvent[0] = 0;  //clear buffer - realloc does not zero initialize so the buffer could contain anything
   receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(*receivedPayload));
