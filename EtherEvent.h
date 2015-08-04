@@ -17,9 +17,9 @@
 class EtherEventClass {
   public:
     EtherEventClass();
-    boolean begin(const byte eventLengthMaxInput = 15, const byte payloadLengthMaxInput = 100);  //these are the default max length values
+    boolean begin(const byte eventLengthMaxInput = 15, const unsigned int payloadLengthMaxInput = 100);  //these are the default max length values
     byte availableEvent(EthernetServer &ethernetServer, long cookieInput = false);
-    byte availablePayload();
+    unsigned int availablePayload();
     void readEvent(char eventBuffer[]);
     void readPayload(char payloadBuffer[]);
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
@@ -217,7 +217,7 @@ class EtherEventClass {
     byte eventLengthMax;
     char* receivedEvent;  //event buffer
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
-    byte payloadLengthMax;
+    unsigned int payloadLengthMax;
     char* receivedPayload;  //payload buffer
     byte sendDoubleDecimalPlaces;
 };

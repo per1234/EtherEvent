@@ -64,7 +64,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter(optional): **eventLengthMax** - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
 - Parameter(optional): **payloadLengthMax** - The maximum length of payload that can be received. Longer payloads will be truncated to this length. EtherEvent reserves SRAM to buffer the received payload so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
-  - Type: byte
+  - Type: unsigned int
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
@@ -84,7 +84,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 
 `EtherEvent.availablePayload()` - availableEvent() must be called first.
 - Returns: Buffer size required to receive the payload. This is the length of the received payload and the null terminator.
-  - Type: byte
+  - Type: unsigned int
 
 `EtherEvent.readEvent(eventBuffer)` - Puts the event in the passed array. availableEvent() must be called first. Size a char array according to the result of availableEvent() and pass it to readEvent(). After that it will contain the event.
 - Parameter: **eventBuffer** - Buffer to hold the received event.

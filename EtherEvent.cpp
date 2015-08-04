@@ -29,7 +29,7 @@ EtherEventClass::EtherEventClass() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-boolean EtherEventClass::begin(const byte eventLengthMaxInput, const byte payloadLengthMaxInput) {
+boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned int payloadLengthMaxInput) {
 #if ETHEREVENT_DEBUG == true
   delay(20);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
@@ -102,7 +102,7 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
           for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
             Serial.println(F("EtherEvent.availableEvent: payload/event for loop"));
             char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
-            const byte bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax);  //put the incoming data up to the newline into receivedMessage
+            const unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax);  //put the incoming data up to the newline into receivedMessage
             Serial.print(F("EtherEvent.availableEvent: bytesRead: "));
             Serial.println(bytesRead);
             if (bytesRead == 0) {  //with Arduino 1.5 there is a leading char(10) for some reason(maybe flush() doesn't work and it's still left over from the last message?). This will handle null messages
@@ -119,11 +119,10 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
                   continue;
                 }
 
-                const byte receivedPayloadLength = bytesRead - payloadSeparatorLength;
                 Serial.print(F("EtherEvent.availableEvent: payload length: "));
-                Serial.println(receivedPayloadLength);
-                const byte readPayloadLength = min(receivedPayloadLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
-                for (byte payloadCount = 0; payloadCount < readPayloadLength; payloadCount++) {  //put the payload into the buffer
+                Serial.println(bytesRead - payloadSeparatorLength);
+                const unsigned int readPayloadLength = min(bytesRead - payloadSeparatorLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
+                for (unsigned int payloadCount = 0; payloadCount < readPayloadLength; payloadCount++) {  //put the payload into the buffer
                   receivedPayload[payloadCount] = receivedMessage[payloadCount + payloadSeparatorLength];
                 }
                 receivedPayload[readPayloadLength] = 0;  //null terminator
@@ -178,8 +177,8 @@ byte EtherEventClass::availableEvent(EthernetServer &ethernetServer, long cookie
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //availablePayload - returns the number of chars in the payload including the null terminator if there is one
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-byte EtherEventClass::availablePayload() {
-  if (byte receivedPayloadLength = strlen(receivedPayload)) {  //strlen(receivedPayload) > 0
+unsigned int EtherEventClass::availablePayload() {
+  if (unsigned int receivedPayloadLength = strlen(receivedPayload)) {  //strlen(receivedPayload) > 0
     return receivedPayloadLength + 1;  //length of the payload  +  null terminator
   }
   return false;
