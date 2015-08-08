@@ -63,7 +63,7 @@ class EtherEventClass {
             else {
               ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
               randomSeed(micros());
-              cookie = random(INT32_MAX);  //make random number to use as cookie
+              cookie = random((((unsigned long)-1)/2));  //make random number to use as cookie
             }
             char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
             ltoa(cookie, cookiePassword, HEX);
