@@ -95,7 +95,8 @@ class EtherEventClass {
                 const unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
-                  ethernetClient.find(10);  //flush up to the newline
+                  char findString[]="\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
+                  ethernetClient.find(findString);  //flush up to the newlineI had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
                 }
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
                 ETHEREVENT_SERIAL.println(bytesRead);
