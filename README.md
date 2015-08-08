@@ -5,7 +5,7 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
 
 
 #### Required Libraries
-- ArduinoMD5 http://github.com/tzikis/ArduinoMD5
+- ArduinoMD5 http://github.com/tzikis/ArduinoMD5 - not required if you disable event authentication
 
 
 #### Compatible Software
@@ -60,6 +60,8 @@ Events are used to trigger an action. The payload is information that accompanie
 #### Usage
 See the example sketches and EventGhost tree files for demonstration of library usage.
 
+`#define ETHEREVENT_NO_AUTHENTICATION` - Add this line above the `#include "EtherEvent.h"` line in your sketch to disable password authentication. Requires [my version of TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the MD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example file for demonstration.
+
 `EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent.
 - Parameter(optional): **eventLengthMax** - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
   - Type: byte
@@ -68,7 +70,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
-`EtherEvent.setPassword(password)` - Set the password.
+`EtherEvent.setPassword(password)` - Set the password. This is not required if authentication is disabled.
 - Parameter: **password** - Password used to authenticate event transmission.
   - Type: char array or __FlashStringHelper(F() macro)
 - Returns: `true` = success, `false` = memory allocation failed
@@ -145,6 +147,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 
 <a id="security"></a>
 #### Security Considerations
+- If security is not necessary for your application you can disable authentication(see the NoAuthentication example).
 - EtherEvent only encrypts the authentication password. The event is sent in plaintext. This prevents the receipt of unauthorized events but does not protect the information contained in the event from being seen.
 - Use of EventGhost Network Event Receiver plugin is not recommended due to a bug that causes it to send the same cookie for every event. My [modified TCPEvents EventGhost plugin](https://github.com/per1234/TCPEvents0 has this security vulnerability patched.
 - Cookie Randomization: an important factor in the authentication security is the randomness of the cookie supplied by the event receiver. There is a tradeoff between security and memory usage/speed so the ideal level of cookie randomization depends on your application.
