@@ -25,6 +25,9 @@ namespace EtherEventNamespace {
 static const char payloadSeparator[] = "payload ";  //indicates payload
 static const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
 static const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
+static const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
+static const byte payloadWithoutReleaseLength = strlen(EtherEventNamespace::payloadWithoutRelease);
+static const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 }
 
 class EtherEventClass {
@@ -101,20 +104,20 @@ class EtherEventClass {
                 }
                 receivedMessage[bytesRead] = 0;  //add a null terminator
 
-                if (strncmp(receivedMessage, EtherEventNamespace::payloadSeparator, payloadSeparatorLength) == 0) {  //received message is a payload
+                if (strncmp(receivedMessage, EtherEventNamespace::payloadSeparator, EtherEventNamespace::payloadSeparatorLength) == 0) {  //received message is a payload
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload separator received"));
-                  if (bytesRead > payloadSeparatorLength) {  //there is a payload
+                  if (bytesRead > EtherEventNamespace::payloadSeparatorLength) {  //there is a payload
 
-                    if (strncmp(receivedMessage, EtherEventNamespace::payloadWithoutRelease, payloadWithoutReleaseLength) == 0) {  //"withoutRelease" received
+                    if (strncmp(receivedMessage, EtherEventNamespace::payloadWithoutRelease, EtherEventNamespace::payloadWithoutReleaseLength) == 0) {  //"withoutRelease" received
                       ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: EtherEventNamespace::payloadWithoutRelease"));
                       continue;
                     }
 
                     ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload length: "));
-                    ETHEREVENT_SERIAL.println(bytesRead - payloadSeparatorLength);
-                    const unsigned int readPayloadLength = min(bytesRead - payloadSeparatorLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
+                    ETHEREVENT_SERIAL.println(bytesRead - EtherEventNamespace::payloadSeparatorLength);
+                    const unsigned int readPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
                     for (unsigned int payloadCount = 0; payloadCount < readPayloadLength; payloadCount++) {  //put the payload into the buffer
-                      receivedPayload[payloadCount] = receivedMessage[payloadCount + payloadSeparatorLength];
+                      receivedPayload[payloadCount] = receivedMessage[payloadCount + EtherEventNamespace::payloadSeparatorLength];
                     }
                     receivedPayload[readPayloadLength] = 0;  //null terminator
                     ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload: "));
@@ -130,7 +133,7 @@ class EtherEventClass {
                 else {  //received message is event
                   ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: event length: "));
                   ETHEREVENT_SERIAL.println(bytesRead);
-                  if (strncmp(receivedMessage, EtherEventNamespace::closeMessage, closeMessageLength) == 0) {
+                  if (strncmp(receivedMessage, EtherEventNamespace::closeMessage, EtherEventNamespace::closeMessageLength) == 0) {
                     ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: close received, no event"));
                     break;
                   }
@@ -417,9 +420,6 @@ class EtherEventClass {
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
     static const byte cookieLengthMax = 8;
-    static const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
-    static const byte payloadWithoutReleaseLength = strlen(EtherEventNamespace::payloadWithoutRelease);
-    static const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
