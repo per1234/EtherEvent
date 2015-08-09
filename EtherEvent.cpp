@@ -1,5 +1,4 @@
 // EtherEvent - Easy to use password authenticated network communication between Arduinos and EventGhost Network Event Sender/Receiver and TCPEvents plugins: http://github.com/per1234/EtherEvent
-#define __STDC_LIMIT_MACROS
 #define ETHEREVENT_NO_AUTHENTICATION  //this is to prevent EtherEvent.cpp's include of EtherEvent.h from including MD5.h(not needed in this file even with authentication enabled
 #include "EtherEvent.h"
 
@@ -30,8 +29,8 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
 
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
-  availableEventSubmessageLengthMax = max(max(max(payloadWithoutReleaseLength, payloadSeparatorLength + payloadLengthMax), payloadLengthMax), eventLengthMax);
-  if (availableEventSubmessageLengthMax > availableEventSubmessageLengthMax + 1) { //availableEventSubmessageLengthMax is the max value of the type
+  availableEventSubmessageLengthMax = max(max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax), payloadLengthMax), eventLengthMax);
+  if (availableEventSubmessageLengthMax > availableEventSubmessageLengthMax + 1) {  //availableEventSubmessageLengthMax is the max value of the type
     availableEventSubmessageLengthMax--;  //have to decrement because I need to add one in the event/payload handler section of availableEvent()
   }
 
@@ -92,7 +91,7 @@ void EtherEventClass::flushReceiver() {
 //senderIP
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-IPAddress EtherEventClass::senderIP() {  //returns the ip address the current event was sent from. Requires modified ethernet library,  thus the preprocesser direcive system
+IPAddress EtherEventClass::senderIP() {  //returns the ip address the current event was sent from. Requires modified ethernet library, thus the preprocesser direcive system
   return fromIP;
 }
 #endif

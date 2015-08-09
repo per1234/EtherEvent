@@ -15,20 +15,22 @@
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 
-#define ETHEREVENT_DEBUG false  //(false == serial debug output off,  true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when needed.
+#define ETHEREVENT_DEBUG false  //(false == serial debug output off, true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when needed.
 #define ETHEREVENT_SERIAL if(ETHEREVENT_DEBUG)Serial  //I have to use a different name for Serial in this file otherwise the debug statement control also affects any other file that includes this file.
 
 #define ETHEREVENT_MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ETHEREVENT_ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
 
+
 namespace EtherEventNamespace {
 static const char payloadSeparator[] = "payload ";  //indicates payload
-static const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
-static const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
 static const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
+static const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
 static const byte payloadWithoutReleaseLength = strlen(EtherEventNamespace::payloadWithoutRelease);
+static const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
 static const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 }
+
 
 class EtherEventClass {
   public:
@@ -39,7 +41,6 @@ class EtherEventClass {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //availableEvent - checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #ifndef ETHEREVENT_NO_AUTHENTICATION
     byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false) {
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -63,7 +64,7 @@ class EtherEventClass {
             else {
               ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
               randomSeed(micros());
-              cookie = random((((unsigned long)-1)/2));  //make random number to use as cookie
+              cookie = random((((unsigned long) - 1) / 2));  //make random number to use as cookie
             }
             char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
             ltoa(cookie, cookiePassword, HEX);
@@ -91,11 +92,13 @@ class EtherEventClass {
               //Read and process the message
               for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
                 ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
+                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: availableEventSubmessageLengthMax="));
+                ETHEREVENT_SERIAL.println(availableEventSubmessageLengthMax);
                 char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
                 unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
-                  char findString[]="\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
+                  char findString[] = "\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
                   ethernetClient.find(findString);  //flush up to the newlineI had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
                   bytesRead--;  //so the null terminator will not be written past the end of the array
                 }
@@ -111,7 +114,7 @@ class EtherEventClass {
                   if (bytesRead > EtherEventNamespace::payloadSeparatorLength) {  //there is a payload
 
                     if (strncmp(receivedMessage, EtherEventNamespace::payloadWithoutRelease, EtherEventNamespace::payloadWithoutReleaseLength) == 0) {  //"withoutRelease" received
-                      ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: EtherEventNamespace::payloadWithoutRelease"));
+                      ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payloadWithoutRelease"));
                       continue;
                     }
 
@@ -422,6 +425,7 @@ class EtherEventClass {
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
     static const byte cookieLengthMax = 8;
+
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
