@@ -92,11 +92,12 @@ class EtherEventClass {
               for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
                 ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
                 char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
-                const unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
+                unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
                   char findString[]="\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
                   ethernetClient.find(findString);  //flush up to the newlineI had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
+                  bytesRead--;  //so the null terminator will not be written past the end of the array
                 }
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
                 ETHEREVENT_SERIAL.println(bytesRead);
