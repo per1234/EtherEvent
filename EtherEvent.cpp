@@ -29,7 +29,7 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
 
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
-  availableEventSubmessageLengthMax = max(max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax), payloadLengthMax), eventLengthMax);
+  availableEventSubmessageLengthMax = max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax + TCPEventsPayloadFormattingLength), eventLengthMax);
   if (availableEventSubmessageLengthMax > availableEventSubmessageLengthMax + 1) {  //availableEventSubmessageLengthMax is the max value of the type
     availableEventSubmessageLengthMax--;  //have to decrement because I need to add one in the event/payload handler section of availableEvent()
   }

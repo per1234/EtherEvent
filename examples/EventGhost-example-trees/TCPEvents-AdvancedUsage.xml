@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<EventGhost Version="1694" Guid="{7D0E2C46-7EC8-4C8D-B580-99BB5A565C20}" Time="1432452331.17">
+<EventGhost Version="1700" Guid="{9BE1BD12-C63E-4884-B337-D8618E1391AB}" Time="1439426052.91">
     <Autostart Name="Autostart" Expanded="True">
         <Action Name="Demonstrates advaced usage of the TCPEvents EventGhost plugin.">
             EventGhost.Comment()
@@ -23,13 +23,16 @@
             EventGhost.PythonCommand(u'targetIP = "192.168.69.104"')
         </Action>
         <Action>
-            EventGhost.PythonCommand(u'event = "test"')
+            EventGhost.PythonCommand(u'eventPrefix = "test"')
+        </Action>
+        <Action>
+            EventGhost.PythonCommand(u'eventSuffix = "event"')
         </Action>
         <Action>
             EventGhost.PythonCommand(u'payload = "test payload"')
         </Action>
         <Action>
-            TCPEvents.SendEvent(u'{eg.globals.targetIP}', 1024, u'password', u'TCP', u'{"payload " + str(eg.globals.payload) + "\\n" + str(eg.globals.event)}', u'', None)
+            TCPEvents.SendEvent(u'{eg.globals.targetIP}', 1024, u'password', u'{eg.globals.eventPrefix}', u'{eg.globals.eventSuffix}', u'eg.globals.payload', None)
         </Action>
     </Macro>
 </EventGhost>

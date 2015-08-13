@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<EventGhost Version="1694" Guid="{989078A6-5204-41BA-9403-D7DCC32DDD1B}" Time="1432452338.42">
+<EventGhost Version="1700" Guid="{7601F7E7-C239-423B-B232-5EFCCFD4B726}" Time="1439425839.76">
     <Autostart Name="Autostart" Expanded="True">
         <Action Name="Demonstrates use of the TCPEvents EventGhost plugin.">
             EventGhost.Comment()
@@ -20,7 +20,7 @@
             EventGhost.Comment()
         </Action>
         <Action>
-            TCPEvents.SendEvent(u'192.168.69.104', 1024, u'password', u'TCP', u'test', u'"test payload"', None)
+            TCPEvents.SendEvent(u'192.168.69.104', 1024, u'password', u'test', u'event', u'"test payload"', None)
         </Action>
     </Macro>
 </EventGhost>

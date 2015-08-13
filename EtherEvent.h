@@ -86,14 +86,12 @@ class EtherEventClass {
             if (ethernetClient.find(cookiePasswordMD5) == true) {  //authentication successful
               ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
               ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
-              ethernetClient.print(ETHEREVENT_ACCEPT_MESSAGE);  //for some reason I can't use F() on this one
+              ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
               free(cookiePasswordMD5);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
               //Read and process the message
               for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
                 ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
-                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: availableEventSubmessageLengthMax="));
-                ETHEREVENT_SERIAL.println(availableEventSubmessageLengthMax);
                 char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
                 unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
@@ -120,17 +118,31 @@ class EtherEventClass {
 
                     ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload length: "));
                     ETHEREVENT_SERIAL.println(bytesRead - EtherEventNamespace::payloadSeparatorLength);
-                    const unsigned int readPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax);  //make sure the payload will never be longer than the max length
-                    for (unsigned int payloadCount = 0; payloadCount < readPayloadLength; payloadCount++) {  //put the payload into the buffer
-                      receivedPayload[payloadCount] = receivedMessage[payloadCount + EtherEventNamespace::payloadSeparatorLength];
+                    unsigned int readPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax + TCPEventsPayloadFormattingLength);  //make sure the payload will never be longer than the max length
+
+                    //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
+                    byte payloadOffset = 0;
+                    if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == 39) {  //39 is apostrophe
+                      payloadOffset = TCPEventsPayloadFormattingLength;  //skip the first 2 characters of the payload
+                      if (receivedMessage[readPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
+                        readPayloadLength--;
+                      }
+                      if (receivedMessage[readPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == 39) {
+                        readPayloadLength--;
+                      }
+                      readPayloadLength -= payloadOffset;
+                    }
+                    else {  //no TCPEvents payload formatting is present
+                      readPayloadLength = min(readPayloadLength, payloadLengthMax);
+                    }
+
+                    //put the payload into the buffer
+                    for (unsigned int payloadCounter = 0; payloadCounter < readPayloadLength; payloadCounter++) {
+                      receivedPayload[payloadCounter] = receivedMessage[payloadCounter + payloadOffset + EtherEventNamespace::payloadSeparatorLength];
                     }
                     receivedPayload[readPayloadLength] = 0;  //null terminator
                     ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload: "));
                     ETHEREVENT_SERIAL.println(receivedPayload);
-                  }
-
-                  else {  //no payload
-                    ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: no payload"));
                   }
                   continue;
                 }
@@ -426,6 +438,7 @@ class EtherEventClass {
 
     static const byte cookieLengthMax = 8;
 
+    const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()

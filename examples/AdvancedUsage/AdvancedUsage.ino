@@ -16,7 +16,7 @@ byte MACaddress[] = {0, 1, 2, 3, 4, 4};  //this can be anything you like as long
 const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use for the device. This can be any valid address on the network as long as it is unique. If you are using DHCP then this doesn't need to be configured.
 const char password[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 const unsigned int port = 1024;  //TCP port to receive events.
-const byte maxReceivedEventLength = 8;  //Maximum event length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
+const byte maxReceivedEventLength = 12;  //Maximum event length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
 const byte maxReceivedPayloadLength = 25;  //Maximum payload length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
 
 //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
