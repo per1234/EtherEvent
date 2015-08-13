@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<EventGhost Version="1694" Guid="{B9D39DDE-6DB9-487C-B383-265F8B1F728F}" Time="1432452323.22">
+<EventGhost Version="1700" Guid="{00E4DE2F-7972-49CB-85A4-DF5AB2472AFD}" Time="1439425574.25">
     <Autostart Name="Autostart" Expanded="True">
         <Action Name="Demonstrates use of the Network Event Sender/Receiver EventGhost plugins.">
             EventGhost.Comment()
@@ -23,13 +23,7 @@
             EventGhost.Comment()
         </Action>
         <Action>
-            EventGhost.PythonCommand(u'event = "test"')
-        </Action>
-        <Action>
-            EventGhost.PythonCommand(u'payload = "test payload"')
-        </Action>
-        <Action>
-            NetworkSender.Map(u'{ "payload " + eg.globals.payload + "\\n" + eg.globals.event + "\\n"}')
+            NetworkSender.Map(u'test')
         </Action>
     </Macro>
 </EventGhost>
