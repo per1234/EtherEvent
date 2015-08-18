@@ -97,7 +97,7 @@ class EtherEventClass {
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
                   char findString[] = "\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
-                  ethernetClient.find(findString);  //flush up to the newlineI had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
+                  ethernetClient.find(findString);  //Flush up to the newline. I had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
                   bytesRead--;  //so the null terminator will not be written past the end of the array
                 }
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
@@ -432,7 +432,7 @@ class EtherEventClass {
     boolean setPassword(const __FlashStringHelper* passwordInput);
     void setSendDoubleDecimalPlaces(const byte decimalPlaces);
     void IPtoa(const IPAddress &IP, char IPcharBuffer[]);
-    byte FSHlength(const __FlashStringHelper * passwordInput);
+    byte FSHlength(const __FlashStringHelper* passwordInput);
 
 
   private:
