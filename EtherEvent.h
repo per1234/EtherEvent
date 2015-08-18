@@ -235,7 +235,16 @@ class EtherEventClass {
 
             if (payload[0] != 0) {  //check if there is a payload
               ethernetClient.print(EtherEventNamespace::payloadSeparator);
+#ifdef ETHEREVENT_NO_AUTHENTICATION
+              //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
+              ethernetClient.print('[');
+              ethernetClient.write(39);
+#endif  //ETHEREVENT_NO_AUTHENTICATION
               ethernetClient.print(payload);
+#ifdef ETHEREVENT_NO_AUTHENTICATION
+              ethernetClient.write(39);
+              ethernetClient.print(']');
+#endif  //ETHEREVENT_NO_AUTHENTICATION
               ethernetClient.write(10);  //newline
             }
             ethernetClient.print(event);  //transmit event
