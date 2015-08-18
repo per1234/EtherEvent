@@ -195,6 +195,16 @@ class EtherEventClass {
 #endif
     void flushReceiver();
 
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //send
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[] = "") {
+      IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
+      return send(ethernetClient, targetIP, port, event, payload);
+    }
+
+
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send: attempting connection"));
       ETHEREVENT_SERIAL.print(F("EtherEvent.send: target: "));
@@ -264,8 +274,6 @@ class EtherEventClass {
       return eventSuccess;  //send finished
     }
 
-
-    boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[] = "");
 
     //convert event
     template <typename targetType>
