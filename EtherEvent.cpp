@@ -2,7 +2,6 @@
 #define ETHEREVENT_NO_AUTHENTICATION  //this is to prevent EtherEvent.cpp's include of EtherEvent.h from including MD5.h(not needed in this file even with authentication enabled
 #include "EtherEvent.h"
 
-#define Serial if(ETHEREVENT_DEBUG)Serial
 
 const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
 const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
@@ -22,10 +21,10 @@ EtherEventClass::EtherEventClass() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned int payloadLengthMaxInput) {
 #if ETHEREVENT_DEBUG == true
-  delay(20);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
+  delay(20);  //There needs to be a delay between the calls to ETHEREVENT_SERIAL.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
-  Serial.begin(EtherEventNamespace::debugSerialBaud);  //for debugging
-  Serial.println(F("\n\n\nEtherEvent.begin"));
+  ETHEREVENT_SERIAL.begin(EtherEventNamespace::debugSerialBaud);  //for debugging
+  ETHEREVENT_SERIAL.println(F("\n\n\nEtherEvent.begin"));
 
   eventLengthMax = eventLengthMaxInput;
   payloadLengthMax = payloadLengthMaxInput;
@@ -39,7 +38,7 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
   receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(*receivedPayload));
   receivedPayload[0] = 0;  //clear buffer - realloc does not zero initialize so the buffer could contain anything
   if (receivedEvent == NULL || receivedPayload == NULL) {
-    Serial.println(F("memory allocation failed"));
+    ETHEREVENT_SERIAL.println(F("memory allocation failed"));
     return false;
   }
   return true;
@@ -80,7 +79,7 @@ void EtherEventClass::readPayload(char payloadBuffer[]) {
 //flushReceiver - dump the last message received so another one can be received
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::flushReceiver() {
-  Serial.println(F("EtherEvent.flushReceiver: start"));
+  ETHEREVENT_SERIAL.println(F("EtherEvent.flushReceiver: start"));
   receivedEvent[0] = 0;  //reset the event buffer
   receivedPayload[0] = 0;  //reset the payload buffer
   receivedEventLength = 0;
@@ -117,23 +116,23 @@ unsigned int EtherEventClass::getTimeout() {
 //setPassword
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::setPassword(const char passwordInput[]) {
-  Serial.println(F("EtherEvent.setPassword(char)"));
+  ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(char)"));
   passwordLength = strlen(passwordInput);
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
   strcpy(password, passwordInput);  //store the password
   if (password == NULL) {
-    Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
+    ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword: memory allocation failed"));
     return false;
   }
   return true;
 }
 
 boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
-  Serial.println(F("EtherEvent.setPassword(F())"));
+  ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(F())"));
   passwordLength = FSHlength(passwordInput);
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
   if (password == NULL) {
-    Serial.println(F("EtherEvent.setPassword: memory allocation failed"));
+    ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword: memory allocation failed"));
     return false;
   }
   memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
@@ -145,7 +144,7 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
 //setSendDoubleDecimalPlaces
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
-  Serial.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
+  ETHEREVENT_SERIAL.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
   sendDoubleDecimalPlaces = decimalPlaces;
 }
 
