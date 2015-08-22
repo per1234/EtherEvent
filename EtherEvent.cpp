@@ -24,7 +24,7 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
 #if ETHEREVENT_DEBUG == true
   delay(20);  //There needs to be a delay between the calls to Serial.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
-  Serial.begin(9600);  //for debugging
+  Serial.begin(EtherEventNamespace::debugSerialBaud);  //for debugging
   Serial.println(F("\n\n\nEtherEvent.begin"));
 
   eventLengthMax = eventLengthMaxInput;

@@ -35,7 +35,7 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
 
 <a id="installation"></a>
 #### Installation
-- 32KB is the minimum recommended flash memory capacity for use of this library.
+- 32kB is the minimum recommended flash memory capacity for use of this library.
 - Download the most recent version of EtherEvent here: https://github.com/per1234/EtherEvent/archive/master.zip
 - Using Arduino IDE 1.0.x:
   - Sketch > Import Library... > Add Library... > select the downloaded file > Open
@@ -141,7 +141,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - If using a static IP address it must also be unique on your network.
   - The firewall on computers running EventGhost must allow it to communicate via the network.
 - Timeouts: When using the **BasicUsage.ino** example sketch you may notice sending or receiving an event sometimes will hang for a long time before failing. This is caused by the conservative default timeout values. **AdvancedUsage.ino** demonstrates setting the EtherEvent timeout via `setTimeout()` and the W5x00 Ethernet controller timeout and retry count via `W5100.setRetransmissionTime()` and `W5100.setRetransmissionCount()`. `setTimeout()` controls the amount of time that EtherEvent will wait for the authentication process communications. `W5100.setRetransmissionTime()` controls the amount of time that the W5x00 will wait after a connection attempt before retrying. `W5100.setRetransmissionCount()` controls the number of attempts the W5x00 will make before failing the connection attempt. By reducing the timeout values you can shorten the amount of time that the system will hang during a failed event transmission. If the timeout values are too small then you will see frequent transmission failures. By experimenting with different values you can find appropriate timeouts for your system. Be aware that the timeout requirements for Arduino to EventGhost event transmission may be different than Arduino to Arduino transmission.
-- Debug output: By turning debug output on you can get details of the authentication process in the serial monitor. Set `#define ETHEREVENT_DEBUG true` in EtherEvent.h, this will slow down communication so only enable when needed.
+- Debug output: By turning debug output on you can get details of the authentication process in the serial monitor. Set `#define ETHEREVENT_DEBUG true` in EtherEvent.h, this will slow down communication so only enable when needed. The default speed of the debug serial output is 9600 but this can be changed in the line `const unsigned long debugSerialBaud = 9600;` in **EtherEvent.h**
 - If EventGhost recieves an event that contain '.' the standard event prefix will disappear from that event. This is a problem with EventGhost, not EtherEvent.
 
 

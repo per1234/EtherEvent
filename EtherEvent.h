@@ -29,6 +29,7 @@ static const char payloadWithoutRelease[] = "payload withoutRelease";  //eg send
 static const byte payloadWithoutReleaseLength = strlen(EtherEventNamespace::payloadWithoutRelease);
 static const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
 static const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
+const unsigned long debugSerialBaud = 9600;
 }
 
 
