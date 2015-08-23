@@ -23,13 +23,13 @@
 
 
 namespace EtherEventNamespace {
-static const char payloadSeparator[] = "payload ";  //indicates payload
-static const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
-static const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
-static const byte payloadWithoutReleaseLength = strlen(EtherEventNamespace::payloadWithoutRelease);
-static const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
-static const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 const unsigned long debugSerialBaud = 9600;
+const char payloadSeparator[] = "payload ";  //indicates payload
+const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
+const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
+const byte payloadWithoutReleaseLength = strlen(EtherEventNamespace::payloadWithoutRelease);
+const char closeMessage[] = "close\n";  //sender sends this message to the receiver to close the connection
+const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 }
 
 
