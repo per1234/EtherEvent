@@ -10,16 +10,18 @@ const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal plac
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //constructor
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-EtherEventClass::EtherEventClass() {
+EtherEvent::EtherEvent(Server *_server, Client *_client) {
   timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
   sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
+  server=_server;
+  client=_client;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //begin
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned int payloadLengthMaxInput) {
+boolean EtherEvent::begin(const byte eventLengthMaxInput, const unsigned int payloadLengthMaxInput) {
 #if ETHEREVENT_DEBUG == true
   delay(20);  //There needs to be a delay between the calls to ETHEREVENT_SERIAL.begin() in sketch setup() and here or garbage will be printed to the serial monitor
 #endif
@@ -48,7 +50,7 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //availablePayload - returns the number of chars in the payload including the null terminator if there is one
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-unsigned int EtherEventClass::availablePayload() {
+unsigned int EtherEvent::availablePayload() {
   if (unsigned int receivedPayloadLength = strlen(receivedPayload)) {  //strlen(receivedPayload) > 0
     return receivedPayloadLength + 1;  //length of the payload  +  null terminator
   }
@@ -59,7 +61,7 @@ unsigned int EtherEventClass::availablePayload() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //readEvent
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::readEvent(char eventBuffer[]) {
+void EtherEvent::readEvent(char eventBuffer[]) {
   strcpy(eventBuffer, receivedEvent);
   receivedEvent[0] = 0;  //reset the event buffer
   receivedEventLength = 0;
@@ -69,7 +71,7 @@ void EtherEventClass::readEvent(char eventBuffer[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //readPayload
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::readPayload(char payloadBuffer[]) {
+void EtherEvent::readPayload(char payloadBuffer[]) {
   strcpy(payloadBuffer, receivedPayload);
   receivedPayload[0] = 0;  //reset the payload buffer
 }
@@ -78,7 +80,7 @@ void EtherEventClass::readPayload(char payloadBuffer[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //flushReceiver - dump the last message received so another one can be received
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::flushReceiver() {
+void EtherEvent::flushReceiver() {
   ETHEREVENT_SERIAL.println(F("EtherEvent.flushReceiver: start"));
   receivedEvent[0] = 0;  //reset the event buffer
   receivedPayload[0] = 0;  //reset the payload buffer
@@ -87,10 +89,10 @@ void EtherEventClass::flushReceiver() {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//senderIP
+//senderIP - returns the ip address the current event was sent from. Requires modified ethernet library, thus the preprocesser direcive system
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-IPAddress EtherEventClass::senderIP() {  //returns the ip address the current event was sent from. Requires modified ethernet library, thus the preprocesser direcive system
+IPAddress EtherEvent::senderIP() {
   return fromIP;
 }
 #endif
@@ -99,7 +101,7 @@ IPAddress EtherEventClass::senderIP() {  //returns the ip address the current ev
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //setTimeout
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::setTimeout(const unsigned int timeoutInput) {
+void EtherEvent::setTimeout(const unsigned int timeoutInput) {
   timeout = timeoutInput;
 }
 
@@ -107,7 +109,7 @@ void EtherEventClass::setTimeout(const unsigned int timeoutInput) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //getTimeout
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-unsigned int EtherEventClass::getTimeout() {
+unsigned int EtherEvent::getTimeout() {
   return timeout;
 }
 
@@ -115,7 +117,7 @@ unsigned int EtherEventClass::getTimeout() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //setPassword
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-boolean EtherEventClass::setPassword(const char passwordInput[]) {
+boolean EtherEvent::setPassword(const char passwordInput[]) {
   ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(char)"));
   passwordLength = strlen(passwordInput);
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
@@ -127,7 +129,7 @@ boolean EtherEventClass::setPassword(const char passwordInput[]) {
   return true;
 }
 
-boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
+boolean EtherEvent::setPassword(const __FlashStringHelper* passwordInput) {
   ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(F())"));
   passwordLength = FSHlength(passwordInput);
   password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
@@ -143,7 +145,7 @@ boolean EtherEventClass::setPassword(const __FlashStringHelper* passwordInput) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //setSendDoubleDecimalPlaces
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
+void EtherEvent::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
   ETHEREVENT_SERIAL.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
   sendDoubleDecimalPlaces = decimalPlaces;
 }
@@ -152,7 +154,7 @@ void EtherEventClass::setSendDoubleDecimalPlaces(const byte decimalPlaces) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //IPtoa - convert IPAddress to char array and put it in the passed buffer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void EtherEventClass::IPtoa(const IPAddress &IP, char IPcharBuffer[]) {
+void EtherEvent::IPtoa(const IPAddress &IP, char IPcharBuffer[]) {
   utoa(IP[0], IPcharBuffer, 10);  //convert the first octet
   for (byte octetCount = 1; octetCount < 4; octetCount++) {  //convert the other 3 octets
     strcat(IPcharBuffer, ".");
@@ -166,7 +168,7 @@ void EtherEventClass::IPtoa(const IPAddress &IP, char IPcharBuffer[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //FSHlength - determine length of __FlashStringHelper
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-byte EtherEventClass::FSHlength(const __FlashStringHelper* passwordInput) {
+byte EtherEvent::FSHlength(const __FlashStringHelper* passwordInput) {
   const char* passwordInputPointer = (const char PROGMEM *)passwordInput;
   byte stringLength = 0;
   while (true) {
@@ -178,5 +180,5 @@ byte EtherEventClass::FSHlength(const __FlashStringHelper* passwordInput) {
 }
 
 
-EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
+//EtherEvent EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
 

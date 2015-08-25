@@ -8,7 +8,10 @@
 #include <avr/dtostrf.h>
 #endif  //ARDUINO_ARCH_AVR
 
-#include <Ethernet.h>
+//#include <Ethernet.h>
+#include <IPAddress.h>
+#include <Client.h>
+#include <Server.h>
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
 #include "MD5.h"
@@ -36,9 +39,9 @@ const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 }
 
 
-class EtherEventClass {
+class EtherEvent {
   public:
-    EtherEventClass();
+    EtherEvent(Server *_server, Client *_client);
     boolean begin(const byte eventLengthMaxInput = 15, const unsigned int payloadLengthMaxInput = 100);  //these are the default max length values
 
 
@@ -46,17 +49,18 @@ class EtherEventClass {
     //availableEvent - checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false) {
+    byte availableEvent(const long cookieInput = false) {
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent(EthernetServer &ethernetServer) {
+    byte availableEvent() {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
       if (receivedEventLength == 0) {  //no event buffered
-        if (EthernetClient ethernetClient = ethernetServer.available() ) {  //connect to the client
+        //class Client* availableClient;
+        if (client->available() ) {  //connect to the client
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connected"));
-          ethernetClient.setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
+          client->setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-          if (ethernetClient.find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
+          if (client->find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
             ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: magic word received"));
 
             //create and send cookie
@@ -73,7 +77,7 @@ class EtherEventClass {
             char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
             ltoa(cookie, cookiePassword, HEX);
             ETHEREVENT_SERIAL.println(cookiePassword);
-            ethernetClient.print(cookiePassword);  //send the cookie
+            client->print(cookiePassword);  //send the cookie
 
             //calculate the hashword
             strcat(cookiePassword, ":");  //create the hashword to compare to the received one
@@ -87,21 +91,21 @@ class EtherEventClass {
             ETHEREVENT_SERIAL.println(cookiePasswordMD5);
 
             //verify the received hashword
-            if (ethernetClient.find(cookiePasswordMD5) == true) {  //authentication successful
-              ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
+            if (client->find(cookiePasswordMD5) == true) {  //authentication successful
+              client->flush();  //clear the \n or it will cause a null message in the payload/event message read
               ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
-              ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
+              client->print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
               free(cookiePasswordMD5);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
               //Read and process the message
               for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
                 ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
                 char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
-                unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
+                unsigned int bytesRead = client->readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
-                  char findString[] = "\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
-                  ethernetClient.find(findString);  //Flush up to the newline. I had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
+                  char findString[] = "\n";  //I had to do this instead of just client->find(10) or client->find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
+                  client->find(findString);  //Flush up to the newline. I had to do the "\n" instead of just client->find(10) because that causes a compile error under Arduino IDE 1.6.0
                   bytesRead--;  //so the null terminator will not be written past the end of the array
                 }
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
@@ -166,7 +170,7 @@ class EtherEventClass {
 
                   //save the sender IP address
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-                  fromIP = ethernetClient.remoteIP();  //Save the IP address of the sender. Requires modified ethernet library
+                  //fromIP = client->remoteIP();  //Save the IP address of the sender. Requires modified ethernet library
 #endif  //ethernetclientwithremoteIP_h
 
                   break;  //exit the payload/event message handler loop
@@ -182,8 +186,8 @@ class EtherEventClass {
             }
           }
 #endif  //ETHEREVENT_NO_AUTHENTICATION      
-          ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
-          ethernetClient.stop();
+          client->print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+          client->stop();
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
         }
       }
@@ -196,20 +200,20 @@ class EtherEventClass {
     void readPayload(char payloadBuffer[]);
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
     IPAddress senderIP();
-#endif
+#endif  //ethernetclientwithremoteIP_h
     void flushReceiver();
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //send
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const char event[], const char payload[] = "") {
+    boolean send(const byte target[], const unsigned int port, const char event[], const char payload[] = "") {
       IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
-      return send(ethernetClient, targetIP, port, event, payload);
+      return send(targetIP, port, event, payload);
     }
 
 
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "") {
+    boolean send(const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send: attempting connection"));
       ETHEREVENT_SERIAL.print(F("EtherEvent.send: target: "));
       ETHEREVENT_SERIAL.println(target);
@@ -221,15 +225,15 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.println(payload);
 
       byte eventSuccess = false;
-      if (ethernetClient.connect(target, port)) {  //connected to receiver
+      if (client->connect(target, port)) {  //connected to receiver
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-        ethernetClient.setTimeout(timeout);  //Timeout on Stream functions. I only have to set it once here for the send() timeout but I can't set it in begin() because ethernetClient isn't passed to that function there so it's most efficient to just set it here every time
+        client->setTimeout(timeout);  //Timeout on Stream functions. I only have to set it once here for the send() timeout but I can't set it in begin() because ethernetClient isn't passed to that function there so it's most efficient to just set it here every time
         ETHEREVENT_SERIAL.println(F("EtherEvent.send: connected, sending magic word"));
-        ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
+        client->print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
 
         char cookiePassword[cookieLengthMax + 1 + passwordLength + 1];  //cookie, password separator(:), password, null terminator
-        if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
+        if (byte bytesRead = client->readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
           cookiePassword[bytesRead] = 0;
           strcat(cookiePassword, ":");  //add the password separator to the cookie
           strcat(cookiePassword, password);  //add password to the cookie
@@ -240,36 +244,36 @@ class EtherEventClass {
           free(cookiePasswordHash);
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: hashWordMD5: "));
           ETHEREVENT_SERIAL.println(cookiePasswordMD5);
-          ethernetClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
-          ethernetClient.write(10);  //newline
+          client->print(cookiePasswordMD5);  //send the MD5 of the hashword
+          client->write(10);  //newline
           free(cookiePasswordMD5);
 
-          if (ethernetClient.find((char*)ETHEREVENT_ACCEPT_MESSAGE) == true) {  //authentication successful - the (char*) thing is to get rid of the "warning: deprecated conversion from string constant to ‘char*’" compiler warning
+          if (client->find((char*)ETHEREVENT_ACCEPT_MESSAGE) == true) {  //authentication successful - the (char*) thing is to get rid of the "warning: deprecated conversion from string constant to ‘char*’" compiler warning
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
             if (payload[0] != 0) {  //check if there is a payload
-              ethernetClient.print(EtherEventNamespace::payloadSeparator);
+              client->print(EtherEventNamespace::payloadSeparator);
 #ifdef ETHEREVENT_NO_AUTHENTICATION
               //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
-              ethernetClient.print('[');
-              ethernetClient.write(39);
+              client->print('[');
+              client->write(39);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-              ethernetClient.print(payload);
+              client->print(payload);
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-              ethernetClient.write(39);
-              ethernetClient.print(']');
+              client->write(39);
+              client->print(']');
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-              ethernetClient.write(10);  //newline
+              client->write(10);  //newline
             }
-            ethernetClient.print(event);  //transmit event
-            ethernetClient.write(10);  //newline
+            client->print(event);  //transmit event
+            client->write(10);  //newline
             eventSuccess = true;
 #ifndef ETHEREVENT_NO_AUTHENTICATION
           }
         }
 #endif  //ETHEREVENT_NO_AUTHENTICATION    
-        ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
-        ethernetClient.stop();
+        client->print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+        client->stop();
         ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection closed"));
       }
       else {
@@ -281,58 +285,58 @@ class EtherEventClass {
 
     //convert event
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[]) {
+    boolean send(const targetType &target, const unsigned int port, char event[], const char payload[]) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
-      return send(ethernetClient, target, port, (const char*)event, payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+      return send(target, port, (const char*)event, payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
-      return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
+      return send(target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const byte event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte event)"));
-      return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
+      return send(target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int event)"));
       char eventChar[int16_tLengthMax + 1];
       itoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int event)"));
       char eventChar[uint16_tLengthMax + 1];
       utoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(long event)"));
       char eventChar[int32_tLengthMax + 1];
       ltoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long event)"));
       char eventChar[uint32_tLengthMax + 1];
       ultoa(event, eventChar, 10);
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() event)"));
       byte eventLength = FSHlength(event);
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const String &event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String event)"));
       byte stringLength = event.length();
       char eventChar[stringLength + 1];
@@ -340,72 +344,72 @@ class EtherEventClass {
         eventChar[counter] = event[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
       }
       eventChar[stringLength] = 0;
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
       char eventChar[IPAddressLengthMax + 1];
       IPtoa(event, eventChar);
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const double event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
       char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
       dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return send(target, port, (const char*)eventChar, payload);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "") {
+    boolean send(const targetType &target, const unsigned int port, const float event, const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
-      return send(ethernetClient, target, port, (double)event, payload);  //needed to fix ambiguous compiler warning
+      return send(target, port, (double)event, payload);  //needed to fix ambiguous compiler warning
     }
 
     //convert payload
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[]) {
+    boolean send(const targetType &target, const unsigned int port, const char event[], char payload[]) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
-      return send(ethernetClient, target, port, event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+      return send(target, port, event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
       char payloadChar[int16_tLengthMax + 1];
       itoa(payload, payloadChar, 10);
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int payload)"));
       char payloadChar[uint16_tLengthMax + 1];
       utoa(payload, payloadChar, 10);
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(long payload)"));
       char payloadChar[int32_tLengthMax + 1];
       ltoa(payload, payloadChar, 10);
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long payload)"));
       char payloadChar[uint32_tLengthMax + 1];
       ultoa(payload, payloadChar, 10);
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
       byte payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const String &payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
       byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
@@ -413,28 +417,28 @@ class EtherEventClass {
         payloadChar[counter] = payload[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
       }
       payloadChar[stringLength] = 0;
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress payload)"));
       char payloadChar[IPAddressLengthMax + 1];
       IPtoa(payload, payloadChar);
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload) {
+    boolean send(const targetType &target, const unsigned int port, const eventType event, const double payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
       char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
       dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
-      return send(ethernetClient, target, port, event, payloadChar);
+      return send(target, port, event, payloadChar);
     }
 
     //convert event and payload
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[]) {
+    boolean send(const targetType &target, const unsigned int port, char event[], char payload[]) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event, char payload)"));
-      return send(ethernetClient, target, port, (const char*)event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+      return send(target, port, (const char*)event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
 
 
@@ -460,6 +464,10 @@ class EtherEventClass {
 
     const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
 
+    
+    class Server* server;
+    class Client* client;
+
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
 
@@ -475,6 +483,6 @@ class EtherEventClass {
     byte sendDoubleDecimalPlaces;
 };
 
-extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
+//extern EtherEvent EtherEvent;  //declare the class so it doesn't have to be done in the sketch
 #endif
 

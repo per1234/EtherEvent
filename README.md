@@ -105,7 +105,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 `EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
 - Returns: none
 
-`EtherEvent.send(ethernetClient, target, port, event[, payload])` - Send an event and payload.
+`EtherEvent.send(target, port, event[, payload])` - Send an event and payload.
 - Parameter: **ethernetClient** - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
 - Parameter: **target** - IP address to send the event to.

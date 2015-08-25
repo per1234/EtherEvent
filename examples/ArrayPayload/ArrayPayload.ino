@@ -57,6 +57,25 @@ void loop() {
     EtherEvent.readPayload(payload);
     Serial.print(F("Received payload: "));
     Serial.println(payload);
+    char intBuffer[7];
+    int myArray[(availableLength - 5) / 2];
+    byte arrayCounter = 0;
+    byte bufferCounter = 0;
+    for (byte charCounter = 2; charCounter < availableLength - 2; charCounter++) {
+      if (payload[charCounter] == ',' || charCounter==availableLength - 3) {
+        intBuffer[bufferCounter] = 0; //add null terminator
+        myArray[arrayCounter] = atoi(intBuffer);
+        arrayCounter++;
+        bufferCounter = 0;
+        continue;
+      }
+      intBuffer[bufferCounter] = payload[charCounter];
+      bufferCounter++;
+    }
+    for (byte printArrayCounter = 0; printArrayCounter < arrayCounter; printArrayCounter++) {
+      Serial.println(myArray[printArrayCounter]);
+    }
+    Serial.println("done");
   }
 
   if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
@@ -73,5 +92,20 @@ void loop() {
   if (useDHCP == true) {
     Ethernet.maintain();  //request renewal of DHCP lease if expired
   }
+}
+
+//determine the number of elements in the array
+unsigned int availableArrayPayload(const char payload[]){
+  const unsigned int payloadLength=strlen(payload);
+  if(payloadLength<=4){
+    return 0;
+  }
+  unsigned int elementCount=1;
+  for(unsigned int charCounter=0;charCounter<payloadLength;charCounter++){
+    if(payload[charCounter]==','){
+      elementCount++;
+    }
+  }
+  return elementCount;
 }
 
