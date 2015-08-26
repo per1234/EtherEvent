@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<EventGhost Version="1700" Guid="{79C41FD9-0DF3-431C-A026-62423650DB3F}" Time="1439426319.6">
+<EventGhost Version="1700" Guid="{321F71D5-22A1-416A-A066-00B321EA0B10}" Time="1440558173.27">
     <Autostart Name="Autostart" Expanded="True">
         <Action Name="Demonstrates use of the TCPEvents EventGhost plugin with authentication disabled.">
             EventGhost.Comment()
         </Action>
         <Action Name="For use with the EtherEvent NoAuthentication example sketch.">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Requires the modified TCPEvents plugin: https://github.com/per1234/TCPEvents">
             EventGhost.Comment()
         </Action>
         <Action Name="Configure the TCP Events plugin with your network settings(leave the password field blank):">

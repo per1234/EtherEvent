@@ -1,5 +1,6 @@
 // Example sketch demonstrating unauthenticated use of the EtherEvent library
 // Periodically sends a test event, receives events and prints them to the serial monitor.
+// Required the modified TCPEvents plugin for use with EventGhost: https://github.com/per1234/TCPEvents
 // Use with the EventGhost-example-trees.
 
 //These libraries are required by EtherEvent:
