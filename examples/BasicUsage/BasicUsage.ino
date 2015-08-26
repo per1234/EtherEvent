@@ -23,6 +23,7 @@ const unsigned int targetPort = 1024;  //The port to send the test events to. Th
 
 EthernetServer ethernetServer(port);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
+EtherEvent EtherEvent(&ethernetServer, &ethernetClient);
 unsigned long sendTimeStamp;  //used by the example to periodically send an event
 
 
@@ -43,7 +44,7 @@ void setup() {
 
 
 void loop() {
-  if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
+  if (byte availableLength = EtherEvent.availableEvent()) {  //this checks for a new event and gets the length of the event including the null terminator
     Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
     char event[availableLength];  //create the event buffer of the correct size
@@ -57,31 +58,12 @@ void loop() {
     EtherEvent.readPayload(payload);
     Serial.print(F("Received payload: "));
     Serial.println(payload);
-    char intBuffer[7];
-    int myArray[(availableLength - 5) / 2];
-    byte arrayCounter = 0;
-    byte bufferCounter = 0;
-    for (byte charCounter = 2; charCounter < availableLength - 2; charCounter++) {
-      if (payload[charCounter] == ',' || charCounter==availableLength - 3) {
-        intBuffer[bufferCounter] = 0; //add null terminator
-        myArray[arrayCounter] = atoi(intBuffer);
-        arrayCounter++;
-        bufferCounter = 0;
-        continue;
-      }
-      intBuffer[bufferCounter] = payload[charCounter];
-      bufferCounter++;
-    }
-    for (byte printArrayCounter = 0; printArrayCounter < arrayCounter; printArrayCounter++) {
-      Serial.println(myArray[printArrayCounter]);
-    }
-    Serial.println("done");
   }
 
   if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
-    if (EtherEvent.send(ethernetClient, targetIP, targetPort, "test", "test payload")) {  //send event to target IP address, port, event, payload
+    if (EtherEvent.send(targetIP, targetPort, "test", "test payload")) {  //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
     }
     else {
@@ -92,20 +74,5 @@ void loop() {
   if (useDHCP == true) {
     Ethernet.maintain();  //request renewal of DHCP lease if expired
   }
-}
-
-//determine the number of elements in the array
-unsigned int availableArrayPayload(const char payload[]){
-  const unsigned int payloadLength=strlen(payload);
-  if(payloadLength<=4){
-    return 0;
-  }
-  unsigned int elementCount=1;
-  for(unsigned int charCounter=0;charCounter<payloadLength;charCounter++){
-    if(payload[charCounter]==','){
-      elementCount++;
-    }
-  }
-  return elementCount;
 }
 

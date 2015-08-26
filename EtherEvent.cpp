@@ -13,8 +13,8 @@ const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal plac
 EtherEvent::EtherEvent(Server *_server, Client *_client) {
   timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
   sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
-  server=_server;
-  client=_client;
+  server = _server;
+  client = _client;
 }
 
 
@@ -178,7 +178,4 @@ byte EtherEvent::FSHlength(const __FlashStringHelper* passwordInput) {
   }
   return stringLength;
 }
-
-
-//EtherEvent EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
 
