@@ -37,7 +37,7 @@ void setup() {
     Ethernet.begin(MACaddress, deviceIP);  //use static IP address
   }
   ethernetServer.begin();  //begin the server that will be used to receive events
-  if (EtherEvent.begin() == false){// || EtherEvent.setPassword(password) == false) {  //initialize EtherEvent and set your password
+  if (EtherEvent.begin() == false) { // || EtherEvent.setPassword(password) == false) {  //initialize EtherEvent and set your password
     Serial.println(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
   }
@@ -45,7 +45,7 @@ void setup() {
 
 
 void loop() {
-  if(EthernetClient connectedClient = ethernetServer.available()){
+  if (EthernetClient connectedClient = ethernetServer.available()) {
     byte availableLength = EtherEvent.availableEvent(connectedClient);  //this checks for a new event and gets the length of the event including the null terminator
     Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
