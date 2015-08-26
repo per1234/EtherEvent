@@ -196,7 +196,7 @@ class EtherEventClass {
     void readPayload(char payloadBuffer[]);
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
     IPAddress senderIP();
-#endif
+#endif  //ethernetclientwithremoteIP_h
     void flushReceiver();
 
 

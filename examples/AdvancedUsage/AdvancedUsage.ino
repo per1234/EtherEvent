@@ -73,7 +73,7 @@ void loop() {
 #ifdef ethernetclientwithremoteIP_h  //must have the modified Ethernet library installed for this function to be available
     Serial.print(F("Received from IP: "));
     Serial.println(EtherEvent.senderIP());
-#endif
+#endif  //ethernetclientwithremoteIP_h
   }
 
   if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event

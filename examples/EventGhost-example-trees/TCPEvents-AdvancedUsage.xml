@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <EventGhost Version="1700" Guid="{9BE1BD12-C63E-4884-B337-D8618E1391AB}" Time="1439426052.91">
     <Autostart Name="Autostart" Expanded="True">
-        <Action Name="Demonstrates advaced usage of the TCPEvents EventGhost plugin.">
+        <Action Name="Demonstrates advanced usage of the TCPEvents EventGhost plugin.">
             EventGhost.Comment()
         </Action>
         <Action Name="For use with the EtherEvent example sketches.">

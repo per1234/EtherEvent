@@ -87,10 +87,10 @@ void EtherEventClass::flushReceiver() {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//senderIP
+//senderIP - returns the ip address the current event was sent from. Requires modified ethernet library, thus the preprocesser direcive system
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-IPAddress EtherEventClass::senderIP() {  //returns the ip address the current event was sent from. Requires modified ethernet library, thus the preprocesser direcive system
+IPAddress EtherEventClass::senderIP() {
   return fromIP;
 }
 #endif
