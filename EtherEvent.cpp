@@ -10,10 +10,9 @@ const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal plac
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //constructor
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-EtherEvent::EtherEvent(Server *_server, Client *_client) {
+EtherEvent::EtherEvent(Client *_client) {
   timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
   sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
-  server = _server;
   client = _client;
 }
 

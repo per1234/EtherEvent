@@ -10,7 +10,6 @@
 
 #include <IPAddress.h>
 #include <Client.h>
-#include <Server.h>
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
 #include "MD5.h"
@@ -40,7 +39,7 @@ const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 
 class EtherEvent {
   public:
-    EtherEvent(Server *_server, Client *_client);
+    EtherEvent(Client *_client);
     boolean begin(const byte eventLengthMaxInput = 15, const unsigned int payloadLengthMaxInput = 100);  //these are the default max length values
 
 
@@ -463,7 +462,6 @@ class EtherEvent {
     const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
 
 
-    class Server* server;
     class Client* client;
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()

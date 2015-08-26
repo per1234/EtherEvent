@@ -24,7 +24,7 @@ const unsigned int targetPort = 1024;  //The port to send the test events to. Th
 
 EthernetServer ethernetServer(port);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
-EtherEvent EtherEvent(&ethernetServer, &ethernetClient);
+EtherEvent EtherEvent(&ethernetClient);
 unsigned long sendTimeStamp;  //used by the example to periodically send an event
 
 
