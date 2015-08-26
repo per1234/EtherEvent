@@ -16,9 +16,9 @@ const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use fo
 const char password[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 const unsigned int port = 1024;  //TCP port to receive events
 
-const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
+const unsigned int sendEventInterval = 4000;  //(ms)Delay between sending the test events.
 const IPAddress targetIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
-const unsigned int targetPort = 1024;  //The port to send the test events to. This will also be used as the default port to send events to.
+const unsigned int targetPort = 1024;  //The port to send the test events to.
 
 
 EthernetServer ethernetServer(port);  //TCP port to receive on
@@ -59,7 +59,7 @@ void loop() {
     Serial.println(payload);
   }
 
-  if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
+  if (millis() - sendTimeStamp > sendEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
     if (EtherEvent.send(ethernetClient, targetIP, targetPort, "test", "test payload")) {  //send event to target IP address, port, event, payload

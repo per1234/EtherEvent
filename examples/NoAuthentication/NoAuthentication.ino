@@ -16,7 +16,7 @@ byte MACaddress[] = {0, 1, 2, 3, 4, 4};  //this can be anything you like, but mu
 const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use for the device. This can be any valid address on the network as long as it is unique. If you are using DHCP then this doesn't need to be configured.
 const unsigned int port = 1024;  //TCP port to receive events
 
-const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
+const unsigned int sendEventInterval = 4000;  //(ms)Delay between sending the test events.
 const IPAddress targetIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
 const unsigned int targetPort = 1024;  //The port to send the test events to. This will also be used as the default port to send events to.
 
@@ -59,7 +59,7 @@ void loop() {
     Serial.println(payload);
   }
 
-  if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
+  if (millis() - sendTimeStamp > sendEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
     if (EtherEvent.send(ethernetClient, targetIP, targetPort, "test", "test payload")) {  //send event to target IP address, port, event, payload

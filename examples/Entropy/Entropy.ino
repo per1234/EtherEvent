@@ -29,7 +29,7 @@ const byte W5x00retransmissionCount = 1;  //Retransmission count. 1 is the minim
 
 const byte randomSeedPin = A0;  //analog pin to use to seed the random() function
 
-const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
+const unsigned int sendEventInterval = 4000;  //(ms)Delay between sending the test events.
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
 const unsigned int sendPort = 1024;  //The port to send the test events to.
 
@@ -83,7 +83,7 @@ void loop() {
 #endif
   }
 
-  if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
+  if (millis() - sendTimeStamp > sendEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
     if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), F("test payload"))) {  //send event to target IP address, port, event, payload

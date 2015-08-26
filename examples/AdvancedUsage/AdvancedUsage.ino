@@ -25,7 +25,7 @@ const byte etherEventTimeout = 20;  //(ms)The max time to wait for ethernet comm
 const unsigned int W5x00timeout = 400;  //(0.1ms)used to set the timeout for the W5x00 module.
 const byte W5x00retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
 
-const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
+const unsigned int sendEventInterval = 4000;  //(ms)Delay between sending the test events.
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
 const unsigned int sendPort = 1024;  //The port to send the test events to.
 
@@ -76,7 +76,7 @@ void loop() {
 #endif  //ethernetclientwithremoteIP_h
   }
 
-  if (millis() - sendTimeStamp > queueEventInterval) {  //periodically send event
+  if (millis() - sendTimeStamp > sendEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
     if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), F("test payload"))) {  //send event to target IP address, port, event, payload
