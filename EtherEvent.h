@@ -48,17 +48,17 @@ class EtherEvent {
     //availableEvent - checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent(const long cookieInput = false) {
+    byte availableEvent(Client &connectedClient, const long cookieInput = false) {
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent() {
+    byte availableEvent(Client &connectedClient) {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
       if (receivedEventLength == 0) {  //no event buffered
-        if (Client connectedClient = server->available()) {  //connect to the client
+        //if (Client connectedClient = server->available()) {  //connect to the client
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connected"));
-          connectedClient->setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
+          connectedClient.setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-          if (connectedClient->find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
+          if (connectedClient.find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
             ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: magic word received"));
 
             //create and send cookie
@@ -75,7 +75,7 @@ class EtherEvent {
             char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
             ltoa(cookie, cookiePassword, HEX);
             ETHEREVENT_SERIAL.println(cookiePassword);
-            connectedClient->print(cookiePassword);  //send the cookie
+            connectedClient.print(cookiePassword);  //send the cookie
 
             //calculate the hashword
             strcat(cookiePassword, ":");  //create the hashword to compare to the received one
@@ -89,21 +89,21 @@ class EtherEvent {
             ETHEREVENT_SERIAL.println(cookiePasswordMD5);
 
             //verify the received hashword
-            if (connectedClient->find(cookiePasswordMD5) == true) {  //authentication successful
-              connectedClient->flush();  //clear the \n or it will cause a null message in the payload/event message read
+            if (connectedClient.find(cookiePasswordMD5) == true) {  //authentication successful
+              connectedClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
               ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
-              connectedClient->print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
+              connectedClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
               free(cookiePasswordMD5);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
               //Read and process the message
               for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
                 ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
                 char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
-                unsigned int bytesRead = connectedClient->readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
+                unsigned int bytesRead = connectedClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
                 if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
                   ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
-                  char findString[] = "\n";  //I had to do this instead of just connectedClient->find(10) or connectedClient->find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
-                  connectedClient->find(findString);  //Flush up to the newline. I had to do the "\n" instead of just connectedClient->find(10) because that causes a compile error under Arduino IDE 1.6.0
+                  char findString[] = "\n";  //I had to do this instead of just connectedClient.find(10) or connectedClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
+                  connectedClient.find(findString);  //Flush up to the newline. I had to do the "\n" instead of just connectedClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
                   bytesRead--;  //so the null terminator will not be written past the end of the array
                 }
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
@@ -168,7 +168,7 @@ class EtherEvent {
 
                   //save the sender IP address
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-                  //fromIP = connectedClient->remoteIP();  //Save the IP address of the sender. Requires modified ethernet library
+                  //fromIP = connectedClient.remoteIP();  //Save the IP address of the sender. Requires modified ethernet library
 #endif  //ethernetclientwithremoteIP_h
 
                   break;  //exit the payload/event message handler loop
@@ -184,10 +184,10 @@ class EtherEvent {
             }
           }
 #endif  //ETHEREVENT_NO_AUTHENTICATION      
-          connectedClient->print(EtherEventNamespace::closeMessage);  //tell the receiver to close
-          connectedClient->stop();
+          connectedClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+          connectedClient.stop();
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
-        }
+        //}
       }
       return receivedEventLength;
     }

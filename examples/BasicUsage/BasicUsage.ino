@@ -6,6 +6,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include "MD5.h"
+#define ETHEREVENT_NO_AUTHENTICATION
 #include "EtherEvent.h"
 
 
@@ -13,7 +14,7 @@
 const boolean useDHCP = false;  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
 byte MACaddress[] = {0, 1, 2, 3, 4, 4};  //this can be anything you like, but must be unique on your network
 const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use for the device. This can be any valid address on the network as long as it is unique. If you are using DHCP then this doesn't need to be configured.
-const char password[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
+//const char password[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 const unsigned int port = 1024;  //TCP port to receive events
 
 const unsigned int queueEventInterval = 4000;  //(ms)Delay between queueing the test events.
@@ -36,7 +37,7 @@ void setup() {
     Ethernet.begin(MACaddress, deviceIP);  //use static IP address
   }
   ethernetServer.begin();  //begin the server that will be used to receive events
-  if (EtherEvent.begin() == false || EtherEvent.setPassword(password) == false) {  //initialize EtherEvent and set your password
+  if (EtherEvent.begin() == false){// || EtherEvent.setPassword(password) == false) {  //initialize EtherEvent and set your password
     Serial.println(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
   }
@@ -44,7 +45,8 @@ void setup() {
 
 
 void loop() {
-  if (byte availableLength = EtherEvent.availableEvent()) {  //this checks for a new event and gets the length of the event including the null terminator
+  if(EthernetClient connectedClient = ethernetServer.available()){
+    byte availableLength = EtherEvent.availableEvent(connectedClient);  //this checks for a new event and gets the length of the event including the null terminator
     Serial.print(F("\nReceived event length="));
     Serial.println(availableLength);
     char event[availableLength];  //create the event buffer of the correct size
