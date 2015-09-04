@@ -166,11 +166,11 @@ void EtherEventClass::IPtoa(const IPAddress &IP, char IPcharBuffer[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //FSHlength - determine length of __FlashStringHelper
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-byte EtherEventClass::FSHlength(const __FlashStringHelper* passwordInput) {
-  const char* passwordInputPointer = (const char PROGMEM *)passwordInput;
+byte EtherEventClass::FSHlength(const __FlashStringHelper* FSHinput) {
+  const char* FSHinputPointer = (const char PROGMEM *)FSHinput;
   byte stringLength = 0;
   while (true) {
-    unsigned char character = pgm_read_byte(passwordInputPointer++);
+    unsigned char character = pgm_read_byte(FSHinputPointer++);
     if (character == 0) break;
     stringLength++;
   }

@@ -444,7 +444,7 @@ class EtherEventClass {
     boolean setPassword(const __FlashStringHelper* passwordInput);
     void setSendDoubleDecimalPlaces(const byte decimalPlaces);
     void IPtoa(const IPAddress &IP, char IPcharBuffer[]);
-    byte FSHlength(const __FlashStringHelper* passwordInput);
+    byte FSHlength(const __FlashStringHelper* FSHinput);
 
 
   private:
