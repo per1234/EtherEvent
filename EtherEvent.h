@@ -349,14 +349,6 @@ class EtherEventClass {
 
 
   private:
-    //used for the char array conversions
-    static const byte uint16_tLengthMax = 5;  //5 digits
-    static const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
-    static const byte uint32_tLengthMax = 10;  //10 digits
-    static const byte int32_tLengthMax = 1 + uint32_tLengthMax;  //sign + 10 digits
-    static const byte IPAddressLengthMax = 3 + 1 + 3 + 1 + 3 + 1 + 3;  //4 x octet + 3 x dot
-    static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
-
     static const byte cookieLengthMax = 8;
 
     static const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
