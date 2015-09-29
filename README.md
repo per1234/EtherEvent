@@ -76,11 +76,13 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
-`EtherEvent.availableEvent(ethernetServer, cookie)` - Receives new event if an event is not already buffered.
+`EtherEvent.availableEvent(ethernetServer[, cookie][, password])` - Receives new event if an event is not already buffered.
 - Parameter: **ethernetServer** - The EthernetServer object created in the Ethernet setup of the user's sketch.
   - Type: EthernetServer
 - Parameter(optional): **cookie** - Cookie value to use in the authentication process. This can be used to provide a truly random cookie for enhanced security. If this parameter is not specified then a pseudorandom cookie will be generated with the random() function.
   - Type: long
+- Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the cookie parameter must be specified(If you want EtherEvent to generate your cookie then use `false`).
+  - Type: char array, __FlashStringHelper(F() macro)
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator.
   - Type: byte
 
@@ -105,7 +107,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 `EtherEvent.flushReceiver()` - Clear any buffered event and payload data so a new event can be received.
 - Returns: none
 
-`EtherEvent.send(ethernetClient, target, port, event[, payload])` - Send an event and payload.
+`EtherEvent.send(ethernetClient, target, port, event[, payload][, password])` - Send an event and payload.
 - Parameter: **ethernetClient** - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
 - Parameter: **target** - IP address to send the event to.
@@ -116,6 +118,8 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double, Printable
 - Parameter(optional): **payload** - Payload to send with the event.
   - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double, Printable
+- Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the payload parameter must be specified(If there is no payload use `""`).
+  - Type: char array, __FlashStringHelper(F() macro)
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 

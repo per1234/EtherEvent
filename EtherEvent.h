@@ -46,7 +46,22 @@ class EtherEventClass {
     //availableEvent - checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false) {
+    byte availableEvent(EthernetServer &ethernetServer, const __FlashStringHelper* passwordInput) {
+      return availableEvent(ethernetServer, false, passwordInput);
+    }
+
+    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput, const __FlashStringHelper* passwordInput) {
+      const byte passwordInputLength = FSHlength(passwordInput);
+      char passwordChar[passwordInputLength + 1];
+      memcpy_P(passwordChar, passwordInput, passwordInputLength + 1);  //+1 for the null terminator
+      return availableEvent(ethernetServer, cookieInput, passwordChar);
+    }
+
+    byte availableEvent(EthernetServer &ethernetServer, const char passwordInput[]) {
+      return availableEvent(ethernetServer, false, passwordInput);
+    }
+
+    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = "") {
 #else  //ETHEREVENT_NO_AUTHENTICATION
     byte availableEvent(EthernetServer &ethernetServer) {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -70,14 +85,23 @@ class EtherEventClass {
               randomSeed(micros());
               cookie = random((((unsigned long) - 1) / 2));  //make random number to use as cookie
             }
-            char cookiePassword[8 + 1 + passwordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
+            byte currentPasswordLength = passwordLength;
+            if (passwordInput[0] != 0) {
+              currentPasswordLength = strlen(passwordInput);
+            }
+            char cookiePassword[8 + 1 + currentPasswordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
             ltoa(cookie, cookiePassword, HEX);
             ETHEREVENT_SERIAL.println(cookiePassword);
             ethernetClient.print(cookiePassword);  //send the cookie
 
             //calculate the hashword
             strcat(cookiePassword, ":");  //create the hashword to compare to the received one
-            strcat(cookiePassword, password);
+            if (passwordInput[0] == 0) {
+              strcat(cookiePassword, password);
+            }
+            else {
+              strcat(cookiePassword, passwordInput);
+            }
             ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePassword: "));
             ETHEREVENT_SERIAL.println(cookiePassword);
             unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
@@ -204,7 +228,7 @@ class EtherEventClass {
     //send
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template <typename target_t, typename event_t>
-    boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {
+    boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {  //payload must be specified with password even if it's blank
       Serial.println(F("EtherEvent.send(no payload)"));
       noPayload = true;  //set the flag to indicate there is no payload
       return send(ethernetClient, target, port, event, false);
@@ -216,8 +240,27 @@ class EtherEventClass {
       return send(ethernetClient, targetIP, port, event, payload);
     }
 
+#ifndef ETHEREVENT_NO_AUTHENTICATION
+    template <typename event_t, typename payload_t, typename password_t>
+    boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const event_t event, const payload_t payload, const password_t passwordInput) {
+      IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
+      return send(ethernetClient, targetIP, port, event, payload, passwordInput);
+    }
+
+    template <typename event_t, typename payload_t>
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload, const __FlashStringHelper* passwordInput) {
+      const byte passwordInputLength = FSHlength(passwordInput);
+      char passwordChar[passwordInputLength + 1];
+      memcpy_P(passwordChar, passwordInput, passwordInputLength + 1);  //+1 for the null terminator
+      return send(ethernetClient, target, port, event, payload, passwordChar);
+    }
+
+    template <typename event_t, typename payload_t>
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload, const char passwordInput[] = "") {
+#else //ETHEREVENT_NO_AUTHENTICATION
     template <typename event_t, typename payload_t>
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload) {
+#endif  //ETHEREVENT_NO_AUTHENTICATION
       ETHEREVENT_SERIAL.println(F("EtherEvent.send: attempting connection"));
       ETHEREVENT_SERIAL.print(F("EtherEvent.send: target: "));
       ETHEREVENT_SERIAL.println(target);
@@ -236,11 +279,20 @@ class EtherEventClass {
         ETHEREVENT_SERIAL.println(F("EtherEvent.send: connected, sending magic word"));
         ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
 
-        char cookiePassword[cookieLengthMax + 1 + passwordLength + 1];  //cookie, password separator(:), password, null terminator
+        byte currentPasswordLength = passwordLength;
+        if (passwordInput[0] != 0) {
+          currentPasswordLength = strlen(passwordInput);
+        }
+        char cookiePassword[cookieLengthMax + 1 + currentPasswordLength + 1];  //cookie, password separator(:), password, null terminator
         if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
           cookiePassword[bytesRead] = 0;
           strcat(cookiePassword, ":");  //add the password separator to the cookie
-          strcat(cookiePassword, password);  //add password to the cookie
+          if (passwordInput[0] != 0) {
+            strcat(cookiePassword, passwordInput);  //add password to the cookie
+          }
+          else {
+            strcat(cookiePassword, password);  //add password to the cookie
+          }
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: cookiePassword: "));
           ETHEREVENT_SERIAL.println(cookiePassword);
           unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
