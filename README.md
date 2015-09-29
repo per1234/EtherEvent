@@ -113,9 +113,9 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double, Printable
 - Parameter(optional): **payload** - Payload to send with the event.
-  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double, Printable
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 

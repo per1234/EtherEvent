@@ -13,6 +13,7 @@ const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal plac
 EtherEventClass::EtherEventClass() {
   timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
   sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
+  noPayload = false;
 }
 
 
