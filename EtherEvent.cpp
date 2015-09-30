@@ -58,7 +58,9 @@ unsigned int EtherEventClass::availablePayload() {
 //readEvent
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::readEvent(char eventBuffer[]) {
-  strcpy(eventBuffer, receivedEvent);
+  for (byte charCounter = readEventLength; charCounter < receivedEventLength; charCounter++) {
+    eventBuffer[charCounter - readEventLength] = receivedEvent[charCounter];
+  }
   flushEvent();
 }
 
@@ -75,7 +77,9 @@ char EtherEventClass::readEvent() {
 //readPayload
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::readPayload(char payloadBuffer[]) {
-  strcpy(payloadBuffer, receivedPayload);
+  for (unsigned int charCounter = readPayloadLength; charCounter < receivedPayloadLength; charCounter++) {
+    payloadBuffer[charCounter - readPayloadLength] = receivedPayload[charCounter];
+  }
   flushPayload();
 }
 
