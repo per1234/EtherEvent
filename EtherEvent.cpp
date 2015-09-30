@@ -35,13 +35,14 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
   }
 
   receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
-  receivedEvent[0] = 0;  //clear buffer - realloc does not zero initialize so the buffer could contain anything
+  flushEvent();  //clear buffer - realloc does not zero initialize so the buffer could contain anything
   receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(*receivedPayload));
-  receivedPayload[0] = 0;  //clear buffer - realloc does not zero initialize so the buffer could contain anything
+  flushPayload();  //clear buffer - realloc does not zero initialize so the buffer could contain anything
   if (receivedEvent == NULL || receivedPayload == NULL) {
     ETHEREVENT_SERIAL.println(F("memory allocation failed"));
     return false;
   }
+
   return true;
 }
 
@@ -50,8 +51,8 @@ boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned in
 //availablePayload - returns the number of chars in the payload including the null terminator if there is one
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 unsigned int EtherEventClass::availablePayload() {
-  if (unsigned int receivedPayloadLength = strlen(receivedPayload)) {  //strlen(receivedPayload) > 0
-    return receivedPayloadLength + 1;  //length of the payload  +  null terminator
+  if (receivedPayloadLength > readPayloadLength) {
+    return receivedPayloadLength - readPayloadLength;
   }
   return false;
 }
@@ -62,8 +63,15 @@ unsigned int EtherEventClass::availablePayload() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::readEvent(char eventBuffer[]) {
   strcpy(eventBuffer, receivedEvent);
-  receivedEvent[0] = 0;  //reset the event buffer
-  receivedEventLength = 0;
+  flushEvent();
+}
+
+char EtherEventClass::readEvent() {
+  if (receivedEventLength > readEventLength + 1) {
+    return receivedEvent[readEventLength++];
+  }
+  flushEvent();
+  return 0;
 }
 
 
@@ -72,7 +80,15 @@ void EtherEventClass::readEvent(char eventBuffer[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::readPayload(char payloadBuffer[]) {
   strcpy(payloadBuffer, receivedPayload);
-  receivedPayload[0] = 0;  //reset the payload buffer
+  flushPayload();
+}
+
+char EtherEventClass::readPayload() {
+  if (receivedPayloadLength > readPayloadLength + 1) {
+    return receivedPayload[readPayloadLength++];
+  }
+  flushPayload();
+  return 0;
 }
 
 
@@ -81,9 +97,8 @@ void EtherEventClass::readPayload(char payloadBuffer[]) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void EtherEventClass::flushReceiver() {
   ETHEREVENT_SERIAL.println(F("EtherEvent.flushReceiver: start"));
-  receivedEvent[0] = 0;  //reset the event buffer
-  receivedPayload[0] = 0;  //reset the payload buffer
-  receivedEventLength = 0;
+  flushEvent();
+  flushPayload();
 }
 
 
@@ -176,6 +191,27 @@ byte EtherEventClass::FSHlength(const __FlashStringHelper* FSHinput) {
   return stringLength;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//private
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//flushEvent
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void EtherEventClass::flushEvent() {
+  receivedEvent[0] = 0;  //reset the event buffer
+  receivedEventLength = 0;
+  readEventLength = 0;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//flushPayload
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void EtherEventClass::flushPayload() {
+  receivedPayload[0] = 0;  //reset the event buffer
+  receivedPayloadLength = 0;
+  readPayloadLength = 0;
+}
 
 EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
 

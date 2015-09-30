@@ -85,11 +85,15 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - Type: long
 - Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the cookie parameter must be specified(If you want EtherEvent to generate your cookie then use `false`).
   - Type: char array, __FlashStringHelper(F() macro)
-- Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator.
+- Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator minus the amount of the event already read.
   - Type: byte
 
+`EtherEvent.availableEvent()`
+- Returns: Length of the received event and the null terminator minus the amount of the event already read.
+  - Type: byte
+  
 `EtherEvent.availablePayload()` - availableEvent() must be called first.
-- Returns: Buffer size required to receive the payload. This is the length of the received payload and the null terminator.
+- Returns: Buffer size required to receive the payload. This is the length of the received payload and the null terminator minus the amount of the payload already read.
   - Type: unsigned int
 
 `EtherEvent.readEvent(eventBuffer)` - Puts the event in the passed array. availableEvent() must be called first. Size a char array according to the result of availableEvent() and pass it to readEvent(). After that it will contain the event.
@@ -97,11 +101,19 @@ See the example sketches and EventGhost tree files for demonstration of library 
   - Type: char array
 - Returns: none
 
+`EtherEvent.readEvent()`
+- Returns: The next character of the event.
+  - Type: char
+  
 `EtherEvent.readPayload(payloadBuffer)` - Puts the payload string in the passed array. availableEvent() must be called first. Size a char array according to the result of availablePayload() and pass it to readPayload(). After that it will contain the payload.
 - Parameter: **payloadBuffer** - Buffer to hold the received payload.
   - Type: char array
 - Returns: none
 
+`EtherEvent.readPayload()`
+- Returns: The next character of the payload.
+  - Type: char
+  
 `EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library(http://github.com/per1234/Ethernet) installed for this function to be available.
 - Returns: IP address of the sender.
   - Type: IPAddress

@@ -45,6 +45,10 @@ class EtherEventClass {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //availableEvent - checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    byte availableEvent() {
+      return receivedEventLength - readEventLength;
+    }
+
 #ifndef ETHEREVENT_NO_AUTHENTICATION
     byte availableEvent(EthernetServer &ethernetServer, const __FlashStringHelper* passwordInput) {
       return availableEvent(ethernetServer, false, passwordInput);
@@ -65,7 +69,8 @@ class EtherEventClass {
 #else  //ETHEREVENT_NO_AUTHENTICATION
     byte availableEvent(EthernetServer &ethernetServer) {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-      if (receivedEventLength == 0) {  //no event buffered
+      if (receivedEventLength <= readEventLength) {  ///no event buffered
+        flushPayload();
         if (EthernetClient ethernetClient = ethernetServer.available() ) {  //connect to the client
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connected"));
           ethernetClient.setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
@@ -146,29 +151,30 @@ class EtherEventClass {
 
                     ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload length: "));
                     ETHEREVENT_SERIAL.println(bytesRead - EtherEventNamespace::payloadSeparatorLength);
-                    unsigned int readPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax + TCPEventsPayloadFormattingLength);  //make sure the payload will never be longer than the max length
+                    receivedPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax + TCPEventsPayloadFormattingLength);  //make sure the payload will never be longer than the max length
 
                     //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
                     byte payloadOffset = 0;
                     if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == 39) {  //39 is apostrophe
                       payloadOffset = TCPEventsPayloadFormattingLength;  //skip the first 2 characters of the payload
-                      if (receivedMessage[readPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
-                        readPayloadLength--;
+                      if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
+                        receivedPayloadLength--;
                       }
-                      if (receivedMessage[readPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == 39) {
-                        readPayloadLength--;
+                      if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == 39) {
+                        receivedPayloadLength--;
                       }
-                      readPayloadLength -= payloadOffset;
+                      receivedPayloadLength -= payloadOffset;
                     }
                     else {  //no TCPEvents payload formatting is present
-                      readPayloadLength = min(readPayloadLength, payloadLengthMax);
+                      receivedPayloadLength = min(receivedPayloadLength, payloadLengthMax);
                     }
 
                     //put the payload into the buffer
-                    for (unsigned int payloadCounter = 0; payloadCounter < readPayloadLength; payloadCounter++) {
+                    for (unsigned int payloadCounter = 0; payloadCounter < receivedPayloadLength; payloadCounter++) {
                       receivedPayload[payloadCounter] = receivedMessage[payloadCounter + payloadOffset + EtherEventNamespace::payloadSeparatorLength];
                     }
-                    receivedPayload[readPayloadLength] = 0;  //null terminator
+                    receivedPayload[receivedPayloadLength] = 0;  //null terminator
+                    receivedPayloadLength++;  //receivedEventLength and receivedPayloadLength include the null terminator, this way if the user makes a mistake in the buffer length it will be one byte longer than it needs to be instead of one byte shorter
                     ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload: "));
                     ETHEREVENT_SERIAL.println(receivedPayload);
                   }
@@ -211,13 +217,15 @@ class EtherEventClass {
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
         }
       }
-      return receivedEventLength;
+      return availableEvent();
     }
 
 
     unsigned int availablePayload();
     void readEvent(char eventBuffer[]);
+    char readEvent();
     void readPayload(char payloadBuffer[]);
+    char readPayload();
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
     IPAddress senderIP();
 #endif  //ethernetclientwithremoteIP_h
@@ -708,9 +716,15 @@ class EtherEventClass {
     byte eventLengthMax;
     char* receivedEvent;  //event buffer
     byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
+    byte readEventLength;  //number of characters of the event that have been read
     unsigned int payloadLengthMax;
     char* receivedPayload;  //payload buffer
+    unsigned int receivedPayloadLength;
+    unsigned int readPayloadLength;  //number of characters of the payload that have been read
     byte sendDoubleDecimalPlaces;
+
+    void flushEvent();
+    void flushPayload();
 };
 
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
