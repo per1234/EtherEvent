@@ -686,7 +686,17 @@ class EtherEventClass {
     unsigned int getTimeout();
     boolean setPassword(const char passwordInput[]);
     boolean setPassword(const __FlashStringHelper* passwordInput);
-    void setSendDoubleDecimalPlaces(const byte decimalPlaces);
+
+#ifdef ETHEREVENT_FAST_SEND
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //setSendDoubleDecimalPlaces
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void setSendDoubleDecimalPlaces(const byte decimalPlaces) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
+      sendDoubleDecimalPlaces = decimalPlaces;
+    }
+#endif  //ETHEREVENT_FAST_SEND
+
     void IPtoa(const IPAddress &IP, char IPcharBuffer[]);
     byte FSHlength(const __FlashStringHelper* FSHinput);
 

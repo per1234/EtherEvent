@@ -137,7 +137,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 
-`EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)` - Set the number of decimal places when sending double or float type events and payloads.
+`EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)` - Set the number of decimal places when sending double or float type events and payloads. This function is only available in FAST_SEND mode. In normal mode only two decimal places are supported.
 - Parameter: **decimalPlaces** - The default value is 3.
   - Type: byte
 - Returns: none
