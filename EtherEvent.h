@@ -110,7 +110,7 @@ class EtherEventClass {
             ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePassword: "));
             ETHEREVENT_SERIAL.println(cookiePassword);
             unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
-            char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
+            char* cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
             free(cookiePasswordHash);
             ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePasswordMD5: "));
             ETHEREVENT_SERIAL.println(cookiePasswordMD5);
@@ -314,7 +314,7 @@ class EtherEventClass {
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: cookiePassword: "));
           ETHEREVENT_SERIAL.println(cookiePassword);
           unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
-          char *cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
+          char* cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
           free(cookiePasswordHash);
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: hashWordMD5: "));
           ETHEREVENT_SERIAL.println(cookiePasswordMD5);
@@ -713,6 +713,11 @@ class EtherEventClass {
     static const byte cookieLengthMax = 8;
 
     static const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
+
+    static const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
+    static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
+
+
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()

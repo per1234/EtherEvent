@@ -3,10 +3,6 @@
 #include "EtherEvent.h"
 
 
-const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
-const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //constructor
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +18,7 @@ EtherEventClass::EtherEventClass() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 boolean EtherEventClass::begin(const byte eventLengthMaxInput, const unsigned int payloadLengthMaxInput) {
 #if ETHEREVENT_DEBUG == true
-  delay(20);  //There needs to be a delay between the calls to ETHEREVENT_SERIAL.begin() in sketch setup() and here or garbage will be printed to the serial monitor
+  delay(20);  //There needs to be a delay between the calls to serial.begin() in the sketch setup() and here or garbage will be printed to the serial monitor
 #endif
   ETHEREVENT_SERIAL.begin(EtherEventNamespace::debugSerialBaud);  //for debugging
   ETHEREVENT_SERIAL.println(F("\n\n\nEtherEvent.begin"));

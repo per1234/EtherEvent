@@ -19,9 +19,9 @@ const unsigned int port = 1024;  //TCP port to receive events.
 const byte maxReceivedEventLength = 12;  //Maximum event length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
 const byte maxReceivedPayloadLength = 25;  //Maximum payload length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
 
-//timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
+//timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed Ethernet operations, too short will cause failed event send or receive.
 //The default values used when these timeouts are not set are fairly conservative.
-const byte etherEventTimeout = 20;  //(ms)The max time to wait for ethernet communication.
+const byte etherEventTimeout = 20;  //(ms)The max time to wait for Ethernet communication.
 const unsigned int W5x00timeout = 400;  //(0.1ms)used to set the timeout for the W5x00 module.
 const byte W5x00retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
 
@@ -31,8 +31,8 @@ const unsigned int sendPort = 1024;  //The port to send the test events to.
 
 
 EthernetServer ethernetServer(port);  //TCP port to receive on
-EthernetClient ethernetClient;  //create the client object for ethernet communication
-unsigned long sendTimeStamp;  //used by the example to periodically send an event
+EthernetClient ethernetClient;  //create the client object for Ethernet communication
+unsigned long sendTimestamp;  //used by the example to periodically send an event
 
 
 void setup() {
@@ -76,8 +76,8 @@ void loop() {
 #endif  //ethernetclientwithremoteIP_h
   }
 
-  if (millis() - sendTimeStamp > sendEventInterval) {  //periodically send event
-    sendTimeStamp = millis();  //reset the timestamp for the next event send
+  if (millis() - sendTimestamp > sendEventInterval) {  //periodically send event
+    sendTimestamp = millis();  //reset the Timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
     if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), F("test payload"))) {  //send event to target IP address, port, event, payload
       Serial.println(F("Event send successful"));
