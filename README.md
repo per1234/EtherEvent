@@ -13,6 +13,7 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
   - Tested to work with this library:
     - EventGhost: http://eventghost.com - Free open source automation tool for Windows. The Network Event Sender and Receiver plugins are compatible with EtherEvent.
     - TCPEvents EventGhost plugin: https://github.com/per1234/TCPEvents - Improved network event sender/receiver allows sending events to multiple IP addresses.
+    - EgiGeoZone Geofence: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone with the Arduino EtherEvent plugin: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone.plugin.arduinoetherevent
     - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI. The receiver requires a large timeout value.
   - Untested:
     - eventghost-android: http://github.com/timhoeck/eventghost-android - Android network event app
@@ -62,7 +63,7 @@ See the example sketches and EventGhost tree files for demonstration of library 
 
 `#define ETHEREVENT_NO_AUTHENTICATION` - Add this line above the `#include "EtherEvent.h"` line in your sketch to disable password authentication. Requires [my version of TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the MD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example file for demonstration.
 
-`#define ETHEREVENT_FAST_SEND` - Increase sending speed at the expense of increased memory use. Add this line above the `#include "EtherEvent.h"` line in your sketch. This significantly increases the speed of sending __FlashStringHelper(F() macro) events/payloads but also increases the sketch size and SRAM usage during the send process. FASTSEND also increases the speed of sending some other event/payload types.
+`#define ETHEREVENT_FAST_SEND` - Increase sending speed at the expense of increased memory use. Add this line above the `#include "EtherEvent.h"` line in your sketch. This significantly increases the speed of sending __FlashStringHelper(F() macro) events/payloads but also increases the sketch size and SRAM usage during the send process. ETHEREVENT_FAST_SEND also increases the speed of sending some other event/payload types.
 
 `EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent.
 - Parameter(optional): **eventLengthMax** - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
