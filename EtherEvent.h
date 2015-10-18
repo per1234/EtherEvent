@@ -483,7 +483,7 @@ class EtherEventClass {
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
-      const byte payloadLength = FSHlength(payload);
+      const FSHlength payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, event, payloadChar);
@@ -642,7 +642,7 @@ class EtherEventClass {
     template <typename targetType, typename eventType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const char passwordInput[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
-      const byte payloadLength = FSHlength(payload);
+      const unsigned int payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
@@ -698,7 +698,7 @@ class EtherEventClass {
 #endif  //ETHEREVENT_FAST_SEND
 
     void IPtoa(const IPAddress &IP, char IPcharBuffer[]);
-    byte FSHlength(const __FlashStringHelper* FSHinput);
+    unsigned int FSHlength(const __FlashStringHelper* FSHinput);
 
 
   private:
