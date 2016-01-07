@@ -59,7 +59,7 @@ Events are used to trigger an action. The payload is information that accompanie
 
 <a id="usage"></a>
 #### Usage
-See the example sketches and EventGhost tree files for demonstration of library usage.
+See the example sketches at **File > Examples > EtherEvent** and the EventGhost tree files in the **examples/EventGhost-example-trees** folder for demonstration of library usage.
 
 `#define ETHEREVENT_NO_AUTHENTICATION` - Add this line above the `#include "EtherEvent.h"` line in your sketch to disable password authentication. Requires [my version of TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the MD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example file for demonstration.
 
