@@ -11,7 +11,7 @@
 #include <Ethernet.h>
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-#include "MD5.h"
+#include <MD5.h>
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 

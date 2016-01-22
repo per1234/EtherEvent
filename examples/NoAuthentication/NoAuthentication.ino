@@ -7,7 +7,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #define ETHEREVENT_NO_AUTHENTICATION  //this line must come before #include "EtherEvent.h"
-#include "EtherEvent.h"
+#include <EtherEvent.h>
 
 
 //configuration parameters - modify these values to your desired settings

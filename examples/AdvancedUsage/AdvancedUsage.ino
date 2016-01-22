@@ -6,8 +6,8 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <utility/w5100.h>  //Used for setting the W5x00 retransmission time and count.
-#include "MD5.h"
-#include "EtherEvent.h"
+#include <MD5.h>
+#include <EtherEvent.h>
 
 
 //configuration parameters - modify these values to your desired settings

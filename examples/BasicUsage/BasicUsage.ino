@@ -5,8 +5,8 @@
 //These libraries are required by EtherEvent:
 #include <SPI.h>
 #include <Ethernet.h>
-#include "MD5.h"
-#include "EtherEvent.h"
+#include <MD5.h>
+#include <EtherEvent.h>
 
 
 //configuration parameters - modify these values to your desired settings
