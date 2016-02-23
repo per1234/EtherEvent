@@ -168,7 +168,7 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 #### Security Considerations
 - If security is not necessary for your application you can disable authentication(see the NoAuthentication example).
 - EtherEvent only encrypts the authentication password. The event is sent in plaintext. This prevents the receipt of unauthorized events but does not protect the information contained in the event from being seen.
-- Use of EventGhost Network Event Receiver plugin is not recommended due to a bug that causes it to send the same cookie for every event. My [modified TCPEvents EventGhost plugin](https://github.com/per1234/TCPEvents) has this security vulnerability patched.
+- Use of EventGhost Network Event Receiver plugin in EventGhost versions previous to 4.0.1.r1710 is not recommended due to a bug that causes it to send the same cookie for every event. My [modified TCPEvents EventGhost plugin](https://github.com/per1234/TCPEvents) has this security vulnerability patched.
 - Cookie Randomization: an important factor in the authentication security is the randomness of the cookie supplied by the event receiver. There is a tradeoff between security and memory usage/speed so the ideal level of cookie randomization depends on your application.
   - Default operation: If a cookie is not supplied then EtherEvent uses the value of `micros()` for a seed and produces the cookie using the `random()` function.
   - User supplied cookie: You can generate your own random cookie and pass the value to `availableEvent()`.
