@@ -30,7 +30,7 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
 
 #### Related Programs
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
-- Modified Ethernet library - allows the use of the senderIP() function: http://github.com/per1234/EthernetMod - make sure to choose the correct branch for your Arduino IDE version. The [W5x00 branch](https://github.com/per1234/EthernetMod/tree/W5x00) supports W5100, W5200 and W5500 Ethernet controllers.
+- Modified Ethernet library - allows the use of the `senderIP()` function: http://github.com/per1234/EthernetMod - make sure to choose the correct branch for your Arduino IDE version. The [W5x00 branch](https://github.com/per1234/EthernetMod/tree/W5x00) supports W5100, W5200 and W5500 Ethernet controllers.
 - Wiznet Ethernet library provides another option for use with W5200 or W5500 Ethernet controller: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
 
 
@@ -43,7 +43,7 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
 - Using Arduino IDE 1.5+:
   - Sketch > Include Library > Add ZIP Library... > select the downloaded file > Open
 - Repeat this process with the other required libraries.
-- If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/EthernetMod
+- If you want to use the `senderIP()` function then you must install the modified Ethernet library: http://github.com/per1234/EthernetMod
 - Running the example sketch:
   - File > Examples > EtherEventExample
   - Enable DHCP or set the device IP address, this can be any available IP address on your network.
@@ -63,7 +63,7 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 
 `#define ETHEREVENT_NO_AUTHENTICATION` - Add this line above the `#include "EtherEvent.h"` line in your sketch to disable password authentication. Requires [my version of TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the MD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example file for demonstration.
 
-`#define ETHEREVENT_FAST_SEND` - Increase sending speed at the expense of increased memory use. Add this line above the `#include "EtherEvent.h"` line in your sketch. This significantly increases the speed of sending __FlashStringHelper(F() macro) events/payloads but also increases the sketch size and SRAM usage during the send process. ETHEREVENT_FAST_SEND also increases the speed of sending some other event/payload types.
+`#define ETHEREVENT_FAST_SEND` - Increase sending speed at the expense of increased memory use. Add this line above the `#include "EtherEvent.h"` line in your sketch. This significantly increases the speed of sending __FlashStringHelper(`F()` macro) events/payloads but also increases the sketch size and SRAM usage during the send process. ETHEREVENT_FAST_SEND also increases the speed of sending some other event/payload types.
 
 `EtherEvent.begin([eventLengthMax, payloadLengthMax])` - Initialize EtherEvent.
 - Parameter(optional): **eventLengthMax** - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. If this parameter is not passed then the default will be used.
@@ -75,17 +75,17 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 
 `EtherEvent.setPassword(password)` - Set the password. This is not required if authentication is disabled.
 - Parameter: **password** - Password used to authenticate event transmission.
-  - Type: char array or __FlashStringHelper(F() macro)
+  - Type: char array or __FlashStringHelper(`F()` macro)
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
 `EtherEvent.availableEvent(ethernetServer[, cookie[, password]])` - Receives new event if an event is not already buffered.
 - Parameter: **ethernetServer** - The EthernetServer object created in the Ethernet setup of the user's sketch.
   - Type: EthernetServer
-- Parameter(optional): **cookie** - Cookie value to use in the authentication process. This can be used to provide a truly random cookie for enhanced security. If this parameter is not specified then a pseudorandom cookie will be generated with the random() function.
+- Parameter(optional): **cookie** - Cookie value to use in the authentication process. This can be used to provide a truly random cookie for enhanced security. If this parameter is not specified then a pseudorandom cookie will be generated with the `random()` function.
   - Type: long
 - Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the cookie parameter must be specified(If you want EtherEvent to generate your cookie then use `false`).
-  - Type: char array, __FlashStringHelper(F() macro)
+  - Type: char array, __FlashStringHelper(`F()` macro)
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator minus the amount of the event already read.
   - Type: byte
 
@@ -93,11 +93,11 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 - Returns: Length of the received event and the null terminator minus the amount of the event already read.
   - Type: byte
   
-`EtherEvent.availablePayload()` - availableEvent() must be called first.
+`EtherEvent.availablePayload()` - `availableEvent()` must be called first.
 - Returns: Buffer size required to receive the payload. This is the length of the received payload and the null terminator minus the amount of the payload already read.
   - Type: unsigned int
 
-`EtherEvent.readEvent(eventBuffer)` - Puts the event in the passed array. availableEvent() must be called first. Size a char array according to the result of availableEvent() and pass it to readEvent(). After that it will contain the event.
+`EtherEvent.readEvent(eventBuffer)` - Puts the event in the passed array. `availableEvent()` must be called first. Size a char array according to the result of `availableEvent()` and pass it to `readEvent()`. After that it will contain the event.
 - Parameter: **eventBuffer** - Buffer to hold the received event.
   - Type: char array
 - Returns: none
@@ -106,7 +106,7 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 - Returns: The next character of the event.
   - Type: char
   
-`EtherEvent.readPayload(payloadBuffer)` - Puts the payload string in the passed array. availableEvent() must be called first. Size a char array according to the result of availablePayload() and pass it to readPayload(). After that it will contain the payload.
+`EtherEvent.readPayload(payloadBuffer)` - Puts the payload string in the passed array. `availableEvent()` must be called first. Size a char array according to the result of `availablePayload()` and pass it to `readPayload()`. After that it will contain the payload.
 - Parameter: **payloadBuffer** - Buffer to hold the received payload.
   - Type: char array
 - Returns: none
@@ -130,11 +130,11 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double, Printable
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable
 - Parameter(optional): **payload** - Payload to send with the event.
-  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(F() macro), String, IPAddress, float, double, Printable
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable
 - Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the payload parameter must be specified(If there is no payload use `""`).
-  - Type: char array, __FlashStringHelper(F() macro)
+  - Type: char array, __FlashStringHelper(`F()` macro)
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 
