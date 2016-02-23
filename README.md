@@ -43,7 +43,7 @@ Easy to use [Arduino](http://arduino.cc/) library for password authenticated net
 - Using Arduino IDE 1.5+:
   - Sketch > Include Library > Add ZIP Library... > select the downloaded file > Open
 - Repeat this process with the other required libraries.
-- If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/Ethernet
+- If you want to use the senderIP() function then you must install the modified Ethernet library: http://github.com/per1234/EthernetMod
 - Running the example sketch:
   - File > Examples > EtherEventExample
   - Enable DHCP or set the device IP address, this can be any available IP address on your network.
@@ -115,7 +115,7 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 - Returns: The next character of the payload.
   - Type: char
   
-`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library(http://github.com/per1234/Ethernet) installed for this function to be available.
+`EtherEvent.senderIP()` - Returns the IP address of the sender of the most recent event. Must have the modified Ethernet library(http://github.com/per1234/EthernetMod) installed for this function to be available.
 - Returns: IP address of the sender.
   - Type: IPAddress
 
@@ -168,7 +168,7 @@ See the example sketches at **File > Examples > EtherEvent** and the EventGhost 
 #### Security Considerations
 - If security is not necessary for your application you can disable authentication(see the NoAuthentication example).
 - EtherEvent only encrypts the authentication password. The event is sent in plaintext. This prevents the receipt of unauthorized events but does not protect the information contained in the event from being seen.
-- Use of EventGhost Network Event Receiver plugin is not recommended due to a bug that causes it to send the same cookie for every event. My [modified TCPEvents EventGhost plugin](https://github.com/per1234/TCPEvents0 has this security vulnerability patched.
+- Use of EventGhost Network Event Receiver plugin is not recommended due to a bug that causes it to send the same cookie for every event. My [modified TCPEvents EventGhost plugin](https://github.com/per1234/TCPEvents) has this security vulnerability patched.
 - Cookie Randomization: an important factor in the authentication security is the randomness of the cookie supplied by the event receiver. There is a tradeoff between security and memory usage/speed so the ideal level of cookie randomization depends on your application.
   - Default operation: If a cookie is not supplied then EtherEvent uses the value of `micros()` for a seed and produces the cookie using the `random()` function.
   - User supplied cookie: You can generate your own random cookie and pass the value to `availableEvent()`.
