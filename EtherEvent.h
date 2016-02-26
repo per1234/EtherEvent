@@ -4,9 +4,9 @@
 
 #include <Arduino.h>
 
-#ifndef ARDUINO_ARCH_AVR
+#if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
 #include <avr/dtostrf.h>
-#endif  //ARDUINO_ARCH_AVR
+#endif  //defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
 
 #include <Ethernet.h>
 
