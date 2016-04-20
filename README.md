@@ -59,13 +59,13 @@ Events are used to trigger an action. The payload is information that accompanie
 #### Usage
 See the example sketches at **File > Examples > EtherEvent** and the EventGhost tree files in the **examples/EventGhost-example-trees** folder for demonstration of library usage.
 
-###### `#define ETHEREVENT_NO_AUTHENTICATION`
+##### `#define ETHEREVENT_NO_AUTHENTICATION`
 Add this line above the `#include <EtherEvent.h>` line in your sketch to disable password authentication. Requires [my version of the TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the ArduinoMD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example for a demonstration.
 
-###### `#define ETHEREVENT_FAST_SEND`
+##### `#define ETHEREVENT_FAST_SEND`
 Increase sending speed at the expense of increased memory use. Add this line above the `#include <EtherEvent.h>` line in your sketch. This significantly increases the speed of sending __FlashStringHelper(`F()` macro) events/payloads but also increases the sketch size and SRAM usage during the send process. ETHEREVENT_FAST_SEND also increases the speed of sending some other event/payload types.
 
-###### `EtherEvent.begin([eventLengthMax, payloadLengthMax])`
+##### `EtherEvent.begin([eventLengthMax, payloadLengthMax])`
 Initialize EtherEvent.
 - Parameter(optional): **eventLengthMax** - The maximum length of event that can be received. Longer events will be truncated to this length. EtherEvent reserves SRAM to buffer the received event so this value affects the amount of memory used. The default value is 15.
   - Type: byte
@@ -74,14 +74,14 @@ Initialize EtherEvent.
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
-###### `EtherEvent.setPassword(password)`
+##### `EtherEvent.setPassword(password)`
 Set the password. This is not required if authentication is disabled.
 - Parameter: **password** - Password used to authenticate event transmission.
   - Type: char array or __FlashStringHelper(`F()` macro)
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 
-###### `EtherEvent.availableEvent(ethernetServer[, cookie[, password]])`
+##### `EtherEvent.availableEvent(ethernetServer[, cookie[, password]])`
 Receives new event if an event is not already buffered.
 - Parameter: **ethernetServer** - The EthernetServer object created in the Ethernet setup of the user's sketch.
   - Type: EthernetServer
@@ -92,45 +92,45 @@ Receives new event if an event is not already buffered.
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator minus the amount of the event already read.
   - Type: byte
 
-###### `EtherEvent.availableEvent()`
+##### `EtherEvent.availableEvent()`
 - Returns: Length of the received event and the null terminator minus the amount of the event already read.
   - Type: byte
   
-###### `EtherEvent.availablePayload()`
+##### `EtherEvent.availablePayload()`
 `EtherEvent.availableEvent()` must be called first.
 - Returns: Buffer size required to receive the payload. This is the length of the received payload and the null terminator minus the amount of the payload already read.
   - Type: unsigned int
 
-###### `EtherEvent.readEvent(eventBuffer)`
+##### `EtherEvent.readEvent(eventBuffer)`
 Puts the event in the passed array. `EtherEvent.availableEvent()` must be called first, size a char array according to the result and pass it to `EtherEvent.readEvent()`. After that it will contain the event.
 - Parameter: **eventBuffer** - Buffer to hold the received event.
   - Type: char array
 - Returns: none
 
-###### `EtherEvent.readEvent()`
+##### `EtherEvent.readEvent()`
 - Returns: The next character of the event.
   - Type: char
   
-###### `EtherEvent.readPayload(payloadBuffer)`
+##### `EtherEvent.readPayload(payloadBuffer)`
 Puts the payload string in the passed array. `EtherEvent.availableEvent()` must be called first, size a char array according to the result and pass it to `EtherEvent.readPayload()`. After that it will contain the payload.
 - Parameter: **payloadBuffer** - Buffer to hold the received payload.
   - Type: char array
 - Returns: none
 
-###### `EtherEvent.readPayload()`
+##### `EtherEvent.readPayload()`
 - Returns: The next character of the payload.
   - Type: char
   
-###### `EtherEvent.senderIP()`
+##### `EtherEvent.senderIP()`
 Returns the IP address of the sender of the most recent event. Must have the [modified Ethernet library](http://github.com/per1234/EthernetMod) installed for this function to be available.
 - Returns: IP address of the sender.
   - Type: IPAddress
 
-###### `EtherEvent.flushReceiver()`
+##### `EtherEvent.flushReceiver()`
 Clear any buffered event and payload data so a new event can be received.
 - Returns: none
 
-###### `EtherEvent.send(ethernetClient, target, port, event[, payload[, password]])`
+##### `EtherEvent.send(ethernetClient, target, port, event[, payload[, password]])`
 Send an event and payload.
 - Parameter: **ethernetClient** - The EthernetClient object created in the Ethernet setup of the user's sketch.
   - Type: EthernetClient
@@ -147,18 +147,18 @@ Send an event and payload.
 - Returns: `true` = success, `false` = failure
   - Type: boolean
 
-###### `EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)`
+##### `EtherEvent.setSendDoubleDecimalPlaces(decimalPlaces)`
 Set the number of decimal places when sending double or float type events and payloads. This function is only available if `ETHEREVENT_FAST_SEND` is defined. In normal mode only two decimal places are supported.
 - Parameter: **decimalPlaces** - The initial value is 3.
   - Type: byte
 - Returns: none
 
-###### `EtherEvent.getTimeout()`
+##### `EtherEvent.getTimeout()`
 Returns the current timeout duration setting.
 - Returns: The current timeout duration setting.
   - Type: unsigned int
 
-###### `EtherEvent.setTimeout(timeout)`
+##### `EtherEvent.setTimeout(timeout)`
 Set the timeout duration(Stream functions).
 - Parameter: **timeout** - The maximum time to wait for Ethernet communication in milliseconds.
   - Type: unsigned int
