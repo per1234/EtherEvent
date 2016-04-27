@@ -59,6 +59,9 @@ Events are used to trigger an action. The payload is information that accompanie
 #### Usage
 See the example sketches at **File > Examples > EtherEvent** and the EventGhost tree files in the **examples/EventGhost-example-trees** folder for demonstration of library usage.
 
+##### `#include <EtherEvent.h>`
+Allow access to the functions of the EtherEvent library.
+
 ##### `#define ETHEREVENT_NO_AUTHENTICATION`
 Add this line above the `#include <EtherEvent.h>` line in your sketch to disable password authentication. Requires [my version of the TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the ArduinoMD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example for a demonstration.
 
