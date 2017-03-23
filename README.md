@@ -200,3 +200,7 @@ EventGhost uses MD5 encrypted APOP style authentication to avoid sending passwor
 - sender: Send `payload {payload string}\n{event}\nclose\n` to the receiver.
 - receiver: Close the connection to the sender.
 
+
+#### Contributing
+Pull requests or issue reports are welcome! Please see the [contribution rules](https://github.com/per1234/EtherEvent/blob/master/CONTRIBUTING.md) for instructions.
+
