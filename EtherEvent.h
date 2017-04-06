@@ -710,7 +710,7 @@ class EtherEventClass {
     static const byte IPAddressLengthMax = 3 + 1 + 3 + 1 + 3 + 1 + 3;  //4 x octet + 3 x dot
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
-    static const byte cookieLengthMax = 8;
+    static const byte cookieLengthMax = 8;  //the maximum length of cookie that can be received
 
     static const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
 
@@ -743,5 +743,5 @@ class EtherEventClass {
 };
 
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
-#endif
+#endif  //EtherEvent_h
 
