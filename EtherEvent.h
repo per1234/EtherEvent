@@ -24,6 +24,10 @@
 #define ETHEREVENT_MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
 #define ETHEREVENT_ACCEPT_MESSAGE "accept\n"  //authentication success message. I had to #define this instead of const because find() didn't like the const
 
+//these are used as the default password parameter values, which will cause the password set via setPassword() to be used
+#define DEFAULT_PASSWORD_STRING "\f"
+#define DEFAULT_PASSWORD_CHAR '\f'
+
 
 namespace EtherEventNamespace {
 const unsigned long debugSerialBaud = 9600;
@@ -65,7 +69,7 @@ class EtherEventClass {
       return availableEvent(ethernetServer, false, passwordInput);
     }
 
-    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = "") {
+    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
 #else  //ETHEREVENT_NO_AUTHENTICATION
     byte availableEvent(EthernetServer &ethernetServer) {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -91,7 +95,7 @@ class EtherEventClass {
               cookie = random((((unsigned long) - 1) / 2));  //make random number to use as cookie
             }
             byte currentPasswordLength = passwordLength;
-            if (passwordInput[0] != 0) {
+            if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {  //the user passed a password string in the function call
               currentPasswordLength = strlen(passwordInput);
             }
             char cookiePassword[8 + 1 + currentPasswordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
@@ -101,11 +105,11 @@ class EtherEventClass {
 
             //calculate the hashword
             strcat(cookiePassword, ":");  //create the hashword to compare to the received one
-            if (passwordInput[0] == 0) {
-              strcat(cookiePassword, password);
+            if (passwordInput[0] == DEFAULT_PASSWORD_CHAR) {
+              strcat(cookiePassword, password);  //use the password set via setPassword()
             }
             else {
-              strcat(cookiePassword, passwordInput);
+              strcat(cookiePassword, passwordInput);  //use the password passed in the function call
             }
             ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePassword: "));
             ETHEREVENT_SERIAL.println(cookiePassword);
@@ -266,14 +270,14 @@ class EtherEventClass {
 #ifndef ETHEREVENT_FAST_SEND
 #ifndef ETHEREVENT_NO_AUTHENTICATION
     template <typename event_t, typename payload_t>
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
 #else //ETHEREVENT_NO_AUTHENTICATION
     template <typename event_t, typename payload_t>
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload) {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else //ETHEREVENT_FAST_SEND
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
 #else //ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "") {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -298,18 +302,18 @@ class EtherEventClass {
         ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
 
         byte currentPasswordLength = passwordLength;
-        if (passwordInput[0] != 0) {
+        if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {  //the user passed a password string in the function call
           currentPasswordLength = strlen(passwordInput);
         }
         char cookiePassword[cookieLengthMax + 1 + currentPasswordLength + 1];  //cookie, password separator(:), password, null terminator
         if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
           cookiePassword[bytesRead] = 0;
           strcat(cookiePassword, ":");  //add the password separator to the cookie
-          if (passwordInput[0] != 0) {
-            strcat(cookiePassword, passwordInput);  //add password to the cookie
+          if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {
+            strcat(cookiePassword, passwordInput);  //add the password string supplied in the function call to the cookie
           }
           else {
-            strcat(cookiePassword, password);  //add password to the cookie
+            strcat(cookiePassword, password);  //add the password set via setPassword() to the cookie
           }
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: cookiePassword: "));
           ETHEREVENT_SERIAL.println(cookiePassword);
@@ -524,50 +528,50 @@ class EtherEventClass {
 
 #else  //ETHEREVENT_NO_AUTHENTICATION
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[], const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
       return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
       return send(ethernetClient, target, port, (const int)event, payload, passwordInput);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte event)"));
       return send(ethernetClient, target, port, (const int)event, payload, passwordInput);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int event)"));
       char eventChar[int16_tLengthMax + 1];
       itoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int event)"));
       char eventChar[uint16_tLengthMax + 1];
       utoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(long event)"));
       char eventChar[int32_tLengthMax + 1];
       ltoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long event)"));
       char eventChar[uint32_tLengthMax + 1];
       ultoa(event, eventChar, 10);
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() event)"));
       const byte eventLength = FSHlength(event);
       char eventChar[eventLength + 1];
@@ -575,7 +579,7 @@ class EtherEventClass {
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String event)"));
       const byte stringLength = event.length();
       char eventChar[stringLength + 1];
@@ -586,61 +590,61 @@ class EtherEventClass {
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
       char eventChar[IPAddressLengthMax + 1];
       IPtoa(event, eventChar);
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
       char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
       dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
       return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
     }
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "", const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
       return send(ethernetClient, target, port, (double)event, payload, passwordInput);  //needed to fix ambiguous compiler warning
     }
 
     //convert payload
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[], const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
       return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
       char payloadChar[int16_tLengthMax + 1];
       itoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int payload)"));
       char payloadChar[uint16_tLengthMax + 1];
       utoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(long payload)"));
       char payloadChar[int32_tLengthMax + 1];
       ltoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long payload)"));
       char payloadChar[uint32_tLengthMax + 1];
       ultoa(payload, payloadChar, 10);
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
       const unsigned int payloadLength = FSHlength(payload);
       char payloadChar[payloadLength + 1];
@@ -648,7 +652,7 @@ class EtherEventClass {
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
       const byte stringLength = payload.length();
       char payloadChar[stringLength + 1];
@@ -659,14 +663,14 @@ class EtherEventClass {
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress payload)"));
       char payloadChar[IPAddressLengthMax + 1];
       IPtoa(payload, payloadChar);
       return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
     template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload, const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
       char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
       dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
@@ -675,7 +679,7 @@ class EtherEventClass {
 
     //convert event and payload
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[], const char passwordInput[] = "") {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event, char payload)"));
       return send(ethernetClient, target, port, (const char*)event, (const char*)payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
