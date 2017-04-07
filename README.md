@@ -90,7 +90,7 @@ Receives new event if an event is not already buffered.
   - Type: EthernetServer
 - Parameter(optional): **cookie** - Cookie value to use in the authentication process. This can be used to provide a truly random cookie for enhanced security. If this parameter is not specified then a pseudorandom cookie will be generated using `random()`.
   - Type: long
-- Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the cookie parameter must be specified(If you want EtherEvent to generate your cookie then use `false` for the cookie parameter).
+- Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the cookie parameter must be specified(If you want EtherEvent to generate your cookie then use `false` for the cookie parameter).  To disable authentication on a per-receive basis use an empty password (`""`).
   - Type: char array, __FlashStringHelper(`F()` macro)
 - Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator minus the amount of the event already read. If the authentication failed it will return -1.
   - Type: int
@@ -145,7 +145,7 @@ Send an event and payload.
   - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable
 - Parameter(optional): **payload** - Payload to send with the event.
   - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable
-- Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the payload parameter must be specified(If there is no payload use `""`).
+- Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the payload parameter must be specified(If there is no payload use `""`). To disable authentication on a per-send basis use an empty password (`""`).
   - Type: char array, __FlashStringHelper(`F()` macro)
 - Returns: `true` = success, `false` = failure
   - Type: boolean

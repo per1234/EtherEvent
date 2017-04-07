@@ -80,61 +80,63 @@ class EtherEventClass {
           ethernetClient.setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-          boolean authenticationSuccessful = false;
-          if (ethernetClient.find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
-            ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: magic word received"));
+          if (passwordInput[0] != 0) {  //do authentication
+            boolean authenticationSuccessful = false;
+            if (ethernetClient.find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
+              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: magic word received"));
 
-            //create and send cookie
-            long cookie;
-            if (cookieInput != false) {  //use user-defined cookie
-              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: user defined cookie: "));
-              cookie = cookieInput;
-            }
-            else {
-              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
-              randomSeed(micros());
-              cookie = random((((unsigned long) - 1) / 2));  //make random number to use as cookie
-            }
-            byte currentPasswordLength = passwordLength;
-            if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {  //the user passed a password string in the function call
-              currentPasswordLength = strlen(passwordInput);
-            }
-            char cookiePassword[8 + 1 + currentPasswordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
-            ltoa(cookie, cookiePassword, HEX);
-            ETHEREVENT_SERIAL.println(cookiePassword);
-            ethernetClient.print(cookiePassword);  //send the cookie
+              //create and send cookie
+              long cookie;
+              if (cookieInput != false) {  //use user-defined cookie
+                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: user defined cookie: "));
+                cookie = cookieInput;
+              }
+              else {
+                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: automatically generated cookie: "));
+                randomSeed(micros());
+                cookie = random((((unsigned long) - 1) / 2));  //make random number to use as cookie
+              }
+              byte currentPasswordLength = passwordLength;
+              if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {  //the user passed a password string in the function call
+                currentPasswordLength = strlen(passwordInput);
+              }
+              char cookiePassword[8 + 1 + currentPasswordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
+              ltoa(cookie, cookiePassword, HEX);
+              ETHEREVENT_SERIAL.println(cookiePassword);
+              ethernetClient.print(cookiePassword);  //send the cookie
 
-            //calculate the hashword
-            strcat(cookiePassword, ":");  //create the hashword to compare to the received one
-            if (passwordInput[0] == DEFAULT_PASSWORD_CHAR) {
-              strcat(cookiePassword, password);  //use the password set via setPassword()
-            }
-            else {
-              strcat(cookiePassword, passwordInput);  //use the password passed in the function call
-            }
-            ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePassword: "));
-            ETHEREVENT_SERIAL.println(cookiePassword);
-            unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
-            char* cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
-            free(cookiePasswordHash);
-            ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePasswordMD5: "));
-            ETHEREVENT_SERIAL.println(cookiePasswordMD5);
+              //calculate the hashword
+              strcat(cookiePassword, ":");  //create the hashword to compare to the received one
+              if (passwordInput[0] == DEFAULT_PASSWORD_CHAR) {
+                strcat(cookiePassword, password);  //use the password set via setPassword()
+              }
+              else {
+                strcat(cookiePassword, passwordInput);  //use the password passed in the function call
+              }
+              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePassword: "));
+              ETHEREVENT_SERIAL.println(cookiePassword);
+              unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
+              char* cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
+              free(cookiePasswordHash);
+              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePasswordMD5: "));
+              ETHEREVENT_SERIAL.println(cookiePasswordMD5);
 
-            //verify the received hashword
-            if (ethernetClient.find(cookiePasswordMD5) == true) {  //authentication successful
-              ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
-              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
-              ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
-              authenticationSuccessful = true;
+              //verify the received hashword
+              if (ethernetClient.find(cookiePasswordMD5) == true) {  //authentication successful
+                ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
+                ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
+                ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
+                authenticationSuccessful = true;
+              }
+              free(cookiePasswordMD5);
             }
-            free(cookiePasswordMD5);
-          }
-          if (!authenticationSuccessful) {
-            ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication failed"));
-            ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
-            ethernetClient.stop();
-            ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
-            return authenticationFailedCode;
+            if (!authenticationSuccessful) {
+              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication failed"));
+              ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+              ethernetClient.stop();
+              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
+              return authenticationFailedCode;
+            }
           }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
@@ -295,10 +297,13 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.print(F("EtherEvent.send: payload: "));
       ETHEREVENT_SERIAL.println(payload);
 
-      byte eventSuccess = false;
-      if (ethernetClient.connect(target, port)) {  //connected to receiver
+      if (!ethernetClient.connect(target, port)) {  //connected to receiver
+        ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection failed"));
+        return false;
+      }
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
+      if (passwordInput[0] != 0) {  //do authentication
         ethernetClient.setTimeout(timeout);  //Timeout on Stream functions. I only have to set it once here for the send() timeout but I can't set it in begin() because ethernetClient isn't passed to that function there so it's most efficient to just set it here every time
         ETHEREVENT_SERIAL.println(F("EtherEvent.send: connected, sending magic word"));
         ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
@@ -308,6 +313,7 @@ class EtherEventClass {
           currentPasswordLength = strlen(passwordInput);
         }
         char cookiePassword[cookieLengthMax + 1 + currentPasswordLength + 1];  //cookie, password separator(:), password, null terminator
+        boolean authenticationSuccessful = false;
         if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
           cookiePassword[bytesRead] = 0;
           strcat(cookiePassword, ":");  //add the password separator to the cookie
@@ -329,41 +335,53 @@ class EtherEventClass {
           free(cookiePasswordMD5);
 
           if (ethernetClient.find((char*)ETHEREVENT_ACCEPT_MESSAGE) == true) {  //authentication successful - the (char*) thing is to get rid of the "warning: deprecated conversion from string constant to ‘char*’" compiler warning
+            authenticationSuccessful = true;
+          }
+        }
+        if (!authenticationSuccessful) {
+          ETHEREVENT_SERIAL.println(F("EtherEvent.send: authentication failed"));
+          ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+          ethernetClient.stop();
+          ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection closed"));
+          return false;
+        }
+      }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 #ifndef ETHEREVENT_FAST_SEND
-            if (noPayload == false) {  //check if there is a payload
+      if (noPayload == false) {  //check if there is a payload
 #else  //ETHEREVENT_FAST_SEND
-            if (payload[0] != 0) {  //check if there is a payload
+      if (payload[0] != 0) {  //check if there is a payload
 #endif  //ETHEREVENT_FAST_SEND
-              ethernetClient.print(EtherEventNamespace::payloadSeparator);
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-              //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
-              ethernetClient.print('[');
-              ethernetClient.write(39);
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-              ethernetClient.print(payload);
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-              ethernetClient.write(39);
-              ethernetClient.print(']');
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-              ethernetClient.write(10);  //newline
-            }
-            ethernetClient.print(event);  //transmit event
-            ethernetClient.write(10);  //newline
-            eventSuccess = true;
+        ethernetClient.print(EtherEventNamespace::payloadSeparator);
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-          }
+        if (passwordInput[0] == 0) {  //authentication disabled
+#endif
+          //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
+          ethernetClient.print('[');
+          ethernetClient.write(39);
+#ifndef ETHEREVENT_NO_AUTHENTICATION
         }
-#endif  //ETHEREVENT_NO_AUTHENTICATION    
-        ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
-        ethernetClient.stop();
-        ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection closed"));
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+        ethernetClient.print(payload);
+#ifndef ETHEREVENT_NO_AUTHENTICATION
+        if (passwordInput[0] == 0) {  //authentication disabled
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+          ethernetClient.write(39);
+          ethernetClient.print(']');
+#ifndef ETHEREVENT_NO_AUTHENTICATION
+        }
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+        ethernetClient.write(10);  //newline
       }
-      else {
-        ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection failed"));
-      }
-      return eventSuccess;  //send finished
+      ethernetClient.print(event);  //transmit event
+      ethernetClient.write(10);  //newline
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send: event sent"));
+
+      ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+      ethernetClient.stop();
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send: connection closed"));
+      return true;
     }
 
 #ifdef ETHEREVENT_FAST_SEND
@@ -722,8 +740,8 @@ class EtherEventClass {
 
     static const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
     static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
-    static const int authenticationFailedCode = -1;
 
+    static const int authenticationFailedCode = -1;
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
