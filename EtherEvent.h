@@ -49,29 +49,29 @@ class EtherEventClass {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //availableEvent - checks for senders, connects, authenticates, reads the event and payload into the buffer and returns the number of bytes of the most recently received event are left in the buffer
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    byte availableEvent() {
+    int availableEvent() {
       return receivedEventLength - readEventLength;
     }
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent(EthernetServer &ethernetServer, const __FlashStringHelper* passwordInput) {
+    int availableEvent(EthernetServer &ethernetServer, const __FlashStringHelper* passwordInput) {
       return availableEvent(ethernetServer, false, passwordInput);
     }
 
-    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput, const __FlashStringHelper* passwordInput) {
+    int availableEvent(EthernetServer &ethernetServer, const long cookieInput, const __FlashStringHelper* passwordInput) {
       const byte passwordInputLength = FSHlength(passwordInput);
       char passwordChar[passwordInputLength + 1];
       memcpy_P(passwordChar, passwordInput, passwordInputLength + 1);  //+1 for the null terminator
       return availableEvent(ethernetServer, cookieInput, passwordChar);
     }
 
-    byte availableEvent(EthernetServer &ethernetServer, const char passwordInput[]) {
+    int availableEvent(EthernetServer &ethernetServer, const char passwordInput[]) {
       return availableEvent(ethernetServer, false, passwordInput);
     }
 
-    byte availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+    int availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    byte availableEvent(EthernetServer &ethernetServer) {
+    int availableEvent(EthernetServer &ethernetServer) {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
       if (receivedEventLength <= readEventLength) {  ///no event buffered
         flushPayload();
@@ -80,6 +80,7 @@ class EtherEventClass {
           ethernetClient.setTimeout(timeout);  //timeout on Stream fumctions. This needs to be called every time in availableEvent() or it resets to the default of 1000ms because a new EthernetClient object is created every call.
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
+          boolean authenticationSuccessful = false;
           if (ethernetClient.find((char*)ETHEREVENT_MAGIC_WORD) == true) {  //magic word correct - the (char*) is to get rid of "warning: deprecated conversion from string constant to char*" compile error
             ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: magic word received"));
 
@@ -124,98 +125,99 @@ class EtherEventClass {
               ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
               ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
               ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
-              free(cookiePasswordMD5);
+              authenticationSuccessful = true;
+            }
+            free(cookiePasswordMD5);
+          }
+          if (!authenticationSuccessful) {
+            ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication failed"));
+            ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
+            ethernetClient.stop();
+            ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
+            return authenticationFailedCode;
+          }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-              //Read and process the message
-              for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
-                ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
-                char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
-                unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
-                if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
-                  ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
-                  char findString[] = "\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
-                  ethernetClient.find(findString);  //Flush up to the newline. I had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
-                  bytesRead--;  //so the null terminator will not be written past the end of the array
-                }
-                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
-                ETHEREVENT_SERIAL.println(bytesRead);
-                if (bytesRead == 0) {  //with Arduino 1.5 there is a leading char(10) for some reason(maybe flush() doesn't work and it's still left over from the last message?). This will handle null messages
-                  continue;
-                }
-                receivedMessage[bytesRead] = 0;  //add a null terminator
 
-                if (strncmp(receivedMessage, EtherEventNamespace::payloadSeparator, EtherEventNamespace::payloadSeparatorLength) == 0) {  //received message is a payload
-                  ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload separator received"));
-                  if (bytesRead > EtherEventNamespace::payloadSeparatorLength) {  //there is a payload
+          //Read and process the message
+          for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
+            ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
+            char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
+            unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
+            if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
+              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: event/payload > max length"));
+              char findString[] = "\n";  //I had to do this instead of just ethernetClient.find(10) or ethernetClient.find("\n") because that causes a compile error under Arduino IDE 1.6.0 which also doesn't allow const char
+              ethernetClient.find(findString);  //Flush up to the newline. I had to do the "\n" instead of just ethernetClient.find(10) because that causes a compile error under Arduino IDE 1.6.0
+              bytesRead--;  //so the null terminator will not be written past the end of the array
+            }
+            ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: bytesRead: "));
+            ETHEREVENT_SERIAL.println(bytesRead);
+            if (bytesRead == 0) {  //with Arduino 1.5 there is a leading char(10) for some reason(maybe flush() doesn't work and it's still left over from the last message?). This will handle null messages
+              continue;
+            }
+            receivedMessage[bytesRead] = 0;  //add a null terminator
 
-                    if (strncmp(receivedMessage, EtherEventNamespace::payloadWithoutRelease, EtherEventNamespace::payloadWithoutReleaseLength) == 0) {  //"withoutRelease" received
-                      ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payloadWithoutRelease"));
-                      continue;
-                    }
+            if (strncmp(receivedMessage, EtherEventNamespace::payloadSeparator, EtherEventNamespace::payloadSeparatorLength) == 0) {  //received message is a payload
+              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload separator received"));
+              if (bytesRead > EtherEventNamespace::payloadSeparatorLength) {  //there is a payload
 
-                    ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload length: "));
-                    ETHEREVENT_SERIAL.println(bytesRead - EtherEventNamespace::payloadSeparatorLength);
-                    receivedPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax + TCPEventsPayloadFormattingLength);  //make sure the payload will never be longer than the max length
-
-                    //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
-                    byte payloadOffset = 0;
-                    if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == 39) {  //39 is apostrophe
-                      payloadOffset = TCPEventsPayloadFormattingLength;  //skip the first 2 characters of the payload
-                      if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
-                        receivedPayloadLength--;
-                      }
-                      if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == 39) {
-                        receivedPayloadLength--;
-                      }
-                      receivedPayloadLength -= payloadOffset;
-                    }
-                    else {  //no TCPEvents payload formatting is present
-                      receivedPayloadLength = min(receivedPayloadLength, payloadLengthMax);
-                    }
-
-                    //put the payload into the buffer
-                    for (unsigned int payloadCounter = 0; payloadCounter < receivedPayloadLength; payloadCounter++) {
-                      receivedPayload[payloadCounter] = receivedMessage[payloadCounter + payloadOffset + EtherEventNamespace::payloadSeparatorLength];
-                    }
-                    receivedPayload[receivedPayloadLength] = 0;  //null terminator
-                    receivedPayloadLength++;  //receivedEventLength and receivedPayloadLength include the null terminator, this way if the user makes a mistake in the buffer length it will be one byte longer than it needs to be instead of one byte shorter
-                    ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload: "));
-                    ETHEREVENT_SERIAL.println(receivedPayload);
-                  }
+                if (strncmp(receivedMessage, EtherEventNamespace::payloadWithoutRelease, EtherEventNamespace::payloadWithoutReleaseLength) == 0) {  //"withoutRelease" received
+                  ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payloadWithoutRelease"));
                   continue;
                 }
 
-                else {  //received message is event
-                  ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: event length: "));
-                  ETHEREVENT_SERIAL.println(bytesRead);
-                  if (strncmp(receivedMessage, EtherEventNamespace::closeMessage, EtherEventNamespace::closeMessageLength) == 0) {
-                    ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: close received, no event"));
-                    break;
-                  }
-                  strncpy(receivedEvent, receivedMessage, eventLengthMax);
-                  receivedEventLength = min(bytesRead, eventLengthMax) + 1;  //length including null terminator
-                  receivedEvent[receivedEventLength - 1] = 0;  //-1 because it is zero indexed and the receivedEventLength includes the null terminator
-                  ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: event received: "));
-                  ETHEREVENT_SERIAL.println(receivedEvent);
+                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload length: "));
+                ETHEREVENT_SERIAL.println(bytesRead - EtherEventNamespace::payloadSeparatorLength);
+                receivedPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax + TCPEventsPayloadFormattingLength);  //make sure the payload will never be longer than the max length
 
-                  //save the sender IP address
+                //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
+                byte payloadOffset = 0;
+                if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == 39) {  //39 is apostrophe
+                  payloadOffset = TCPEventsPayloadFormattingLength;  //skip the first 2 characters of the payload
+                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
+                    receivedPayloadLength--;
+                  }
+                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == 39) {
+                    receivedPayloadLength--;
+                  }
+                  receivedPayloadLength -= payloadOffset;
+                }
+                else {  //no TCPEvents payload formatting is present
+                  receivedPayloadLength = min(receivedPayloadLength, payloadLengthMax);
+                }
+
+                //put the payload into the buffer
+                for (unsigned int payloadCounter = 0; payloadCounter < receivedPayloadLength; payloadCounter++) {
+                  receivedPayload[payloadCounter] = receivedMessage[payloadCounter + payloadOffset + EtherEventNamespace::payloadSeparatorLength];
+                }
+                receivedPayload[receivedPayloadLength] = 0;  //null terminator
+                receivedPayloadLength++;  //receivedEventLength and receivedPayloadLength include the null terminator, this way if the user makes a mistake in the buffer length it will be one byte longer than it needs to be instead of one byte shorter
+                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload: "));
+                ETHEREVENT_SERIAL.println(receivedPayload);
+              }
+              continue;
+            }
+
+            else {  //received message is event
+              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: event length: "));
+              ETHEREVENT_SERIAL.println(bytesRead);
+              if (strncmp(receivedMessage, EtherEventNamespace::closeMessage, EtherEventNamespace::closeMessageLength) == 0) {
+                ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: close received, no event"));
+                break;
+              }
+              strncpy(receivedEvent, receivedMessage, eventLengthMax);
+              receivedEventLength = min(bytesRead, eventLengthMax) + 1;  //length including null terminator
+              receivedEvent[receivedEventLength - 1] = 0;  //-1 because it is zero indexed and the receivedEventLength includes the null terminator
+              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: event received: "));
+              ETHEREVENT_SERIAL.println(receivedEvent);
+
+              //save the sender IP address
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-                  fromIP = ethernetClient.remoteIP();  //Save the IP address of the sender. Requires modified ethernet library
+              fromIP = ethernetClient.remoteIP();  //Save the IP address of the sender. Requires modified ethernet library
 #endif  //ethernetclientwithremoteIP_h
 
-                  break;  //exit the payload/event message handler loop
-                }
-              }
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-            }
-
-            //authentication failed
-            else {
-              free(cookiePasswordMD5);
-              ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication failed"));
+              break;  //exit the payload/event message handler loop
             }
           }
-#endif  //ETHEREVENT_NO_AUTHENTICATION      
           ethernetClient.print(EtherEventNamespace::closeMessage);  //tell the receiver to close
           ethernetClient.stop();
           ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: connection closed"));
@@ -720,7 +722,7 @@ class EtherEventClass {
 
     static const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
     static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
-
+    static const int authenticationFailedCode = -1;
 
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
