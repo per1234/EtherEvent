@@ -92,12 +92,12 @@ Receives new event if an event is not already buffered.
   - Type: long
 - Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the cookie parameter must be specified(If you want EtherEvent to generate your cookie then use `false` for the cookie parameter).
   - Type: char array, __FlashStringHelper(`F()` macro)
-- Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator minus the amount of the event already read.
-  - Type: byte
+- Returns: Buffer size required to receive the event. This is the length of the received event and the null terminator minus the amount of the event already read. If the authentication failed it will return -1.
+  - Type: int
 
 ##### `EtherEvent.availableEvent()`
-- Returns: Length of the received event and the null terminator minus the amount of the event already read.
-  - Type: byte
+- Returns: Length of the received event and the null terminator minus the amount of the event already read. If the authentication failed it will return -1.
+  - Type: int
   
 ##### `EtherEvent.availablePayload()`
 `EtherEvent.availableEvent()` must be called first.
