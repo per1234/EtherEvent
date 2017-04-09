@@ -142,9 +142,9 @@ Send an event and payload.
 - Parameter: **port** - Port to send the event to.
   - Type: unsigned int
 - Parameter: **event**
-  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable (not supported in FAST_SEND mode)
 - Parameter(optional): **payload** - Payload to send with the event.
-  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable
+  - Type: char array, int8_t, byte, int, unsigned int, long, unsigned long, __FlashStringHelper(`F()` macro), String, IPAddress, float, double, Printable (not supported in FAST_SEND mode)
 - Parameter(optional): **password** - Password to use for the current event send. If the password parameter is used then the payload parameter must be specified(If there is no payload use `""`). To disable authentication on a per-send basis use an empty password (`""`).
   - Type: char array, __FlashStringHelper(`F()` macro)
 - Returns: `true` = success, `false` = failure
