@@ -393,7 +393,7 @@ class EtherEventClass {
     //convert event
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[]) {
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[] = "") {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
       return send(ethernetClient, target, port, (const char*)event, payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
