@@ -28,28 +28,6 @@
 #define DEFAULT_PASSWORD_STRING "\f"
 #define DEFAULT_PASSWORD_CHAR '\f'
 
-#define EVENT_BUFFER_SIZE 42
-#define PAYLOAD_BUFFER_SIZE 42
-
-
-class PrintEvent : public Print {
-    friend class EtherEventClass;
-  private:
-    PrintEvent() {}
-    virtual size_t write(uint8_t printChar);
-    char eventBuffer[EVENT_BUFFER_SIZE];
-    unsigned int writePosition;
-};
-
-class PrintPayload : public Print {
-    friend class EtherEventClass;
-  private:
-    PrintPayload() {}
-    virtual size_t write(uint8_t printChar);
-    char payloadBuffer[PAYLOAD_BUFFER_SIZE];
-    unsigned int writePosition;
-};
-
 
 namespace EtherEventNamespace {
 const unsigned long debugSerialBaud = 9600;
@@ -410,127 +388,407 @@ class EtherEventClass {
       return true;
     }
 
-
 #ifdef ETHEREVENT_FAST_SEND
+    //send() is faster with non-char event/payload when the conversions are done this way but the buffering of the converted string causes the SRAM usage to be multiplied and F() event/payload causes flash usage to go up by 150 or 90 bytes depending on whether __FlashStringHelper ocnversion is already being done in another function
+    //convert event
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
+      return send(ethernetClient, target, port, (const char*)event, payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
+      return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte event)"));
+      return send(ethernetClient, target, port, (const int)event, payload);  //Convert event to int. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int event)"));
+      char eventChar[int16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf(eventChar, "%i", event);
+#else  //__ARDUINO_X86__
+      itoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int event)"));
+      char eventChar[uint16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%u", event);
+#else  //__ARDUINO_X86__
+      utoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(long event)"));
+      char eventChar[int32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%li", event);
+#else  //__ARDUINO_X86__
+      ltoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long event)"));
+      char eventChar[uint32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%lu", event);
+#else  //__ARDUINO_X86__
+      ultoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() event)"));
+      const byte eventLength = FSHlength(event);
+      char eventChar[eventLength + 1];
+      memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String event)"));
+      const byte stringLength = event.length();
+      char eventChar[stringLength + 1];
+      for (byte counter = 0; counter < stringLength; counter++) {
+        eventChar[counter] = event[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
+      }
+      eventChar[stringLength] = 0;
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
+      char eventChar[IPAddressLengthMax + 1];
+      IPtoa(event, eventChar);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
+      char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%.*f", sendDoubleDecimalPlaces, event);
+#else  //__ARDUINO_X86__
+      dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
+#endif  //__ARDUINO_X86__      
+      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "") {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
+      return send(ethernetClient, target, port, (double)event, payload);  //needed to fix ambiguous compiler warning
+    }
+
+    //convert payload
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
+      return send(ethernetClient, target, port, event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
+      char payloadChar[int16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%i", payload);
+#else  //__ARDUINO_X86__
+      itoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__      
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int payload)"));
+      char payloadChar[uint16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%u", payload);
+#else  //__ARDUINO_X86__
+      utoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(long payload)"));
+      char payloadChar[int32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%li", payload);
+#else  //__ARDUINO_X86__
+      ltoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long payload)"));
+      char payloadChar[uint32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%lu", payload);
+#else  //__ARDUINO_X86__
+      ultoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
+      const unsigned int payloadLength = FSHlength(payload);
+      char payloadChar[payloadLength + 1];
+      memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
+      const byte stringLength = payload.length();
+      char payloadChar[stringLength + 1];
+      for (byte counter = 0; counter < stringLength; counter++) {
+        payloadChar[counter] = payload[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
+      }
+      payloadChar[stringLength] = 0;
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress payload)"));
+      char payloadChar[IPAddressLengthMax + 1];
+      IPtoa(payload, payloadChar);
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
+      char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%.*f", sendDoubleDecimalPlaces, payload);
+#else  //__ARDUINO_X86__
+      dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar);
+    }
+
+    //convert event and payload
+    template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[]) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* event, char* payload)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event, char payload)"));
       return send(ethernetClient, target, port, (const char*)event, (const char*)payload);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
 
+
+#else  //ETHEREVENT_NO_AUTHENTICATION
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[]) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* payload)"));
-      return send(ethernetClient, target, port, event, (const char*)payload);
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
+      return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
-
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[] = "") {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* event)"));
-      return send(ethernetClient, target, port, (const char*)event, payload);
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int8_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
+      return send(ethernetClient, target, port, (const int)event, payload, passwordInput);  //Convert event to int. Needed to fix ambiguous overload warning.
     }
-
-    template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, eventType event, char payload[]) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* payload)"));
-      return send(ethernetClient, target, port, event, (const char*)payload);
-    }
-
-    template <typename targetType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], payloadType payload) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* event)"));
-      return send(ethernetClient, target, port, (const char*)event, payload);
-    }
-
-    template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, eventType event, const char payload[] = "") {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(eventType event)"));
-      Serial.println("send(eventType, const char*)");
-      printEvent.print(event);
-      printEvent.eventBuffer[printEvent.writePosition] = 0; //add null terminator.
-      printEvent.writePosition = 0; //reset the write position for the next send()
-      return send(ethernetClient, target, port, (const char*)printEvent.eventBuffer, payload);
-    }
-
-    template <typename targetType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], payloadType payload) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(payloadType payload)"));
-      printPayload.print(payload);
-      printPayload.payloadBuffer[printPayload.writePosition] = 0; //add null terminator.
-      printPayload.writePosition = 0; //reset the write position for the next send()
-      return send(ethernetClient, target, port, event, (const char*)printPayload.payloadBuffer);
-    }
-
-    template <typename targetType, typename eventType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, eventType event, payloadType payload) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(eventType event, payloadType payload)"));
-      printEvent.print(event);
-      printEvent.eventBuffer[printEvent.writePosition] = 0; //add null terminator.
-      printEvent.writePosition = 0;
-      return send(ethernetClient, target, port, (const char*)printEvent.eventBuffer, payload);
-    }
-#else //ETHEREVENT_NO_AUTHENTICATION
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* event, char* payload)"));
-      return send(ethernetClient, target, port, (const char*)event, (const char*)payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const byte event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte event)"));
+      return send(ethernetClient, target, port, (const int)event, payload, passwordInput);  //Convert event to int. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int16_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int event)"));
+      char eventChar[int16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%i", event);
+#else  //__ARDUINO_X86__
+      itoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint16_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int event)"));
+      char eventChar[uint16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%u", event);
+#else  //__ARDUINO_X86__
+      utoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const int32_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(long event)"));
+      char eventChar[int32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%li", event);
+#else  //__ARDUINO_X86__
+      ltoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const uint32_t event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long event)"));
+      char eventChar[uint32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%lu", event);
+#else  //__ARDUINO_X86__
+      ultoa(event, eventChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() event)"));
+      const byte eventLength = FSHlength(event);
+      char eventChar[eventLength + 1];
+      memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const String &event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String event)"));
+      const byte stringLength = event.length();
+      char eventChar[stringLength + 1];
+      for (byte counter = 0; counter < stringLength; counter++) {
+        eventChar[counter] = event[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
+      }
+      eventChar[stringLength] = 0;
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const IPAddress &event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
+      char eventChar[IPAddressLengthMax + 1];
+      IPtoa(event, eventChar);
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const double event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
+      char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%.*f", sendDoubleDecimalPlaces, event);
+#else  //__ARDUINO_X86__
+      dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+    template <typename targetType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const float event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
+      return send(ethernetClient, target, port, (double)event, payload, passwordInput);  //needed to fix ambiguous compiler warning
     }
 
+    //convert payload
     template <typename targetType>
     boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* payload)"));
-      return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
+      return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int16_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
+      char payloadChar[int16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%i", payload);
+#else  //__ARDUINO_X86__
+      itoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint16_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int payload)"));
+      char payloadChar[uint16_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%u", payload);
+#else  //__ARDUINO_X86__
+      utoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const int32_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(long payload)"));
+      char payloadChar[int32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%li", payload);
+#else  //__ARDUINO_X86__
+      ltoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const uint32_t payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long payload)"));
+      char payloadChar[uint32_tLengthMax + 1];
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%lu", payload);
+#else  //__ARDUINO_X86__
+      ultoa(payload, payloadChar, 10);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const __FlashStringHelper* payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(F() payload)"));
+      const unsigned int payloadLength = FSHlength(payload);
+      char payloadChar[payloadLength + 1];
+      memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const String &payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
+      const byte stringLength = payload.length();
+      char payloadChar[stringLength + 1];
+      for (byte counter = 0; counter < stringLength; counter++) {
+        payloadChar[counter] = payload[counter];  //I could probably just use c_str() instead but then I have to deal with the pointer
+      }
+      payloadChar[stringLength] = 0;
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const IPAddress &payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress payload)"));
+      char payloadChar[IPAddressLengthMax + 1];
+      IPtoa(payload, payloadChar);
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
+    }
+    template <typename targetType, typename eventType>
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const eventType event, const double payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
+      char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+#ifdef __ARDUINO_X86__
+      sprintf (payloadChar, "%.*f", sendDoubleDecimalPlaces, payload);
+#else  //__ARDUINO_X86__
+      dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payloadChar, passwordInput);
     }
 
+    //convert event and payload
     template <typename targetType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* event)"));
-      return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);
+    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event, char payload)"));
+      return send(ethernetClient, target, port, (const char*)event, (const char*)payload, passwordInput);  //Convert char to const char. Needed to fix ambiguous overload warning.
     }
-
-    template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, eventType event, char payload[], const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* payload)"));
-      return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);
-    }
-
-    template <typename targetType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, char event[], payloadType payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char* event)"));
-      return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);
-    }
-
-    template <typename targetType, typename eventType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, eventType event, const char payload[] = "", const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(eventType event)"));
-      Serial.println("send(eventType, const char*)");
-      printEvent.print(event);
-      printEvent.eventBuffer[printEvent.writePosition] = 0; //add null terminator.
-      printEvent.writePosition = 0; //reset the write position for the next send()
-      return send(ethernetClient, target, port, (const char*)printEvent.eventBuffer, payload, passwordInput);
-    }
-
-    template <typename targetType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, const char event[], payloadType payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(payloadType payload)"));
-      printPayload.print(payload);
-      printPayload.payloadBuffer[printPayload.writePosition] = 0; //add null terminator.
-      printPayload.writePosition = 0; //reset the write position for the next send()
-      return send(ethernetClient, target, port, event, (const char*)printPayload.payloadBuffer, passwordInput);
-    }
-
-    template <typename targetType, typename eventType, typename payloadType>
-    boolean send(EthernetClient &ethernetClient, const targetType &target, const unsigned int port, eventType event, payloadType payload, const char passwordInput[] = (char*)DEFAULT_PASSWORD_STRING) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(eventType event, payloadType payload)"));
-      printEvent.print(event);
-      printEvent.eventBuffer[printEvent.writePosition] = 0; //add null terminator.
-      printEvent.writePosition = 0;
-      return send(ethernetClient, target, port, (const char*)printEvent.eventBuffer, payload, passwordInput);
-    }
-#endif //ETHEREVENT_NO_AUTHENTICATION
+#endif  //ETHEREVENT_NO_AUTHENTICATION
 #endif  //ETHEREVENT_FAST_SEND
-
 
     void setTimeout(const unsigned int timeoutInput);
     unsigned int getTimeout();
@@ -552,9 +810,6 @@ class EtherEventClass {
 
 
   private:
-    PrintEvent printEvent;
-    PrintPayload printPayload;
-
     //used for the FASTSEND char array conversions
     static const byte uint16_tLengthMax = 5;  //5 digits
     static const byte int16_tLengthMax = 1 + uint16_tLengthMax;  //sign + 5 digits
@@ -596,7 +851,5 @@ class EtherEventClass {
 };
 
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
-
-
 #endif  //EtherEvent_h
 

@@ -214,27 +214,3 @@ void EtherEventClass::flushPayload() {
 
 EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
 
-
-
-size_t PrintEvent::write(uint8_t printChar) {
-  if (writePosition == EVENT_BUFFER_SIZE - 1) {
-    eventBuffer[writePosition] = 0;
-    return 1;  // I'm not sure if this is the correct return value for full buffer, is there a way to abort the rest of the print?
-  }
-  eventBuffer[writePosition++] = printChar;
-  Serial.print(">");
-  Serial.println((char)printChar);
-  return 1;
-}
-
-size_t PrintPayload::write(uint8_t printChar) {
-  if (writePosition == PAYLOAD_BUFFER_SIZE - 1) {
-    payloadBuffer[writePosition] = 0;
-    return 1;  // I'm not sure if this is the correct return value for full buffer, is there a way to abort the rest of the print?
-  }
-  payloadBuffer[writePosition++] = printChar;
-  Serial.print(">");
-  Serial.println((char)printChar);
-  return 1;
-}
-
