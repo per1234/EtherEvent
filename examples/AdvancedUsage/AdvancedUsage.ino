@@ -5,7 +5,9 @@
 //These libraries are required by EtherEvent:
 #include <SPI.h>
 #include <Ethernet.h>
+#ifndef __ARDUINO_X86__
 #include <utility/w5100.h>  //Used for setting the W5x00 retransmission time and count.
+#endif //__ARDUINO_X86__
 #include <MD5.h>
 #include <EtherEvent.h>
 
@@ -50,8 +52,10 @@ void setup() {
   }
 
   EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
+#ifndef __ARDUINO_X86__
   W5100.setRetransmissionTime(W5x00timeout);  //set the timeout for the W5x00 module.
   W5100.setRetransmissionCount(W5x00retransmissionCount);  //Retransmission Count - 1 is the minimum value
+#endif //__ARDUINO_X86__
 }
 
 
