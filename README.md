@@ -39,7 +39,7 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
 - Using Arduino IDE 1.5+:
   - **Sketch > Include Library > Add ZIP Library... >** select the downloaded file **> Open**
 - Repeat this process with any other required libraries.
-  - ArduinoMD5 http://github.com/tzikis/ArduinoMD5 - Not required if you disable event authentication.
+  - ArduinoMD5 http://github.com/tzikis/ArduinoMD5 - Not required if you disable event authentication. Not required for use with ESP8266.
   - If you want to use `EtherEvent.senderIP()` then you must install the modified Ethernet library: http://github.com/per1234/EthernetMod
 - Running the example sketch:
   - File > Examples > EtherEvent > BasicUsage

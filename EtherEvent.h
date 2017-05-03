@@ -11,7 +11,13 @@
 #include <Ethernet.h>
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
+#ifdef ESP8266
+//The ESP8266 core library has a file named md5.h, which gets included instead of MD5.h on case insensitive operating systems
+#include <MD5Builder.h>
+MD5Builder MD5;
+#else  //ESP8266
 #include <MD5.h>
+#endif  //ESP8266
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 
@@ -119,9 +125,17 @@ class EtherEventClass {
               }
               ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePassword: "));
               ETHEREVENT_SERIAL.println(cookiePassword);
+#ifdef ESP8266
+              MD5.begin();
+              MD5.add(cookiePassword);
+              MD5.calculate();
+              char cookiePasswordMD5[33];
+              MD5.getChars(cookiePasswordMD5);
+#else  //ESP8266
               unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
               char* cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
               free(cookiePasswordHash);
+#endif  //ESP8266
               ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: cookiePasswordMD5: "));
               ETHEREVENT_SERIAL.println(cookiePasswordMD5);
 
@@ -132,7 +146,9 @@ class EtherEventClass {
                 ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
                 authenticationSuccessful = true;
               }
+#ifndef ESP8266
               free(cookiePasswordMD5);
+#endif
             }
             if (!authenticationSuccessful) {
               ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication failed"));
@@ -329,14 +345,24 @@ class EtherEventClass {
           }
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: cookiePassword: "));
           ETHEREVENT_SERIAL.println(cookiePassword);
+#ifdef ESP8266
+          MD5.begin();
+          MD5.add(cookiePassword);
+          MD5.calculate();
+          char cookiePasswordMD5[33];
+          MD5.getChars(cookiePasswordMD5);
+#else  //ESP8266
           unsigned char* cookiePasswordHash = MD5::make_hash(cookiePassword);
           char* cookiePasswordMD5 = MD5::make_digest(cookiePasswordHash, 16);
           free(cookiePasswordHash);
+#endif  //ESP8266
           ETHEREVENT_SERIAL.print(F("EtherEvent.send: hashWordMD5: "));
           ETHEREVENT_SERIAL.println(cookiePasswordMD5);
           ethernetClient.print(cookiePasswordMD5);  //send the MD5 of the hashword
           ethernetClient.write(10);  //newline
+#ifndef ESP8266
           free(cookiePasswordMD5);
+#endif  //ESP8266
 
           if (ethernetClient.find((char*)ETHEREVENT_ACCEPT_MESSAGE) == true) {  //authentication successful - the (char*) thing is to get rid of the "warning: deprecated conversion from string constant to ‘char*’" compiler warning
             authenticationSuccessful = true;
