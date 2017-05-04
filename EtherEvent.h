@@ -34,6 +34,13 @@ MD5Builder MD5;
 #define DEFAULT_PASSWORD_STRING "\f"
 #define DEFAULT_PASSWORD_CHAR '\f'
 
+// Use of the F() macro with ESP8266 on certain lines is causing the error "__c causes a section type conflict with __c". As a workaround I'm disabling the macro until I can find the cause of the problem.
+#ifdef ESP8266
+#ifdef F
+#undef F
+#define F(x) x
+#endif  //F
+#endif  //ESP8266
 
 namespace EtherEventNamespace {
 const unsigned long debugSerialBaud = 9600;
