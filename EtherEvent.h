@@ -403,11 +403,13 @@ class EtherEventClass {
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         if (passwordInput[0] == 0) {  //authentication disabled
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-          ethernetClient.print("\']");
+          ethernetClient.print("\']\n");
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         }
+        else {
+          ethernetClient.write(10);  //newline
+        }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-        ethernetClient.write(10);  //newline
       }
       ethernetClient.print(event);  //transmit event
       ethernetClient.write(10);  //newline
