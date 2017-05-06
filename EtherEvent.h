@@ -395,8 +395,7 @@ class EtherEventClass {
         if (passwordInput[0] == 0) {  //authentication disabled
 #endif
           //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
-          ethernetClient.print('[');
-          ethernetClient.write(39);
+          ethernetClient.print("[\'");
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -404,8 +403,7 @@ class EtherEventClass {
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         if (passwordInput[0] == 0) {  //authentication disabled
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-          ethernetClient.write(39);
-          ethernetClient.print(']');
+          ethernetClient.print("\']");
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
