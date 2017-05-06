@@ -333,7 +333,7 @@ class EtherEventClass {
       if (passwordInput[0] != 0) {  //do authentication
         ethernetClient.setTimeout(timeout);  //Timeout on Stream functions. I only have to set it once here for the send() timeout but I can't set it in begin() because ethernetClient isn't passed to that function there so it's most efficient to just set it here every time
         ETHEREVENT_SERIAL.println(F("EtherEvent.send: connected, sending magic word"));
-        ethernetClient.print(F(ETHEREVENT_MAGIC_WORD));  //send the magic word to the receiver so it will send the cookie
+        ethernetClient.print(ETHEREVENT_MAGIC_WORD);  //send the magic word to the receiver so it will send the cookie
 
         byte currentPasswordLength = passwordLength;
         if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {  //the user passed a password string in the function call
