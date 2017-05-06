@@ -68,24 +68,29 @@ void setup() {
 #endif //__ARDUINO_X86__
 }
 
-void printEvent(byte availableLength) {
-  Serial.print(F("Received event length="));
-  Serial.println(EtherEvent.availableEvent());  //this tests the use of EtherEvent.availableEvent() with no arguments
-  char event[availableLength];  //create the event buffer of the correct size
-  EtherEvent.readEvent(event);  //read the event into the event buffer
-  Serial.print(F("Received event: "));
-  Serial.println(event);  //now the event is in your buffer
-  availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
-  Serial.print(F("Received payload length="));
-  Serial.println(availableLength);
-  char payload[availableLength];
-  EtherEvent.readPayload(payload);
-  Serial.print(F("Received payload: "));
-  Serial.println(payload);
+void printEvent(int8_t availableLength) {
+  if (availableLength == -1) {
+    Serial.println(F("\nAuthentication failed"));
+  }
+  else {
+    Serial.print(F("Received event length="));
+    Serial.println(EtherEvent.availableEvent());  //this tests the use of EtherEvent.availableEvent() with no arguments
+    char event[availableLength];  //create the event buffer of the correct size
+    EtherEvent.readEvent(event);  //read the event into the event buffer
+    Serial.print(F("Received event: "));
+    Serial.println(event);  //now the event is in your buffer
+    availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
+    Serial.print(F("Received payload length="));
+    Serial.println(availableLength);
+    char payload[availableLength];
+    EtherEvent.readPayload(payload);
+    Serial.print(F("Received payload: "));
+    Serial.println(payload);
 #ifdef ethernetclientwithremoteIP_h  //must have the modified Ethernet library installed for this function to be available
-  Serial.print(F("Received from IP: "));
-  Serial.println(EtherEvent.senderIP());
+    Serial.print(F("Received from IP: "));
+    Serial.println(EtherEvent.senderIP());
 #endif  //ethernetclientwithremoteIP_h
+  }
 }
 
 
@@ -93,7 +98,7 @@ void loop() {
   // Run availableEvent() tests
   switch (availableEventTest) {
     case 0:
-      if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
+      if (int8_t availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         ++availableEventTest;
 #endif  //ETHEREVENT_NO_AUTHENTICATION

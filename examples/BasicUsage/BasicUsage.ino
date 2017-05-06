@@ -45,20 +45,25 @@ void setup() {
 
 
 void loop() {
-  if (byte availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
-    Serial.print(F("\nReceived event length="));
-    Serial.println(availableLength);
-    char event[availableLength];  //create the event buffer of the correct size
-    EtherEvent.readEvent(event);  //read the event into the event buffer
-    Serial.print(F("Received event: "));
-    Serial.println(event);  //now the event is in your buffer
-    availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
-    Serial.print(F("Received payload length="));
-    Serial.println(availableLength);
-    char payload[availableLength];
-    EtherEvent.readPayload(payload);
-    Serial.print(F("Received payload: "));
-    Serial.println(payload);
+  if (int availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
+    if (availableLength == -1) {
+      Serial.println(F("\nAuthentication failed"));
+    }
+    else {
+      Serial.print(F("\nReceived event length="));
+      Serial.println(availableLength);
+      char event[availableLength];  //create the event buffer of the correct size
+      EtherEvent.readEvent(event);  //read the event into the event buffer
+      Serial.print(F("Received event: "));
+      Serial.println(event);  //now the event is in your buffer
+      availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
+      Serial.print(F("Received payload length="));
+      Serial.println(availableLength);
+      char payload[availableLength];
+      EtherEvent.readPayload(payload);
+      Serial.print(F("Received payload: "));
+      Serial.println(payload);
+    }
   }
 
   if (millis() - sendTimestamp > sendEventInterval) {  //periodically send event
