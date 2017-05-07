@@ -9,11 +9,11 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
   - Tested to work with this library:
     - EventGhost: http://eventghost.com - Free open source automation tool for Windows. The Network Event Sender and Receiver plugins are compatible with EtherEvent.
     - TCPEvents EventGhost plugin: https://github.com/per1234/TCPEvents - Improved network event sender/receiver allows sending events to multiple IP addresses.
+    - eventghost-android: http://github.com/timhoeck/eventghost-android - Android network event app
+    - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
     - EgiGeoZone Geofence: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone with the Arduino EtherEvent plugin: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone.plugin.arduinoetherevent
     - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI. The receiver requires a large timeout value.
   - Untested:
-    - eventghost-android: http://github.com/timhoeck/eventghost-android - Android network event app
-    - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
     - RemoteGhost: http://forum.xda-developers.com/showthread.php?t=2076716 - Windows Phone network event app
     - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646 - Philips Pronto Home Control Panel communication
     - Android/Eventghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite - IP-Symcon(pay software) automation system communication
