@@ -44,6 +44,7 @@ MD5Builder MD5;
 
 namespace EtherEventNamespace {
 const unsigned long debugSerialBaud = 9600;
+const char TCPEventsSenderIdentifier[] = "TCPEvents";
 const char payloadSeparator[] = "payload ";  //indicates payload
 const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
 const char payloadWithoutRelease[] = "payload withoutRelease";  //eg sends this every time and EtherEvent filters it out
@@ -150,10 +151,23 @@ class EtherEventClass {
               ETHEREVENT_SERIAL.println(cookiePasswordMD5);
 
               //verify the received hashword
-              if (ethernetClient.find(cookiePasswordMD5) == true) {  //authentication successful
+              const byte MaximumReceivedMD5length = 9 + 32;  // "TCPEvents" + 32 character MD5 hash
+              char receivedMD5[MaximumReceivedMD5length + 1];
+              byte receivedMD5bytesRead = ethernetClient.readBytesUntil('\n', receivedMD5, MaximumReceivedMD5length);  //put the incoming data up to the newline into receivedMessage
+              receivedMD5[receivedMD5bytesRead] = 0; //add null terminator
+              ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: receivedMD5: "));
+              ETHEREVENT_SERIAL.println(receivedMD5);
+              if (strstr(receivedMD5, cookiePasswordMD5) != NULL) {
                 ethernetClient.flush();  //clear the \n or it will cause a null message in the payload/event message read
                 ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication successful"));
-                ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
+
+                if (strstr(receivedMD5, EtherEventNamespace::TCPEventsSenderIdentifier) != NULL) {  //TCPEvents prepends "TCPEvents" to the MD5 to identify the plugin
+                  ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: TCPEvents type sender detected"));
+                  ethernetClient.print(" " ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
+                }
+                else {
+                  ethernetClient.print(ETHEREVENT_ACCEPT_MESSAGE);  //The space indicates the server type is TCPEvents. For some reason I can't use F() on this one.
+                }
                 authenticationSuccessful = true;
               }
 #ifndef ESP8266
