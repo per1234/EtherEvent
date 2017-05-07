@@ -57,10 +57,12 @@ void loop() {
       availableLength = EtherEvent.availablePayload();  //receiving the payload works the same as the event
       Serial.print(F("Received payload length="));
       Serial.println(availableLength);
-      char payload[availableLength];
-      EtherEvent.readPayload(payload);
-      Serial.print(F("Received payload: "));
-      Serial.println(payload);
+      if (availableLength > 0) {
+        char payload[availableLength];
+        EtherEvent.readPayload(payload);
+        Serial.print(F("Received payload: "));
+        Serial.println(payload);
+      }
     }
   }
 
