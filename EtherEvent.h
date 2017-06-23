@@ -294,7 +294,7 @@ class EtherEventClass {
     template <typename target_t, typename event_t>
     boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload argument)"));
-      noPayload = true;  //In non-ETHEREVENT_FAST_SEND mode, send() has no way to know the type of payload so the best way to detect whether a payload was specified is to set a flag based on the function signature, which allows send() to be more efficient due to not needing to handle the non-existent payload.
+      payloadSpecified = true;  //In non-ETHEREVENT_FAST_SEND mode, send() has no way to know the type of payload so the best way to detect whether a payload was specified is to set a flag based on the function signature, which allows send() to be more efficient due to not needing to handle the non-existent payload.
       return send(ethernetClient, target, port, event, "", DEFAULT_PASSWORD_STRING);
     }
 #endif  //ETHEREVENT_FAST_SEND
@@ -655,7 +655,7 @@ class EtherEventClass {
       }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #ifndef ETHEREVENT_FAST_SEND
-      if (noPayload == false)  //check if there is a payload
+      if (payloadSpecified == false)  //check if there is a payload
 #else  //ETHEREVENT_FAST_SEND
       if (payload[0] != 0)  //check if there is a payload
 #endif  //ETHEREVENT_FAST_SEND
@@ -749,7 +749,7 @@ class EtherEventClass {
     char* password;
     byte passwordLength;
 
-    boolean noPayload;
+    boolean payloadSpecified;
 
     IPAddress fromIP;  //IP address of the last event sender
     byte eventLengthMax;
