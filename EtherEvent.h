@@ -83,10 +83,11 @@ class EtherEventClass {
       return availableEvent(ethernetServer, false, passwordInput);
     }
 
-    int availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+    int availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    int availableEvent(EthernetServer &ethernetServer) {
+    int availableEvent(EthernetServer &ethernetServer)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
+    {
       if (receivedEventLength <= readEventLength) {  ///no event buffered
         flushPayload();
         if (EthernetClient ethernetClient = ethernetServer.available() ) {  //connect to the client
@@ -654,10 +655,11 @@ class EtherEventClass {
       }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #ifndef ETHEREVENT_FAST_SEND
-      if (noPayload == false) {  //check if there is a payload
+      if (noPayload == false)  //check if there is a payload
 #else  //ETHEREVENT_FAST_SEND
-      if (payload[0] != 0) {  //check if there is a payload
+      if (payload[0] != 0)  //check if there is a payload
 #endif  //ETHEREVENT_FAST_SEND
+      {
         ethernetClient.print(EtherEventNamespace::payloadSeparator);
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         if (passwordInput[0] == 0) {  //authentication disabled
