@@ -340,8 +340,10 @@ class EtherEventClass {
 
 #ifdef ETHEREVENT_FAST_SEND
     //payload conversions
+
+    //required to fix ambiguous warnings
     template <typename event_t>
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(const char array payload)"));
       return send(ethernetClient, target, port, event, payload, passwordInput);
     }
