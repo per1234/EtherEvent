@@ -561,14 +561,14 @@ class EtherEventClass {
       return send(ethernetClient, target, port, eventChar, payload, passwordInput);
     }
 
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
       char eventChar[IPAddressLengthMax + 1];
       IPtoa(event, eventChar);
       return send(ethernetClient, target, port, eventChar, payload, passwordInput);
     }
 
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
       char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
 #ifdef __ARDUINO_X86__
