@@ -343,6 +343,14 @@ class EtherEventClass {
 
 #ifdef ETHEREVENT_FAST_SEND
     //payload conversions
+
+    //required to fix ambiguous errors/warnings
+    template <typename event_t>
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
+      return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);
+    }
+
     template <typename event_t>
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const int8_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t payload)"));
@@ -465,6 +473,13 @@ class EtherEventClass {
 
 
     //event conversions
+
+    //required to fix ambiguous errors/warnings
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array event)"));
+      return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);
+    }
+
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int8_t event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
       char eventChar[int8_tLengthMax + 1];
@@ -564,6 +579,17 @@ class EtherEventClass {
     }
 
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
+      char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+#ifdef __ARDUINO_X86__
+      sprintf (eventChar, "%.*f", sendDoubleDecimalPlaces, event);
+#else  //__ARDUINO_X86__
+      dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
+#endif  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+    }
+
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const float event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
       char eventChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
 #ifdef __ARDUINO_X86__
