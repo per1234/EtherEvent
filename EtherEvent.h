@@ -299,6 +299,7 @@ class EtherEventClass {
     }
 #endif  //ETHEREVENT_FAST_SEND
 
+    //preparations for conversion from byte array target to IPAddress
 #if __cplusplus <= 199711L
 #ifdef ETHEREVENT_FAST_SEND
     //only handle payload not specified for ETHEREVENT_FAST_SEND mode when target is byte array and default template arguments are not supported
@@ -577,6 +578,7 @@ class EtherEventClass {
 
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #else  //ETHEREVENT_FAST_SEND
+    //payload will always be defined in non-ETHEREVENT_FAST_SEND mode so the default value does not need to be specified
     template <typename event_t, typename payload_t>
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif //ETHEREVENT_FAST_SEND
