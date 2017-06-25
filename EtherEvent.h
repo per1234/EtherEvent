@@ -289,14 +289,14 @@ class EtherEventClass {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //handle payload not specified
+#ifndef ETHEREVENT_FAST_SEND
     template <typename target_t, typename event_t>
     boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload argument)"));
-#ifndef ETHEREVENT_FAST_SEND
       noPayload = true;  //In non-ETHEREVENT_FAST_SEND mode, send() has no way to know the type of payload so the best way to detect whether a payload was specified is to set a flag based on the function signature, which allows send() to be more efficient due to not needing to handle the non-existent payload.
-#endif  //ETHEREVENT_FAST_SEND
       return send(ethernetClient, target, port, event, "", DEFAULT_PASSWORD_STRING);
     }
+#endif  //ETHEREVENT_FAST_SEND
 
 #if __cplusplus <= 199711L
     //default template arguments require C++11 so the function signature without password parameter must be defined
@@ -333,7 +333,7 @@ class EtherEventClass {
 #ifdef ETHEREVENT_FAST_SEND
     //payload conversions
     template <typename event_t>
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(const char array payload)"));
       return sendPayload(ethernetClient, target, port, event, payload, passwordInput);
     }
