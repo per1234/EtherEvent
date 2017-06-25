@@ -293,7 +293,7 @@ class EtherEventClass {
     //always handle payload not specified for non-ETHEREVENT_FAST_SEND mode
     template <typename target_t, typename event_t>
     boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload argument)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload argument, non-ETHEREVENT_FAST_SEND)"));
       payloadSpecified = false;  //In non-ETHEREVENT_FAST_SEND mode, send() has no way to know the type of payload so the best way to detect whether a payload was specified is to set a flag based on the function signature, which allows send() to be more efficient due to not needing to handle the non-existent payload.
       return send(ethernetClient, target, port, event, "", DEFAULT_PASSWORD_STRING);
     }
@@ -305,8 +305,7 @@ class EtherEventClass {
     //only handle payload not specified for ETHEREVENT_FAST_SEND mode when target is byte array and default template arguments are not supported
     template <typename event_t>
     boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const event_t event) {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload argument)"));
-      payloadSpecified = false;  //In non-ETHEREVENT_FAST_SEND mode, send() has no way to know the type of payload so the best way to detect whether a payload was specified is to set a flag based on the function signature, which allows send() to be more efficient due to not needing to handle the non-existent payload.
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload argument, ETHEREVENT_FAST_SEND, non-C++11)"));
       return send(ethernetClient, target, port, event, "", DEFAULT_PASSWORD_STRING);
     }
 #endif  //ETHEREVENT_FAST_SEND
@@ -326,7 +325,7 @@ class EtherEventClass {
     boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const event_t event, const payload_t payload = "", const passwordInput_t passwordInput = DEFAULT_PASSWORD_STRING)
 #endif  //__cplusplus <= 199711L
     {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte array IP)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte array target)"));
       const IPAddress targetIP = IPAddress(target[0], target[1], target[2], target[3]);
       return send(ethernetClient, targetIP, port, event, payload, passwordInput);
     }
