@@ -300,8 +300,8 @@ class EtherEventClass {
 
 #if __cplusplus <= 199711L
     //default template arguments require C++11 so the function signature without password parameter must be defined
-    template <typename target_t, typename event_t, typename payload_t>
-    boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event, const payload_t payload) {
+    template <typename event_t, typename payload_t>
+    boolean send(EthernetClient &ethernetClient, const byte target[], const unsigned int port, const event_t event, const payload_t payload) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(no password argument)"));
       return send(ethernetClient, target, port, event, payload, DEFAULT_PASSWORD_STRING);
     }
