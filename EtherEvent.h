@@ -58,8 +58,11 @@ class EtherEventClass {
   public:
     EtherEventClass() {
       timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
+#ifdef ETHEREVENT_FAST_SEND
       sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
+#else  //ETHEREVENT_FAST_SEND
       payloadSpecified = true;
+#endif  //ETHEREVENT_FAST_SEND
     }
 
 
@@ -810,6 +813,7 @@ class EtherEventClass {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //setPassword
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef ETHEREVENT_NO_AUTHENTICATION
     boolean setPassword(const char passwordInput[]) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(char)"));
       passwordLength = strlen(passwordInput);
@@ -834,6 +838,7 @@ class EtherEventClass {
       memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
       return true;
     }
+#endif  //ETHEREVENT_NO_AUTHENTICATION
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -887,6 +892,7 @@ class EtherEventClass {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private:
     //used for the FASTSEND char array conversions
+#ifdef ETHEREVENT_FAST_SEND
     static const byte uint8_tLengthMax = 3;  //3 digits (255)
     static const byte int8_tLengthMax = 1 + uint8_tLengthMax;  //sign + 3 digits (-127)
     static const byte uint16_tLengthMax = 5;  //5 digits (65535)
@@ -909,22 +915,31 @@ class EtherEventClass {
     static const byte IPAddressLengthMax = 3 + 1 + 3 + 1 + 3 + 1 + 3;  //4 x octet + 3 x dot
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
+    static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
+#endif  //ETHEREVENT_FAST_SEND
+
+#ifndef ETHEREVENT_NO_AUTHENTICATION
     static const byte cookieLengthMax = 8;  //the maximum length of cookie that can be received
+    static const int authenticationFailedCode = -1;
+#endif  //ETHEREVENT_NO_AUTHENTICATION
 
     static const byte TCPEventsPayloadFormattingLength = 2;  //the length of one side of the formatting characters added to payloads entered in the payload field of TCPEvent's "Send an Event" action configuration([''])
 
     static const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
-    static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
-
-    static const int authenticationFailedCode = -1;
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
     unsigned int availableEventSubmessageLengthMax;  //value set in begin()
 
+#ifndef ETHEREVENT_NO_AUTHENTICATION
     char* password;
     byte passwordLength;
+#endif  //ETHEREVENT_NO_AUTHENTICATION
 
+#ifdef ETHEREVENT_FAST_SEND
+    byte sendDoubleDecimalPlaces;
+#else  //ETHEREVENT_FAST_SEND
     boolean payloadSpecified;
+#endif  //ETHEREVENT_FAST_SEND
 
     IPAddress fromIP;  //IP address of the last event sender
     byte eventLengthMax;
@@ -935,7 +950,6 @@ class EtherEventClass {
     char* receivedPayload;  //payload buffer
     unsigned int receivedPayloadLength;
     unsigned int readPayloadLength;  //number of characters of the payload that have been read
-    byte sendDoubleDecimalPlaces;
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
