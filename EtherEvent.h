@@ -56,8 +56,41 @@ const byte closeMessageLength = strlen(EtherEventNamespace::closeMessage);
 
 class EtherEventClass {
   public:
-    EtherEventClass();
-    boolean begin(const byte eventLengthMaxInput = 15, const unsigned int payloadLengthMaxInput = 100);  //these are the default max length values
+    EtherEventClass() {
+      timeout = timeoutDefault;  //set default timeout value, this can be changed by the user via setTimeout()
+      sendDoubleDecimalPlaces = sendDoubleDecimalPlacesDefault;
+      payloadSpecified = true;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //begin
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    boolean begin(const byte eventLengthMaxInput = 15, const unsigned int payloadLengthMaxInput = 100) {
+#if ETHEREVENT_DEBUG == true
+      delay(20);  //There needs to be a delay between the calls to serial.begin() in the sketch setup() and here or garbage will be printed to the serial monitor
+#endif
+      ETHEREVENT_SERIAL.begin(EtherEventNamespace::debugSerialBaud);  //for debugging
+      ETHEREVENT_SERIAL.println(F("\n\n\nEtherEvent.begin"));
+
+      eventLengthMax = eventLengthMaxInput;
+      payloadLengthMax = payloadLengthMaxInput;
+      availableEventSubmessageLengthMax = max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax + TCPEventsPayloadFormattingLength), eventLengthMax);
+      if (availableEventSubmessageLengthMax > availableEventSubmessageLengthMax + 1) {  //availableEventSubmessageLengthMax is the max value of the type
+        availableEventSubmessageLengthMax--;  //have to decrement because I need to add one in the event/payload handler section of availableEvent()
+      }
+
+      receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
+      flushEvent();  //clear buffer - realloc does not zero initialize so the buffer could contain anything
+      receivedPayload = (char*)realloc(receivedPayload, (payloadLengthMax + 1) * sizeof(*receivedPayload));
+      flushPayload();  //clear buffer - realloc does not zero initialize so the buffer could contain anything
+      if (receivedEvent == NULL || receivedPayload == NULL) {
+        ETHEREVENT_SERIAL.println(F("memory allocation failed"));
+        return false;
+      }
+
+      return true;
+    }
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,15 +307,75 @@ class EtherEventClass {
     }
 
 
-    unsigned int availablePayload();
-    void readEvent(char eventBuffer[]);
-    char readEvent();
-    void readPayload(char payloadBuffer[]);
-    char readPayload();
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //availablePayload - returns the number of chars in the payload including the null terminator if there is one
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    unsigned int availablePayload() {
+      if (receivedPayloadLength > readPayloadLength) {
+        return receivedPayloadLength - readPayloadLength;
+      }
+      return false;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //readEvent
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void readEvent(char eventBuffer[]) {
+      for (byte charCounter = readEventLength; charCounter < receivedEventLength; charCounter++) {
+        eventBuffer[charCounter - readEventLength] = receivedEvent[charCounter];
+      }
+      flushEvent();
+    }
+
+
+    char readEvent() {
+      if (receivedEventLength > readEventLength + 1) {
+        return receivedEvent[readEventLength++];
+      }
+      flushEvent();
+      return 0;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //readPayload
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void readPayload(char payloadBuffer[]) {
+      for (unsigned int charCounter = readPayloadLength; charCounter < receivedPayloadLength; charCounter++) {
+        payloadBuffer[charCounter - readPayloadLength] = receivedPayload[charCounter];
+      }
+      flushPayload();
+    }
+
+
+    char readPayload() {
+      if (receivedPayloadLength > readPayloadLength + 1) {
+        return receivedPayload[readPayloadLength++];
+      }
+      flushPayload();
+      return 0;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //senderIP - returns the ip address the current event was sent from. Requires modified ethernet library, thus the preprocesser direcive system
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ethernetclientwithremoteIP_h  //the include guard from the modified EthernetClient.h
-    IPAddress senderIP();
+    IPAddress senderIP() {
+      return fromIP;
+    }
 #endif  //ethernetclientwithremoteIP_h
-    void flushReceiver();
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //flushReceiver - dump the last message received so another one can be received
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void flushReceiver() {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.flushReceiver: start"));
+      flushEvent();
+      flushPayload();
+    }
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -697,25 +790,101 @@ class EtherEventClass {
       return true;
     }
 
-    void setTimeout(const unsigned int timeoutInput);
-    unsigned int getTimeout();
-    boolean setPassword(const char passwordInput[]);
-    boolean setPassword(const __FlashStringHelper * passwordInput);
 
-#ifdef ETHEREVENT_FAST_SEND
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //setTimeout
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void setTimeout(const unsigned int timeoutInput) {
+      timeout = timeoutInput;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //getTimeout
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    unsigned int getTimeout() {
+      return timeout;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //setPassword
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    boolean setPassword(const char passwordInput[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(char)"));
+      passwordLength = strlen(passwordInput);
+      password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
+      strcpy(password, passwordInput);  //store the password
+      if (password == NULL) {
+        ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword: memory allocation failed"));
+        return false;
+      }
+      return true;
+    }
+
+
+    boolean setPassword(const __FlashStringHelper * passwordInput) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword(F())"));
+      passwordLength = FSHlength(passwordInput);
+      password = (char*)realloc(password, (passwordLength + 1) * sizeof(*password));  //allocate memory for the password
+      if (password == NULL) {
+        ETHEREVENT_SERIAL.println(F("EtherEvent.setPassword: memory allocation failed"));
+        return false;
+      }
+      memcpy_P(password, passwordInput, passwordLength + 1);  //+1 for the null terminator
+      return true;
+    }
+
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //setSendDoubleDecimalPlaces
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef ETHEREVENT_FAST_SEND
     void setSendDoubleDecimalPlaces(const byte decimalPlaces) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.setSendDoubleDecimalPlaces"));
       sendDoubleDecimalPlaces = decimalPlaces;
     }
 #endif  //ETHEREVENT_FAST_SEND
 
-    void IPtoa(const IPAddress & IP, char IPcharBuffer[]);
-    unsigned int FSHlength(const __FlashStringHelper * FSHinput);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //IPtoa - convert IPAddress to char array and put it in the passed buffer
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void IPtoa(const IPAddress & IP, char IPcharBuffer[]) {
+#ifdef __ARDUINO_X86__
+      sprintf (IPcharBuffer, "%u", IP[0]);
+#else  //__ARDUINO_X86__
+      utoa(IP[0], IPcharBuffer, 10);  //convert the first octet
+#endif  //__ARDUINO_X86__
+      for (byte octetCount = 1; octetCount < 4; octetCount++) {  //convert the other 3 octets
+        strcat(IPcharBuffer, ".");
+        char octetChar[3 + 1];  //3 digit byte + null terminator
+#ifdef __ARDUINO_X86__
+        sprintf (octetChar, "%u", IP[octetCount]);
+#else  //__ARDUINO_X86__
+        utoa(IP[octetCount], octetChar, 10);  //convert the octet
+#endif  //__ARDUINO_X86__
+        strcat(IPcharBuffer, octetChar);
+      }
+    }
 
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //FSHlength - determine length of __FlashStringHelper
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    unsigned int FSHlength(const __FlashStringHelper * FSHinput) {
+      const char* FSHinputPointer = (const char PROGMEM *)FSHinput;
+      unsigned int stringLength = 0;
+      while (pgm_read_byte(FSHinputPointer++)) {
+        stringLength++;
+      }
+      return stringLength;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //private
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   private:
     //used for the FASTSEND char array conversions
     static const byte uint8_tLengthMax = 3;  //3 digits (255)
@@ -768,10 +937,29 @@ class EtherEventClass {
     unsigned int readPayloadLength;  //number of characters of the payload that have been read
     byte sendDoubleDecimalPlaces;
 
-    void flushEvent();
-    void flushPayload();
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //flushEvent
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void flushEvent() {
+      receivedEvent[0] = 0;  //reset the event buffer
+      receivedEventLength = 0;
+      readEventLength = 0;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //flushPayload
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void flushPayload() {
+      receivedPayload[0] = 0;  //reset the event buffer
+      receivedPayloadLength = 0;
+      readPayloadLength = 0;
+    }
 };
 
 extern EtherEventClass EtherEvent;  //declare the class so it doesn't have to be done in the sketch
+EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
+
 #endif  //EtherEvent_h
 
