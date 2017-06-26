@@ -13,7 +13,7 @@
 #if !defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
 #include <MD5.h>
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
-#include "EtherEvent.h"
+#include <EtherEvent.h>
 
 
 //configuration parameters - modify these values to your desired settings
