@@ -124,11 +124,12 @@ class EtherEventClass {
     int availableEvent(EthernetServer &ethernetServer, const char passwordInput[]) {
       return availableEvent(ethernetServer, false, passwordInput);
     }
+#endif  //ETHEREVENT_NO_AUTHENTICATION
 
-
-    int availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
-#else  //ETHEREVENT_NO_AUTHENTICATION
+#ifdef ETHEREVENT_NO_AUTHENTICATION
     int availableEvent(EthernetServer &ethernetServer)
+#else  //ETHEREVENT_NO_AUTHENTICATION
+    int availableEvent(EthernetServer &ethernetServer, const long cookieInput = false, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       if (receivedEventLength <= readEventLength) {  ///no event buffered
