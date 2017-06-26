@@ -216,7 +216,7 @@ class EtherEventClass {
               }
 #ifndef ESP8266
               free(cookiePasswordMD5);
-#endif
+#endif  //ESP8266
             }
             if (!authenticationSuccessful) {
               ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: authentication failed"));
