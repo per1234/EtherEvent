@@ -163,13 +163,13 @@ class EtherEventClass {
               if (passwordInput[0] != DEFAULT_PASSWORD_CHAR) {  //the user passed a password string in the function call
                 currentPasswordLength = strlen(passwordInput);
               }
-              char cookiePassword[8 + 1 + currentPasswordLength + 1];  //create buffer of length sufficient for: cookie(8 hexadecimal digits max)  +  password separator  +  Password  +  null terminator
+              char cookiePassword[cookieLengthMax + 1 + currentPasswordLength + 1];  //create buffer of length sufficient for: cookie  +  password separator  +  Password  +  null terminator
 #ifdef __ARDUINO_X86__
               sprintf (cookiePassword, "%li", cookie);
 #else  //__ARDUINO_X86__
               ltoa(cookie, cookiePassword, HEX);
 #endif  //__ARDUINO_X86__
-              char cookieWithNewline[8 + 1 + 1];  //create buffer for the cookie string to send so that the newline can be added without interfering with the cookie/password assembly
+              char cookieWithNewline[cookieLengthMax + 1 + 1];  //create buffer for the cookie string to send so that the newline can be added without interfering with the cookie/password assembly
               strcpy(cookieWithNewline, cookiePassword);
               strcat(cookieWithNewline, "\n");
               ETHEREVENT_SERIAL.println(cookieWithNewline);
@@ -203,7 +203,6 @@ class EtherEventClass {
 #ifdef UIPETHERNET_H
               availableWait(ethernetClient);
 #endif  //UIPETHERNET_H
-              const byte maximumReceivedMD5length = 9 + 32;  // "TCPEvents" + 32 character MD5 hash
               char receivedMD5[maximumReceivedMD5length + 1];
               byte receivedMD5bytesRead = ethernetClient.readBytesUntil('\n', receivedMD5, maximumReceivedMD5length);  //put the incoming data up to the newline into receivedMessage
               receivedMD5[receivedMD5bytesRead] = 0;  //add null terminator
@@ -1231,7 +1230,8 @@ class EtherEventClass {
 #endif  //ETHEREVENT_FAST_SEND
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-    static const byte cookieLengthMax = 8;  //the maximum length of cookie that can be received
+    static const byte cookieLengthMax = 8;  //the maximum length of cookie that can be received (8 hexadecimal digits)
+    static const byte maximumReceivedMD5length = 9 + 32;  // "TCPEvents" + 32 character MD5 hash
     static const int authenticationFailedCode = -1;
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
