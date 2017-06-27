@@ -7,16 +7,30 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
 #### Compatible Software
 - Free
   - Tested to work with this library:
-    - EventGhost: http://eventghost.com - Free open source automation tool for Windows. The Network Event Sender and Receiver plugins are compatible with EtherEvent.
-    - TCPEvents EventGhost plugin: https://github.com/per1234/TCPEvents - Improved network event sender/receiver allows sending events to multiple IP addresses.
-    - eventghost-android: https://play.google.com/store/apps/details?id=com.timhoeck.android.eventghost and http://github.com/timhoeck/eventghost-android - Android network event app
-    - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite - Android network event app
-    - EgiGeoZone Geofence: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone with the Arduino EtherEvent plugin: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone.plugin.arduinoetherevent
-    - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135 - LabVIEW network event sender and receiver VI. The receiver requires a large timeout value.
+    - EventGhost: http://eventghost.com
+      - Free open source automation tool for Windows.
+      - The bundled Network Event Sender and Receiver plugins are compatible with EtherEvent.
+    - TCPEvents EventGhost plugin: https://github.com/per1234/TCPEvents
+      - Improved network event sender/receiver allows sending events to multiple IP addresses.
+      - Supports ETHEREVENT_NO_AUTHENTICATION mode.
+    - eventghost-android: https://play.google.com/store/apps/details?id=com.timhoeck.android.eventghost
+      - Android network event app
+      - GitHub repository: http://github.com/timhoeck/eventghost-android
+    - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite
+      - Android network event app
+    - EgiGeoZone Geofence: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone
+      - Android Geofencing app
+      - Use with the Arduino EtherEvent plugin: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone.plugin.arduinoetherevent
+    - EventGhost automation with LabVIEW: http://decibel.ni.com/content/docs/DOC-13135
+      - LabVIEW network event sender and receiver VI.
+      - The receiver requires a large timeout value.
   - Untested:
-    - RemoteGhost: http://forum.xda-developers.com/showthread.php?t=2076716 - Windows Phone network event app
-    - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646 - Philips Pronto Home Control Panel communication
-    - Android/Eventghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite - IP-Symcon (pay software) automation system communication
+    - RemoteGhost: http://forum.xda-developers.com/showthread.php?t=2076716
+      - Windows Phone network event app
+    - ProntoScript Library: http://remotecentral.com/cgi-bin/mboard/prontopro/thread.cgi?3646
+      - Philips Pronto Home Control Panel communication
+    - Android/Eventghost Communication Suite: http://ip-symcon.de/forum/threads/19614-Android-Eventghost-Communication-Suite
+      - IP-Symcon (pay software) automation system communication
 - Pay
   - Untested:
     - terRemote - Android network event app
@@ -25,10 +39,16 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
 
 
 #### Related Programs
-- EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
-- Modified Ethernet library - allows the use of `EtherEvent.senderIP()`: http://github.com/per1234/EthernetMod - make sure to choose the correct branch for your Arduino IDE version. The [W5x00 branch](https://github.com/per1234/EthernetMod/tree/W5x00) supports W5100, W5200 and W5500 Ethernet controllers.
-- Wiznet Ethernet library provides another option for use with W5200 or W5500 Ethernet controllers: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
-- UIPEthernet library - for ENC28J60 : https : //github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x. Note that, although supported, use of ENC28J60 is strongly discouraged. The W5x00 Ethernet controller and their libraries are **much** better.
+- EtherEventQueue: http://github.com/per1234/EtherEventQueue
+  - Outgoing event queue library.
+- Modified Ethernet library: http://github.com/per1234/EthernetMod
+  - Allows the use of `EtherEvent.senderIP()`.
+  - Make sure to choose the correct branch for your Arduino IDE version. The [W5x00 branch](https://github.com/per1234/EthernetMod/tree/W5x00) supports W5100, W5200 and W5500 Ethernet controllers.
+- Wiznet Ethernet library: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
+  - Provides another option for use with W5200 or W5500 Ethernet controllers:
+- UIPEthernet library: https : //github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x.
+  - For use with ENC28J60 Ethernet controller.
+  - Note that, although supported, use of ENC28J60 is strongly discouraged. The W5x00 Ethernet controller and their libraries are **much** better.
 
 
 #### Installation
