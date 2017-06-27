@@ -13,6 +13,7 @@ setPassword	KEYWORD2
 setSendDoubleDecimalPlaces	KEYWORD2
 FSHlength	KEYWORD2
 IPtoa	KEYWORD2
+availableWait	KEYWORD2
 flushEvent	KEYWORD2
 flushPayload	KEYWORD2
 

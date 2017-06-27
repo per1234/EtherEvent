@@ -1,7 +1,7 @@
 EtherEvent
 ==========
 
-Easy to use [Arduino](http://arduino.cc) library for password authenticated network communication via Ethernet between Arduinos and [EventGhost](http://eventghost.com), or any other program compatible with the EventGhost Network Event Sender and Receiver plugins. Compatible with Arduino Ethernet, Ethernet Shield, and other devices using the W5100/W5200/W5500 Ethernet controller.
+Easy to use [Arduino](http://arduino.cc) library for password authenticated network communication via Ethernet between Arduinos and [EventGhost](http://eventghost.com), or any other program compatible with the EventGhost Network Event Sender and Receiver plugins. Compatible with Arduino Ethernet, Ethernet Shield, and other devices using the W5100/W5200/W5500/ENC28J60 Ethernet controller.
 
 
 #### Compatible Software
@@ -28,6 +28,7 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
 - EtherEventQueue outgoing event queue library: http://github.com/per1234/EtherEventQueue
 - Modified Ethernet library - allows the use of `EtherEvent.senderIP()`: http://github.com/per1234/EthernetMod - make sure to choose the correct branch for your Arduino IDE version. The [W5x00 branch](https://github.com/per1234/EthernetMod/tree/W5x00) supports W5100, W5200 and W5500 Ethernet controllers.
 - Wiznet Ethernet library provides another option for use with W5200 or W5500 Ethernet controllers: https://github.com/embeddist/WIZ_Ethernet_Library-IDE1.5.x
+- UIPEthernet library - for ENC28J60 : https : //github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x. Note that, although supported, use of ENC28J60 is strongly discouraged. The W5x00 Ethernet controller and their libraries are **much** better.
 
 
 #### Installation

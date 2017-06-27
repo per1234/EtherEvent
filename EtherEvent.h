@@ -8,7 +8,11 @@
 #include <avr/dtostrf.h>
 #endif  //defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
 
+#ifdef UIPETHERNET_H
+#include <UIPEthernet.h>
+#else  //UIPETHERNET_H
 #include <Ethernet.h>
+#endif  //UIPETHERNET_H
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
 #ifdef ESP8266
@@ -196,6 +200,9 @@ class EtherEventClass {
               ETHEREVENT_SERIAL.println(cookiePasswordMD5);
 
               //verify the received hashword
+#ifdef UIPETHERNET_H
+              availableWait(ethernetClient);
+#endif  //UIPETHERNET_H
               const byte MaximumReceivedMD5length = 9 + 32;  // "TCPEvents" + 32 character MD5 hash
               char receivedMD5[MaximumReceivedMD5length + 1];
               byte receivedMD5bytesRead = ethernetClient.readBytesUntil('\n', receivedMD5, MaximumReceivedMD5length);  //put the incoming data up to the newline into receivedMessage
@@ -232,6 +239,9 @@ class EtherEventClass {
           //Read and process the message
           for (byte count = 0; count < 7; count++) {  //Read and process the count stuff is just to make sure it will never go into an infinite loop. It should never need more than five iterations of the for loop to get event and payload
             ETHEREVENT_SERIAL.println(F("EtherEvent.availableEvent: payload/event for loop"));
+#ifdef UIPETHERNET_H
+            availableWait(ethernetClient);
+#endif  //UIPETHERNET_H
             char receivedMessage[availableEventSubmessageLengthMax + 1];  //initialize the buffer to read into
             unsigned int bytesRead = ethernetClient.readBytesUntil(10, receivedMessage, availableEventSubmessageLengthMax + 1);  //put the incoming data up to the newline into receivedMessage
             if (bytesRead > availableEventSubmessageLengthMax) {  //event or payload exceeds max length
@@ -1012,6 +1022,9 @@ class EtherEventClass {
         }
         char cookiePassword[cookieLengthMax + 1 + currentPasswordLength + 1];  //cookie, password separator(:), password, null terminator
         boolean authenticationSuccessful = false;
+#ifdef UIPETHERNET_H
+        availableWait(ethernetClient);
+#endif  //UIPETHERNET_H
         if (byte bytesRead = ethernetClient.readBytesUntil(10, cookiePassword, cookieLengthMax)) {  //get the cookie
           cookiePassword[bytesRead] = 0;
           strcat(cookiePassword, ":");  //add the password separator to the cookie
@@ -1249,6 +1262,17 @@ class EtherEventClass {
     char* receivedPayload;  //payload buffer
     unsigned int receivedPayloadLength;
     unsigned int readPayloadLength;  //number of characters of the payload that have been read
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //availableWait - for some reason the UIPEthernet library adds some null characters to the start of the MD5 if you start readBytesUntil() before there are characters available
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef UIPETHERNET_H
+    void availableWait(EthernetClient &ethernetClient) {
+      const unsigned long availableWaitTimeStamp = millis();
+      while (!ethernetClient.available() && millis() - availableWaitTimeStamp < timeout) {}
+    }
+#endif  //UIPETHERNET_H
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
