@@ -203,9 +203,9 @@ class EtherEventClass {
 #ifdef UIPETHERNET_H
               availableWait(ethernetClient);
 #endif  //UIPETHERNET_H
-              const byte MaximumReceivedMD5length = 9 + 32;  // "TCPEvents" + 32 character MD5 hash
-              char receivedMD5[MaximumReceivedMD5length + 1];
-              byte receivedMD5bytesRead = ethernetClient.readBytesUntil('\n', receivedMD5, MaximumReceivedMD5length);  //put the incoming data up to the newline into receivedMessage
+              const byte maximumReceivedMD5length = 9 + 32;  // "TCPEvents" + 32 character MD5 hash
+              char receivedMD5[maximumReceivedMD5length + 1];
+              byte receivedMD5bytesRead = ethernetClient.readBytesUntil('\n', receivedMD5, maximumReceivedMD5length);  //put the incoming data up to the newline into receivedMessage
               receivedMD5[receivedMD5bytesRead] = 0;  //add null terminator
               ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: receivedMD5: "));
               ETHEREVENT_SERIAL.println(receivedMD5);
