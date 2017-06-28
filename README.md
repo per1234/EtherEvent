@@ -18,6 +18,7 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
       - GitHub repository: http://github.com/timhoeck/eventghost-android
     - EGRemote Lite: http://play.google.com/store/apps/details?id=eu.rml.lab.egremote_lite
       - Android network event app
+      - You must use the payload `withoutRelease` with every event sent to the app.
     - EgiGeoZone Geofence: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone
       - Android Geofencing app
       - Use with the Arduino EtherEvent plugin: https://play.google.com/store/apps/details?id=de.egi.geofence.geozone.plugin.arduinoetherevent
@@ -35,6 +36,7 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
   - Untested:
     - terRemote - Android network event app
     - EGRemote - Android network event app
+      - See the note above under EGRemote Lite regarding the payload requirement.
     - RemoteGhostPro - Windows Phone network event app
 
 
