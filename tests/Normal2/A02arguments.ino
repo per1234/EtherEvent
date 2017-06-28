@@ -39,3 +39,5 @@ String payload_String = "asdf";
 char sendPassword_char_array[] = "password";
 #define sendPassword_string_literal "password"
 #define sendPassword___FlashStringHelper F("password")
+
+const unsigned int sendPort = 1024;  //The port to send the test events to.
