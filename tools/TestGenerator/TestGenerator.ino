@@ -1,4 +1,4 @@
-// This sketch is used to automatically generate the send()overload tests and print them to the Serial Monitor
+// This sketch is used to automatically generate the send() overload tests and print them to the Serial Monitor
 
 #define EVENT_PAYLOAD_TYPES_ARRAY_NAME eventPayloadTypes1  //change this to eventPayloadTypes2 to generate the second half of the tests
 
