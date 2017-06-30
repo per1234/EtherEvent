@@ -172,7 +172,7 @@ class EtherEventClass {
               char cookieWithNewline[cookieLengthMax + 1 + 1];  //create buffer for the cookie string to send so that the newline can be added without interfering with the cookie/password assembly
               strcpy(cookieWithNewline, cookiePassword);
               strcat(cookieWithNewline, "\n");
-              ETHEREVENT_SERIAL.println(cookieWithNewline);
+              ETHEREVENT_SERIAL.print(cookieWithNewline);
               ethernetClient.print(cookieWithNewline);  //send the cookie
 
               //calculate the hashword
