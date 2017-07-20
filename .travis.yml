@@ -49,8 +49,7 @@ before_install:
 
   - install_library "https://github.com/tzikis/ArduinoMD5/archive/master.zip"
   - install_library "https://sites.google.com/site/astudyofentropy/file-cabinet/Entropy-v1.0.2.zip"
-  #- install_library "https://github.com/per1234/EtherEventQueue.git"
-  #- install_library "https://github.com/per1234/EtherEventQueue/archive/development.zip" "EtherEventQueue"
+  - install_library "https://github.com/per1234/EtherEventQueue.git" development
 
   # Helper script for the Travis CI configuration
   - source "${TRAVIS_BUILD_DIR}/extras/tools/Travis-CI/build-sketch.sh"
@@ -63,8 +62,14 @@ script:
   - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/Entropy/Entropy.ino" "$BOARD_NAME" "false" "oldest" "newest"
   - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/NoAuthentication/NoAuthentication.ino" "$BOARD_NAME" "false" "oldest" "newest"
   - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/extras/tests" "$BOARD_NAME" "false" "oldest" "newest"
-  #- etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples" "$BOARD_NAME" "false" "oldest" "newest"
-  #- etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/extras/tests" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/AdvancedUsage/AdvancedUsage.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/BasicUsage/BasicUsage.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Entropy/Entropy.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/EventTypeConfirm/EventTypeConfirm.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Keepalive/Keepalive.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/NoAuthentication/NoAuthentication.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Nodes/Nodes.ino" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/extras/tests" "$BOARD_NAME" "false" "oldest" "newest"
 
 
 after_script:
