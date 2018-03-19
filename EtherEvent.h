@@ -85,10 +85,7 @@ class EtherEventClass {
 
       eventLengthMax = eventLengthMaxInput;
       payloadLengthMax = payloadLengthMaxInput;
-      availableEventSubmessageLengthMax = max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax + TCPEventsPayloadFormattingLength), eventLengthMax);
-      if (availableEventSubmessageLengthMax > availableEventSubmessageLengthMax + 1) {  //availableEventSubmessageLengthMax is the max value of the type
-        availableEventSubmessageLengthMax--;  //have to decrement because I need to add one in the event/payload handler section of availableEvent()
-      }
+      availableEventSubmessageLengthMax = min(max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax + TCPEventsPayloadFormattingLength), eventLengthMax), SIZE_MAX - 1);
 
       receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
       flushEvent();  //clear buffer - realloc does not zero initialize so the buffer could contain anything
@@ -1240,7 +1237,7 @@ class EtherEventClass {
     static const unsigned int timeoutDefault = 1000;  //(ms)Timeout duration for ethernet stream functions.
 
     unsigned int timeout;  //default is set in begin() and the user can change the timeout via setTimeout()
-    unsigned int availableEventSubmessageLengthMax;  //value set in begin()
+    size_t availableEventSubmessageLengthMax;  //value set in begin()
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
     char* password;
