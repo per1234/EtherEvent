@@ -49,6 +49,11 @@ MD5Builder MD5;
 #endif  //ESP8266
 
 
+#ifndef SIZE_MAX
+#define SIZE_MAX (size_t)-1
+#endif  //SIZE_MAX
+
+
 namespace EtherEventNamespace {
 const unsigned long debugSerialBaud = 9600;
 const char TCPEventsSenderIdentifier[] = "TCPEvents";
