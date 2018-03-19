@@ -90,7 +90,7 @@ class EtherEventClass {
 
       eventLengthMax = eventLengthMaxInput;
       payloadLengthMax = payloadLengthMaxInput;
-      availableEventSubmessageLengthMax = min(max(max(EtherEventNamespace::payloadWithoutReleaseLength, EtherEventNamespace::payloadSeparatorLength + payloadLengthMax + TCPEventsPayloadFormattingLength), eventLengthMax), SIZE_MAX - 1);
+      availableEventSubmessageLengthMax = min(max(max((unsigned int)EtherEventNamespace::payloadWithoutReleaseLength, (unsigned int)(EtherEventNamespace::payloadSeparatorLength + payloadLengthMax + TCPEventsPayloadFormattingLength)), (unsigned int)eventLengthMax), SIZE_MAX - 1);
 
       receivedEvent = (char*)realloc(receivedEvent, (eventLengthMax + 1) * sizeof(*receivedEvent));
       flushEvent();  //clear buffer - realloc does not zero initialize so the buffer could contain anything
@@ -307,7 +307,7 @@ class EtherEventClass {
                 break;
               }
               strncpy(receivedEvent, receivedMessage, eventLengthMax);
-              receivedEventLength = min(bytesRead, eventLengthMax) + 1;  //length including null terminator
+              receivedEventLength = min(bytesRead, (unsigned int)eventLengthMax) + 1;  //length including null terminator
               receivedEvent[receivedEventLength - 1] = 0;  //-1 because it is zero indexed and the receivedEventLength includes the null terminator
               ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: event received: "));
               ETHEREVENT_SERIAL.println(receivedEvent);
