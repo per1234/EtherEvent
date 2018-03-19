@@ -54,7 +54,7 @@ before_install:
   #- set_verbose_output_during_compilation "true"
 
   # Check for library issues that don't affect compilation
-  - set_library_testing "true"
+  - set_library_testing 'true'
 
   - set_application_folder "$APPLICATION_FOLDER"
   - set_sketchbook_folder "$SKETCHBOOK_FOLDER"
@@ -68,9 +68,9 @@ before_install:
   # Install the library from the repository
   - install_library
 
-  - install_library "https://github.com/tzikis/ArduinoMD5/archive/master.zip"
-  - install_library "https://sites.google.com/site/astudyofentropy/file-cabinet/Entropy-v1.0.2.zip"
-  - install_library "https://github.com/per1234/EtherEventQueue.git" development
+  - install_library 'https://github.com/tzikis/ArduinoMD5/archive/master.zip'
+  - install_library 'https://sites.google.com/site/astudyofentropy/file-cabinet/Entropy-v1.0.2.zip'
+  - install_library 'https://github.com/per1234/EtherEventQueue.git' 'development'
 
   # Helper script for the Travis CI configuration
   - source "${TRAVIS_BUILD_DIR}/extras/tools/Travis-CI/build-sketch.sh"
@@ -78,26 +78,26 @@ before_install:
 
 script:
   # etherevent_build_sketch arguments: sketch name, fqbn, allow failure, IDE version/list/range
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/AdvancedUsage/AdvancedUsage.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/BasicUsage/BasicUsage.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/Entropy/Entropy.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/NoAuthentication/NoAuthentication.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/extras/tests" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/AdvancedUsage/AdvancedUsage.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/BasicUsage/BasicUsage.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Entropy/Entropy.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/EventTypeConfirm/EventTypeConfirm.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Keepalive/Keepalive.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/NoAuthentication/NoAuthentication.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Nodes/Nodes.ino" "$BOARD_NAME" "false" "oldest" "newest"
-  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/extras/tests" "$BOARD_NAME" "false" "oldest" "newest"
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/AdvancedUsage/AdvancedUsage.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/BasicUsage/BasicUsage.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/Entropy/Entropy.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/examples/NoAuthentication/NoAuthentication.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEvent/extras/tests" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/AdvancedUsage/AdvancedUsage.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/BasicUsage/BasicUsage.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Entropy/Entropy.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/EventTypeConfirm/EventTypeConfirm.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Keepalive/Keepalive.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/NoAuthentication/NoAuthentication.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/examples/Nodes/Nodes.ino" "$BOARD_NAME" 'false' 'oldest' 'newest'
+  - etherevent_build_sketch "${SKETCHBOOK_FOLDER}/libraries/EtherEventQueue/extras/tests" "$BOARD_NAME" 'false' 'oldest' 'newest'
 
 
 after_script:
   # Commit a report of the job results to the CI-reports repository
   - USER_NAME="$(echo "$TRAVIS_REPO_SLUG" | cut -d'/' -f 1)"
   - REPOSITORY_NAME="$(echo "$TRAVIS_REPO_SLUG" | cut -d'/' -f 2)"
-  - publish_report_to_repository "$REPORT_GITHUB_TOKEN" "https://github.com/${USER_NAME}/CI-reports.git" "$REPOSITORY_NAME" "build_$(printf "%05d\n" "${TRAVIS_BUILD_NUMBER}")" "false"
+  - publish_report_to_repository "$REPORT_GITHUB_TOKEN" "https://github.com/${USER_NAME}/CI-reports.git" "$REPOSITORY_NAME" "build_$(printf "%05d\n" "${TRAVIS_BUILD_NUMBER}")" 'false'
   # Print a tab separated report of all sketch verification results to the log
   - display_report
 
