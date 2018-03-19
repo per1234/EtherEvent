@@ -83,4 +83,3 @@ void loop() {
     Ethernet.maintain();  //request renewal of DHCP lease if expired
   }
 }
-
