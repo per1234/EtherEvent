@@ -275,12 +275,12 @@ class EtherEventClass {
 
                 //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
                 byte payloadOffset = 0;
-                if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == 39) {  //39 is apostrophe
+                if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == '\'') {
                   payloadOffset = TCPEventsPayloadFormattingLength;  //skip the first 2 characters of the payload
                   if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
                     receivedPayloadLength--;
                   }
-                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == 39) {
+                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == '\'') {
                     receivedPayloadLength--;
                   }
                   receivedPayloadLength -= payloadOffset;
