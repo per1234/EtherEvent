@@ -270,6 +270,8 @@ class EtherEventClass {
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: payload length: "));
                 ETHEREVENT_SERIAL.println(bytesRead - EtherEventNamespace::payloadSeparatorLength);
                 receivedPayloadLength = min(bytesRead - EtherEventNamespace::payloadSeparatorLength, payloadLengthMax + TCPEventsPayloadFormattingLength);  //make sure the payload will never be longer than the max length
+                ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: raw payload: "));
+                ETHEREVENT_SERIAL.println(receivedMessage);
 
                 //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
                 byte payloadOffset = 0;
