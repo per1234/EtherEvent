@@ -1191,7 +1191,7 @@ class EtherEventClass {
     //FSHlength - determine length of __FlashStringHelper
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     unsigned int FSHlength(const __FlashStringHelper * FSHinput) {
-      const char* FSHinputPointer = (const char PROGMEM *)FSHinput;
+      PGM_P FSHinputPointer = reinterpret_cast<PGM_P>(FSHinput);
       unsigned int stringLength = 0;
       while (pgm_read_byte(FSHinputPointer++)) {
         stringLength++;
