@@ -1075,11 +1075,20 @@ class EtherEventClass {
 #endif  //ETHEREVENT_FAST_SEND
       {
         ethernetClient.print(EtherEventNamespace::payloadSeparator);
+        char payloadWrapperStart[] = "['";  //default payload quoting character is '
+        char payloadWrapperEnd[] = "']\n";
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         if (passwordInput[0] == 0) {  //authentication disabled
-#endif
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+#ifdef ETHEREVENT_FAST_SEND //payload is only guaranteed to be a string in ETHEREVENT_FAST_SEND mode
+          if (strchr(payload, '\'') != NULL) {
+            ETHEREVENT_SERIAL.println(F("EtherEvent.send: ' found in payload"));
+            payloadWrapperStart[1] = '"'; //must use double quotes around the payload if the payload contains a single quote
+            payloadWrapperEnd[0] = '"';
+          }
+#endif  //ETHEREVENT_FAST_SEND
           //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
-          ethernetClient.print("[\'");
+          ethernetClient.print(payloadWrapperStart);
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -1087,7 +1096,7 @@ class EtherEventClass {
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         if (passwordInput[0] == 0) {  //authentication disabled
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-          ethernetClient.print("\']\n");
+          ethernetClient.print(payloadWrapperEnd);
 #ifndef ETHEREVENT_NO_AUTHENTICATION
         }
         else {
