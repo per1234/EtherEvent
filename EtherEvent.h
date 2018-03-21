@@ -273,15 +273,12 @@ class EtherEventClass {
                 ETHEREVENT_SERIAL.print(F("EtherEvent.availableEvent: raw payload: "));
                 ETHEREVENT_SERIAL.println(receivedMessage);
 
-                //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration.
+                //Strip TCPEvents payload formatting. TCPEvents wraps the payload in [''] if the payload field is used in the Send an Event configuration. If the payload contains the character ' then it's wrapped in [""] instead.
                 byte payloadOffset = 0;
-                if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == '\'') {
-                  payloadOffset = TCPEventsPayloadFormattingLength;  //skip the first 2 characters of the payload
-                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']') {
-                    receivedPayloadLength--;
-                  }
-                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == '\'') {
-                    receivedPayloadLength--;
+                if (receivedMessage[EtherEventNamespace::payloadSeparatorLength] == '[' && (receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == '\'' || receivedMessage[EtherEventNamespace::payloadSeparatorLength + 1] == '"')) {
+                  payloadOffset = TCPEventsPayloadFormattingLength; //skip the first 2 characters of the payload
+                  if (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 1] == ']' && (receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 2] == '\'' || receivedMessage[receivedPayloadLength + EtherEventNamespace::payloadSeparatorLength - 2] == '"')) {
+                    receivedPayloadLength -= 2;
                   }
                   receivedPayloadLength -= payloadOffset;
                 }
