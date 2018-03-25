@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<EventGhost Version="WIP-2017.06.25-16.49.04" Guid="{E83531B5-2854-441B-89B8-358ED9A5F2C0}" Time="1522141508.08">
+    <Autostart Name="Autostart" XML_Guid="{46E0EBBB-1C21-44F3-BA3B-25ACFB6A4091}" Expanded="True">
+        <Action Name="Used for HIL testing of EtherEvent" XML_Guid="{6E0EBC2F-B608-4EC9-ACAA-4096B94C4BF7}">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Requires TCPEvents plugin: https://github.com/per1234/TCPEvents" XML_Guid="{FFDBE872-4800-4555-A1E0-22EE9CD23C4B}">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Configure the TCP Events plugin with your network settings" XML_Guid="{2AFC6E1D-16BB-4BDD-8749-81D98591C245}">
+            EventGhost.Comment()
+        </Action>
+        <Plugin XML_Guid="{EBE2FD18-F16F-43A7-9CEC-3CF96D328C48}" Identifier="TCPEvents" Guid="{198090B7-0574-4F91-B2E7-1AF5BB37E2DE}" File="TCPEvents">
+            gAIoTQAEWAgAAABwYXNzd29yZHEAWAMAAABUQ1BxAYhHP7mZmZmZmZpHP7mZmZmZmZp0cQIu
+        </Plugin>
+    </Autostart>
+    <Macro Name="Echo received event" XML_Guid="{FB5D0AEB-66AD-410E-A49D-CC2F9246152E}" Expanded="True">
+        <Event Name="*" XML_Guid="{C6EDA5DE-75A5-4DBB-AA4C-50397D0C49C7}" />
+        <Action Name="This macro will echo all received events" XML_Guid="{5BB98F3C-3482-4280-82B5-7BFAAA1929A1}">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Save and print received data" XML_Guid="{7822D805-5B0C-4864-8E17-1EA918E1681D}">
+            EventGhost.PythonScript(u'if isinstance(eg.event.payload, list):\n    eg.globals.IPaddress = str(eg.event.payload[0])\n    eg.globals.payload = str(eg.event.payload[1])\nelse:\n    eg.globals.IPaddress = str(eg.event.payload)\n    eg.globals.payload = ""\n\nif eg.event.prefix == "TCP":\n    eg.globals.event = str(eg.event.suffix)\nelse:\n    eg.globals.event = str(eg.event.string)\n\nprint "IP Address: " + eg.globals.IPaddress\nprint "Event: " + eg.globals.event\nprint "Payload: " + eg.globals.payload')
+        </Action>
+        <Action XML_Guid="{D5ED408E-F4FD-4491-8E02-4A0999BD5C87}">
+            TCPEvents.SendEvent(u'{eg.globals.IPaddress}', 1024, u'password', u'', u'{"payload " + eg.globals.payload + "\\n" + eg.globals.event}', u'', None)
+        </Action>
+    </Macro>
+</EventGhost>
