@@ -1,9 +1,9 @@
-// Used for testing EtherEvent.send() overloading without any special preprocessor configuration options
-// Use with extras/tests/EventGhost-trees/EchoTCPEventsAuthenticated.egtree or EchoNESR.egtree
+// Used for testing EtherEvent.send() overloading in ETHEREVENT_NO_AUTHENTICATION + ETHEREVENT_FAST_SEND mode
+// Use with extras/tests/EventGhost-trees/EchoTCPEventsNoAuthentication.egtree
 
-//#define ETHEREVENT_NO_AUTHENTICATION  //this line must come before #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
-//#define ETHEREVENT_FAST_SEND
-#define TEST_BATCH 1
+#define ETHEREVENT_NO_AUTHENTICATION  //this line must come before #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
+#define ETHEREVENT_FAST_SEND
+#define TEST_BATCH 3
 
 #include <SPI.h>  //bundled with Arduino hardware packages
 #include <Ethernet.h> //built-in library included with Arduino IDE

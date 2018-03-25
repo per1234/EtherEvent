@@ -1,44 +1,40 @@
 // This sketch is used to automatically generate the send() overload tests and print them to the Serial Monitor
 
-#define EVENT_PAYLOAD_TYPES_ARRAY_NAME eventPayloadTypes1  //change this to eventPayloadTypes2 to generate the second half of the tests
+const byte testBatchCount = 4;
 
 const byte maximumStringLength = 25;
 const char targetTypes[][maximumStringLength] = {
   {"IPAddress"},
-  {"byte_array"},
-  {"const_byte_array"}
+  {"ByteArray"},
+  {"ConstByteArray"}
 };
 
-const char eventPayloadTypes1[][maximumStringLength] = {
-  {"char_array"},
-  {"const_char_array"},
-  ("char"),
-  {"byte"},
-  {"int8_t"},
-  {"int"},
-  {"const_int"},
-  {"unsigned_int"}
-};
-
-const char eventPayloadTypes2[][maximumStringLength] = {
-  {"long"},
-  {"unsigned_long"},
-  {"float"},
-  {"double"},
+const char eventPayloadTypes[][maximumStringLength] = {
+  {"CharArray"},
+  {"ConstCharArray"},
+  ("Char"),
+  {"Byte"},
+  {"Int8_t"},
+  {"Int"},
+  {"ConstInt"},
+  {"UnsignedInt"},
+  {"Long"},
+  {"UnsignedLong"},
+  {"Float"},
+  {"Double"},
   {"IPAddress"},
   {"String"},
-  {"string_literal"},
-  {"__FlashStringHelper"}
+  {"_STRING_LITERAL"},
+  {"_FLASHSTRINGHELPER"}
 };
 
 const char passwordTypes[][maximumStringLength] = {
-  {"char_array"},
-  {"string_literal"},
-  {"__FlashStringHelper"}
+  {"ConstCharArray"},
+  {"CharArray"},
+  {"_STRING_LITERAL"},
+  {"_FLASHSTRINGHELPER"}
 };
 
-
-const byte eventPayloadTypesCount = sizeof(EVENT_PAYLOAD_TYPES_ARRAY_NAME) / sizeof(EVENT_PAYLOAD_TYPES_ARRAY_NAME[0]);
 
 void setup() {
   Serial.begin(115200);
@@ -46,45 +42,79 @@ void setup() {
   Serial.println("void runTests(){");
   Serial.println("// send() overload tests:");
 
+  const byte eventPayloadTypesCount = sizeof(eventPayloadTypes) / sizeof(eventPayloadTypes[0]);
+
+  for (byte testBatchCounter = 0; testBatchCounter < testBatchCount; testBatchCounter++) {
+    Serial.print('#');
+    if (testBatchCounter > 0) {
+      Serial.print("el");
+    }
+    Serial.print("if TEST_BATCH == ");
+    Serial.println(testBatchCounter);
+    generateTests((testBatchCounter * eventPayloadTypesCount) / testBatchCount, (((testBatchCounter + 1) *eventPayloadTypesCount) / testBatchCount) - 1);
+  }
+  Serial.println("#endif //TEST_BATCH == 0");
+  Serial.print("}");
+}
+
+
+void generateTests(const byte eventPayloadTypesStartIndex, const byte eventPayloadTypesEndIndex) {
   for (byte targetTypeCounter = 0; targetTypeCounter < sizeof(targetTypes) / sizeof(targetTypes[0]); ++targetTypeCounter) {
-    for (byte eventTypeCounter = 0; eventTypeCounter < eventPayloadTypesCount; ++eventTypeCounter) {
-      // send(ethernetClient, target, port, event)
+    for (byte eventTypeCounter = eventPayloadTypesStartIndex; eventTypeCounter <= eventPayloadTypesEndIndex; ++eventTypeCounter) {
+      // test(ethernetClient, target, port, event)
       printThroughEvent(targetTypeCounter, eventTypeCounter);
       Serial.println(");");
 
-      for (byte payloadTypeCounter = 0; payloadTypeCounter < eventPayloadTypesCount; ++payloadTypeCounter) {
-        // send(ethernetClient, target, port, event, payload)
+      for (byte payloadTypeCounter = eventPayloadTypesStartIndex; payloadTypeCounter <= eventPayloadTypesEndIndex; ++payloadTypeCounter) {
+        // test(ethernetClient, target, port, event, payload)
         printThroughPayload(targetTypeCounter, eventTypeCounter, payloadTypeCounter);
         Serial.println(");");
         Serial.println("#ifndef ETHEREVENT_NO_AUTHENTICATION");
 
         for (byte passwordTypeCounter = 0; passwordTypeCounter < sizeof(passwordTypes) / sizeof(passwordTypes[0]); ++passwordTypeCounter) {
-          // send(ethernetClient, target, port, event, payload, password)
+          // test(ethernetClient, target, port, event, payload, password)
           printThroughPayload(targetTypeCounter, eventTypeCounter, payloadTypeCounter);
-          Serial.print(", sendPassword_");
+          Serial.print(", password");
           Serial.print(passwordTypes[passwordTypeCounter]);
-          Serial.println(");");
+          //passwordType argument
+          Serial.print(", \"");
+          Serial.print(passwordTypes[passwordTypeCounter]);
+          Serial.println("\");");
         }
         Serial.println("#endif //ETHEREVENT_NO_AUTHENTICATION");
       }
     }
   }
-  Serial.println("}");
 }
 
 
 void printThroughEvent(const byte targetTypeCounter, const byte eventTypeCounter) {
-  Serial.print("EtherEvent.send(ethernetClient, target_");
+  Serial.print("test(ethernetClient, target");
+  //target argument
   Serial.print(targetTypes[targetTypeCounter]);
-  Serial.print(", sendPort, event_");
-  Serial.print(EVENT_PAYLOAD_TYPES_ARRAY_NAME[eventTypeCounter]);
+  //targetType argument
+  Serial.print(", \"");
+  Serial.print(targetTypes[targetTypeCounter]);
+  Serial.print('"');
+  Serial.print(", sendPort, event");
+  // event argument
+  Serial.print(eventPayloadTypes[eventTypeCounter]);
+  //eventType argument
+  Serial.print(", \"");
+  Serial.print(eventPayloadTypes[eventTypeCounter]);
+  Serial.print('"');
 }
 
 
 void printThroughPayload(const byte targetTypeCounter, const byte eventTypeCounter, const byte payloadTypeCounter) {
   printThroughEvent(targetTypeCounter, eventTypeCounter);
-  Serial.print(", payload_");
-  Serial.print(EVENT_PAYLOAD_TYPES_ARRAY_NAME[payloadTypeCounter]);
+  //payload argument
+  Serial.print(", payload");
+  Serial.print(eventPayloadTypes[payloadTypeCounter]);
+  //payloadType argument
+  Serial.print(", \"");
+  Serial.print(eventPayloadTypes[payloadTypeCounter]);
+  Serial.print('"');
 }
 
 
