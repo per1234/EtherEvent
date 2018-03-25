@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<EventGhost Version="WIP-2017.06.25-16.49.04" Guid="{BFF17985-6A38-43F3-AD1E-49741DA6372F}" Time="1522142643.35">
+    <Autostart Name="Autostart" XML_Guid="{46E0EBBB-1C21-44F3-BA3B-25ACFB6A4091}" Expanded="True">
+        <Action Name="Used for HIL testing of EtherEvent" XML_Guid="{6E0EBC2F-B608-4EC9-ACAA-4096B94C4BF7}">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Configure the Network Event Receiver plugin with your password" XML_Guid="{FD722809-28FF-428C-862D-38697DC7835D}">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Configure the Network Event Sender plugin with the IP address of the other device and your password" XML_Guid="{2AFC6E1D-16BB-4BDD-8749-81D98591C245}">
+            EventGhost.Comment()
+        </Action>
+        <Plugin XML_Guid="{B44B30D6-361A-4966-9471-F2B3D839ED7E}" Identifier="NetworkReceiver" Guid="{8F35AE6D-AF12-4A94-AA91-4B63F0CBBE1C}" File="NetworkReceiver">
+            gAJNAARYCAAAAHBhc3N3b3JkcQBYAwAAAFRDUHEBh3ECLg==
+        </Plugin>
+        <Plugin XML_Guid="{32AA154B-60FB-42DE-A2C2-6CD4B56EC224}" Identifier="NetworkSender" Guid="{B4F0DAFE-2E0B-47F3-A155-ED72C7A4E270}" File="NetworkSender">
+            gAJYDgAAADE5Mi4xNjguNjkuMTA0cQBNAARYCAAAAHBhc3N3b3JkcQGHcQIu
+        </Plugin>
+    </Autostart>
+    <Macro Name="Echo received event" XML_Guid="{FB5D0AEB-66AD-410E-A49D-CC2F9246152E}" Expanded="True">
+        <Event Name="TCP.*" XML_Guid="{C6EDA5DE-75A5-4DBB-AA4C-50397D0C49C7}" />
+        <Action Name="This macro will echo received events" XML_Guid="{5BB98F3C-3482-4280-82B5-7BFAAA1929A1}">
+            EventGhost.Comment()
+        </Action>
+        <Action Name="Save and print received data" XML_Guid="{CCFC1761-5D18-4812-9D7B-C07D8D79A863}">
+            EventGhost.PythonScript(u'# the payload contains both the IP address and the payload in a list\nif len(eg.event.payload) &gt; 1:\n    eg.globals.payload = str(eg.event.payload[1])\nelse:\n    eg.globals.payload = ""\n\neg.globals.event = str(eg.event.suffix)\n\nprint "Event: " + eg.globals.event\nprint "Payload: " + eg.globals.payload')
+        </Action>
+        <Action XML_Guid="{1F035A74-91B8-47E1-B464-9EA65F75B46E}">
+            NetworkSender.Map(u'{ "payload " + eg.globals.payload + "\\n" + eg.globals.event + "\\n"}')
+        </Action>
+    </Macro>
+</EventGhost>

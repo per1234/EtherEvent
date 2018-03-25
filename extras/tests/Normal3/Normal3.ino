@@ -3,7 +3,7 @@
 
 //#define ETHEREVENT_NO_AUTHENTICATION  //this line must come before #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
 //#define ETHEREVENT_FAST_SEND
-#define TEST_BATCH 1
+#define TEST_BATCH 3
 
 #include <SPI.h>  //bundled with Arduino hardware packages
 #include <Ethernet.h> //built-in library included with Arduino IDE
