@@ -1104,6 +1104,9 @@ class EtherEventClass {
         }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
       }
+#ifndef ETHEREVENT_FAST_SEND
+      payloadSpecified = true; //reset value of payloadSpecified for the next send()
+#endif  //ETHEREVENT_FAST_SEND
       ethernetClient.print(event);  //transmit event
       ethernetClient.write(10);  //newline
       ETHEREVENT_SERIAL.println(F("EtherEvent.send: event sent"));
