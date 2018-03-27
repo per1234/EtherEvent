@@ -1,5 +1,5 @@
-// gets an average send time
-// use a blank EG tree and turn off any other nodes that send to EG
+// Used to test EtherEvent send and receive durations
+// Use one of the Echo EventGhost trees found in the EtherEvent/extras/tests/EventGhost-trees folder
 
 //#define ETHEREVENT_NO_AUTHENTICATION
 //#define ETHEREVENT_FAST_SEND
@@ -81,14 +81,29 @@ void setup() {
 
 
 void loop() {
+  const unsigned long preReceiveTimestamp = micros();
+  if (int availableLength = EtherEvent.availableEvent(ethernetServer)) {  //this checks for a new event and gets the length of the event including the null terminator
+    const unsigned long postReceiveTimestamp = micros();
+    Serial.print("Event received, availableEvent() call duration: ");
+    Serial.println(postReceiveTimestamp - preReceiveTimestamp);
+    if (availableLength == -1) {
+      Serial.println(F("\nAuthentication failed"));
+    }
+    else {
+      //clear the receive buffer so more events can be received
+      char receivedEvent[availableLength];  //create the event buffer of the correct size
+      EtherEvent.readEvent(receivedEvent);  //read the event into the event buffer
+    }
+  }
+
   if (millis() - sendTimeStamp > sendEventInterval) {  //periodically send event
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
-    unsigned long timestamp = micros();
+    unsigned long preSendTimestamp = micros();
     if (EtherEvent.send(ethernetClient, sendIP, sendPort, event, payload)) {  //send event to target IP address, port, event, payload
-      unsigned long timestamp2 = micros();
-      Serial.print(F("Event send successful, time="));
-      Serial.println(timestamp2 - timestamp);
+      unsigned long postSendTimestamp = micros();
+      Serial.print(F("Event send successful, send() call duration: "));
+      Serial.println(postSendTimestamp - preSendTimestamp);
     }
     else {
       Serial.println(F("Event send failed"));
