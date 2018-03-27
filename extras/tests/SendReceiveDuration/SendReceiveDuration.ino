@@ -36,8 +36,6 @@ static byte MACaddress[] = {0, 1, 2, 3, 4, 4};  //this can be anything you like 
 const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use for the device. This can be any valid address on the network as long as it is unique. If you are using DHCP then this doesn't need to be configured.
 const char password[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 const unsigned int port = 1024;  //TCP port to receive events.
-const byte maxReceivedEventLength = 12;  //Maximum event length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
-const byte maxReceivedPayloadLength = 25;  //Maximum payload length to receive. Longer entries will be truncated to this length. If this parameter is not passed then the default will be used.
 
 //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
 //The default values used when these timeouts are not set are fairly conservative.
@@ -64,9 +62,9 @@ void setup() {
   }
   ethernetServer.begin();  //begin the server that will be used to receive events
 #ifndef ETHEREVENT_NO_AUTHENTICATION
-  if (EtherEvent.begin(maxReceivedEventLength, maxReceivedPayloadLength) == false || EtherEvent.setPassword(password) == false) {  //set the password, maximum event lenght, and maximum payload length
+  if (EtherEvent.begin() == false || EtherEvent.setPassword(password) == false) {  //set the password, maximum event lenght, and maximum payload length
 #else  //ETHEREVENT_NO_AUTHENTICATION
-  if (EtherEvent.begin(maxReceivedEventLength, maxReceivedPayloadLength) == false) {  //set the password, maximum event lenght, and maximum payload length
+  if (EtherEvent.begin() == false) {  //set the password, maximum event lenght, and maximum payload length
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     Serial.println(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
@@ -90,9 +88,11 @@ void loop() {
       Serial.println(F("\nAuthentication failed"));
     }
     else {
+      EtherEvent.readEvent(); //test EtherEvent.readEvent()
+      EtherEvent.readPayload(); //test EtherEvent.readPayload()
+
       //clear the receive buffer so more events can be received
-      char receivedEvent[availableLength];  //create the event buffer of the correct size
-      EtherEvent.readEvent(receivedEvent);  //read the event into the event buffer
+      EtherEvent.flushReceiver();
     }
   }
 
