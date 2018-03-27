@@ -335,7 +335,6 @@ template <typename event_t>bool receive(const event_t sentEvent, const char sent
 bool receive(const char sentEvent[], const char sentPayload[]) {
   DEBUG_SERIAL.println(F("receive: char[], char[]"));
 
-  int availableLength = 0;
   const unsigned long timestamp = millis();
 
   //wait for the event to be received
@@ -344,7 +343,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
   switch (availableEventTest) {
     case ethernetServerTest:
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-      while (!(availableLength = EtherEvent.availableEvent(ethernetServer))) {
+      while (EtherEvent.availableEvent(ethernetServer) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return false;
@@ -353,7 +352,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
 #ifndef ETHEREVENT_NO_AUTHENTICATION
       break;
     case ethernetServerCookieTest:
-      while (!(availableLength = EtherEvent.availableEvent(ethernetServer, 42))) {
+      while (EtherEvent.availableEvent(ethernetServer, 42) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return false;
@@ -361,7 +360,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       }
       break;
     case ethernetServerCookiePasswordCharArrayTest:
-      while (!(availableLength = EtherEvent.availableEvent(ethernetServer, 42, passwordCharArray))) {
+      while (EtherEvent.availableEvent(ethernetServer, 42, passwordCharArray) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return false;
@@ -369,7 +368,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       }
       break;
     case ethernetServerCookiePasswordConstCharArrayTest:
-      while (!(availableLength = EtherEvent.availableEvent(ethernetServer, 42, passwordConstCharArray))) {
+      while (EtherEvent.availableEvent(ethernetServer, 42, passwordConstCharArray) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return false;
@@ -377,7 +376,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       }
       break;
     case ethernetServerCookiePasswordStringLiteralTest:
-      while (!(availableLength = EtherEvent.availableEvent(ethernetServer, 42, password_STRING_LITERAL))) {
+      while (EtherEvent.availableEvent(ethernetServer, 42, password_STRING_LITERAL) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return false;
@@ -385,7 +384,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       }
       break;
     case ethernetServerCookiePasswordFlashStringHelperTest:
-      while (!(availableLength = EtherEvent.availableEvent(ethernetServer, 42, password_FLASHSTRINGHELPER))) {
+      while (EtherEvent.availableEvent(ethernetServer, 42, password_FLASHSTRINGHELPER) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return false;
@@ -401,7 +400,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       break;
   }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-
+  int availableLength = EtherEvent.availableEvent();  //test availableEvent() called with no arguments
   if (availableLength == -1) {
     Serial.println(F("\nAuthentication failed\n"));
     return false;
