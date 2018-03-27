@@ -15,6 +15,20 @@
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
 #include <EtherEvent.h>
 
+//const char event[]="test";
+//char event[]="test";
+//long event=1234123;
+//int event=1234;
+#define event F("test")
+//#define event "test
+
+//const char payload[]="test payload";
+//char payload[]="test payload";
+//long payload=234555;
+//int payload=1233;
+#define payload F("test payload")
+//#define payload "test payload"
+
 
 //configuration parameters - modify these values to your desired settings
 const boolean useDHCP = false;  //true==use DHCP to assign an IP address to the device, this will significantly increase memory usage. false==use static IP address.
@@ -74,17 +88,7 @@ void loop() {
     sendTimeStamp = millis();  //reset the timestamp for the next event send
     Serial.println(F("\nAttempting event send"));
     unsigned long timestamp = micros();
-    if (EtherEvent.send(ethernetClient, sendIP, sendPort, F("test"), F("test payload"))) {  //send event to target IP address, port, event, payload
-      //if (EtherEvent.send(ethernetClient, sendIP, sendPort, "test", "test payload")) {  //send event to target IP address, port, event, payload
-      //const char event[]="test";
-      //const char payload[]="test payload";
-      //char event[]="test";
-      //char payload[]="test payload";
-      //long event=1234123;
-      //long payload=234555;
-      //int event=1234;
-      //int payload=1233;
-      //if (EtherEvent.send(ethernetClient, sendIP, sendPort, event, payload)) {  //send event to target IP address, port, event, payload
+    if (EtherEvent.send(ethernetClient, sendIP, sendPort, event, payload)) {  //send event to target IP address, port, event, payload
       unsigned long timestamp2 = micros();
       timestamps[currentIteration] = timestamp2 - timestamp;
       Serial.print(F("Event send successful, time="));
