@@ -48,9 +48,6 @@ const byte W5x00retransmissionCount = 1;  //Retransmission count. 1 is the minim
 const unsigned int sendEventInterval = 300;  //(ms)Delay between sending the test events.
 const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send the test events to.
 const unsigned int sendPort = 1024;  //The port to send the test events to.
-const byte averageIterations = 50;
-unsigned long timestamps[averageIterations];
-byte currentIteration;
 
 EthernetServer ethernetServer(port);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for ethernet communication
@@ -90,20 +87,8 @@ void loop() {
     unsigned long timestamp = micros();
     if (EtherEvent.send(ethernetClient, sendIP, sendPort, event, payload)) {  //send event to target IP address, port, event, payload
       unsigned long timestamp2 = micros();
-      timestamps[currentIteration] = timestamp2 - timestamp;
       Serial.print(F("Event send successful, time="));
-      Serial.println(timestamps[currentIteration]);
-      if (currentIteration == averageIterations - 1) {
-        unsigned long total = 0;
-        for (byte x = 0; x < averageIterations; x++) {
-          total += timestamps[x];
-        }
-        Serial.print(F("average="));
-        Serial.print(total / averageIterations);
-        Serial.println(F(" microseconds"));
-        while (true);
-      }
-      currentIteration++;
+      Serial.println(timestamp2 - timestamp);
     }
     else {
       Serial.println(F("Event send failed"));
