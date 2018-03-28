@@ -16,5 +16,11 @@ function etherevent_build_sketch()
     return 0
   fi
 
+  local -r testRegex="extras/tests"
+  if [[ "$boardID" == "Intel:arc32:arduino_101" && "$sketchName" =~ $testRegex ]]; then
+    echo "Some of the test sketches are too big for Arduino 101, skipping"
+    return 0
+  fi
+
   build_sketch "$sketchName" "$boardID" "$allowFailure" "$IDEversionStart" "$IDEversionEnd"
 }
