@@ -71,6 +71,7 @@ before_install:
   - install_library 'https://github.com/tzikis/ArduinoMD5/archive/master.zip'
   - install_library 'https://sites.google.com/site/astudyofentropy/file-cabinet/Entropy-v1.0.2.zip'
   - install_library 'https://github.com/per1234/EtherEventQueue.git' 'development'
+  - rm --recursive --force "$SKETCHBOOK_FOLDER/libraries/EtherEventQueue/.git"
   - install_library 'https://github.com/McNeight/MemoryFree/archive/master.zip'
   - cp --recursive "${TRAVIS_BUILD_DIR}/extras/tests/EtherEventTests" "$SKETCHBOOK_FOLDER/libraries"
 
