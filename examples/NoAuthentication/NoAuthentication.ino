@@ -4,10 +4,10 @@
 // Use with the EventGhost-example-trees.
 
 //These libraries are required by EtherEvent:
-#include <SPI.h>
-#include <Ethernet.h>
-#define ETHEREVENT_NO_AUTHENTICATION  //this line must come before #include <EtherEvent.h>
-#include <EtherEvent.h>
+#include <SPI.h>  //bundled with Arduino hardware packages
+#include <Ethernet.h> //built-in library included with Arduino IDE
+#define ETHEREVENT_NO_AUTHENTICATION  //this line must come before #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
+#include <EtherEvent.h> //https://github.com/per1234/EtherEvent
 
 
 //configuration parameters - modify these values to your desired settings
