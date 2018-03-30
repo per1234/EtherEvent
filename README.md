@@ -87,7 +87,7 @@ Allow access to the functions of the EtherEvent library.
 Add this line above the `#include <EtherEvent.h>` line in your sketch to disable password authentication. Requires [my version of the TCPEvents plugin](https://github.com/per1234/TCPEvents) with the password fields left blank in the configurations for communication with EventGhost. With authentication disabled the ArduinoMD5 library is not required, no need to set the password, memory usage is decreased significantly, and event transmission speed is increased. See the NoAuthentication example sketch for a demonstration.
 
 ##### `#define ETHEREVENT_FAST_SEND`
-Increase sending speed at the expense of increased memory use. Add this line above the `#include <EtherEvent.h>` line in your sketch. This significantly increases the speed of sending __FlashStringHelper (`F()` macro) events/payloads but also increases the sketch size and SRAM usage during the send process. ETHEREVENT_FAST_SEND also increases the speed of sending some other event/payload types.
+Increase sending speed at the expense of increased memory use. Add this line above the `#include <EtherEvent.h>` line in your sketch. This significantly increases the speed of sending __FlashStringHelper (`F()` macro) events/payloads but also increases the sketch size and SRAM usage during the send process. ETHEREVENT_FAST_SEND also increases the speed of sending some other event/payload types (float, double, and negative numbers).
 
 ##### `EtherEvent.begin([eventLengthMax, payloadLengthMax])`
 Initialize EtherEvent.

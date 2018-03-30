@@ -2,25 +2,25 @@
 #ifndef EtherEvent_h
 #define EtherEvent_h
 
-#include <Arduino.h>  //Arduino core library
+#include <Arduino.h>
 
 #if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
-#include <avr/dtostrf.h>  //part of the toolchain
+#include <avr/dtostrf.h>
 #endif  //defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
 
 #ifdef UIPETHERNET_H
-#include <UIPEthernet.h>  //https://github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x/UIPEthernet
+#include <UIPEthernet.h>
 #else  //UIPETHERNET_H
-#include <Ethernet.h> //built-in library included with Arduino IDE
+#include <Ethernet.h>
 #endif  //UIPETHERNET_H
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
 #ifdef ESP8266
 //The ESP8266 core library has a file named md5.h, which gets included instead of MD5.h on case insensitive operating systems
-#include <MD5Builder.h> //included with the ESP8266 core for Arduino https://github.com/esp8266/Arduino/
+#include <MD5Builder.h>
 MD5Builder MD5;
 #else  //ESP8266
-#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
+#include <MD5.h>
 #endif  //ESP8266
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
@@ -403,6 +403,9 @@ class EtherEventClass {
     //send
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef ETHEREVENT_FAST_SEND
+    //The reason for all these annoying event/payload conversion functions in ETHEREVENT_FAST_SEND mode is that using the Arduino Print class for conversions (as done in non-fast send mode) leads to (at least with the Ethernet library and likely others) significantly increased send times for some types due to doing the conversion process in multiple steps, each of which is sent as a separate TCP segment (packet).
+    //This inefficiency is most dramatic with __FlashStringHelper, where each character is sent individually, but also occurs with negative numbers (the - is sent separately), and float/double (the . and all numbers that follow it are sent separately). It does not occur for char array, String, positive numbers, char.
+
     //always handle payload not specified for non-ETHEREVENT_FAST_SEND mode
     template <typename target_t, typename event_t>
     boolean send(EthernetClient &ethernetClient, const target_t target, const unsigned int port, const event_t event) {
