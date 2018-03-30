@@ -974,7 +974,7 @@ class EtherEventClass {
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const float event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, (const double)event, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
