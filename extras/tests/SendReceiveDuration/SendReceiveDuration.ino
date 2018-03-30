@@ -5,15 +5,15 @@
 //#define ETHEREVENT_FAST_SEND
 
 //These libraries are required by EtherEvent:
-#include <SPI.h>
-#include <Ethernet.h>
+#include <SPI.h>  //bundled with Arduino hardware packages
+#include <Ethernet.h> //built-in library included with Arduino IDE
 #ifndef __ARDUINO_X86__
-#include <utility/w5100.h>  //Used for setting the W5x00 retransmission time and count.
+#include <utility/w5100.h>  //Part of built-in Ethernet library included with Arduino IDE. Used for setting the W5x00 retransmission time and count.
 #endif  //__ARDUINO_X86__
 #if !defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
-#include <MD5.h>
+#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
-#include <EtherEvent.h>
+#include <EtherEvent.h> //https://github.com/per1234/EtherEvent
 
 //const char event[]="test";
 //char event[]="test";
