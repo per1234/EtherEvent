@@ -5,14 +5,14 @@
 // For use with the EventGhost-example-trees.
 
 //These libraries are required by EtherEvent:
-#include <SPI.h>
-#include <Ethernet.h>
-#include <utility/w5100.h>  //Used for setting the W5x00 retransmission time and count.
+#include <SPI.h>  //bundled with Arduino hardware packages
+#include <Ethernet.h> //built-in library included with Arduino IDE
+#include <utility/w5100.h>  //Part of built-in Ethernet library included with Arduino IDE. Used for setting the W5x00 retransmission time and count.
 #ifndef ESP8266  //ArduinoMD5 library is not required for ESP8266
-#include <MD5.h>
+#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #endif  //ESP8266
-#include <EtherEvent.h>
-#include <Entropy.h>
+#include <EtherEvent.h> //https://github.com/per1234/EtherEvent
+#include <Entropy.h>  //https://sites.google.com/site/astudyofentropy/project-definition/timer-jitter-entropy-sources/entropy-library
 
 
 //configuration parameters - modify these values to your desired settings

@@ -2,25 +2,25 @@
 #ifndef EtherEvent_h
 #define EtherEvent_h
 
-#include <Arduino.h>
+#include <Arduino.h>  //Arduino core library
 
 #if defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
-#include <avr/dtostrf.h>
+#include <avr/dtostrf.h>  //part of the toolchain
 #endif  //defined(ARDUINO_ARCH_SAM) || defined(ARDUINO_ARCH_SAMD)
 
 #ifdef UIPETHERNET_H
-#include <UIPEthernet.h>
+#include <UIPEthernet.h>  //https://github.com/ntruchsess/arduino_uip/tree/Arduino_1.5.x/UIPEthernet
 #else  //UIPETHERNET_H
-#include <Ethernet.h>
+#include <Ethernet.h> //built-in library included with Arduino IDE
 #endif  //UIPETHERNET_H
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
 #ifdef ESP8266
 //The ESP8266 core library has a file named md5.h, which gets included instead of MD5.h on case insensitive operating systems
-#include <MD5Builder.h>
+#include <MD5Builder.h> //included with the ESP8266 core for Arduino https://github.com/esp8266/Arduino/
 MD5Builder MD5;
 #else  //ESP8266
-#include <MD5.h>
+#include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #endif  //ESP8266
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
