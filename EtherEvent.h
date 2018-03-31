@@ -1299,6 +1299,8 @@ class EtherEventClass {
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
     static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
+
+    static const byte payloadWrapperLength = 5; //['']\n
 #endif  //ETHEREVENT_FAST_SEND
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
