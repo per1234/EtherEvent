@@ -795,8 +795,8 @@ class EtherEventClass {
 
     //event conversions
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
+    template <typename event_t>
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event) {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload)"));
       return send(ethernetClient, target, port, event, "");
