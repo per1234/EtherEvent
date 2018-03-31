@@ -808,7 +808,7 @@ class EtherEventClass {
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int8_t event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -824,7 +824,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const byte event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -840,7 +840,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -862,7 +862,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned int event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -884,7 +884,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const long event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -906,7 +906,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned long event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -928,7 +928,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -945,7 +945,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const __FlashStringHelper* event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -964,7 +964,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const String &event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -995,7 +995,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -1013,7 +1013,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -1035,7 +1035,7 @@ template <typename payload_t>
     }
 
 
-template <typename payload_t>
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const float event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
