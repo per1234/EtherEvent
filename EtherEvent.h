@@ -1159,7 +1159,8 @@ class EtherEventClass {
         ethernetClient.print(payload);
 #if (defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
         ethernetClient.print("']\n");
-#else  //(defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
+#elif !defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
+        ETHEREVENT_SERIAL.println(F("EtherEvent.send: sending newline at end of payload"));
         ethernetClient.write(10);  //newline
 #endif  //(defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
