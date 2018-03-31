@@ -720,7 +720,7 @@ class EtherEventClass {
       payloadWrapped[0] = '[';
       payloadWrapped[1] = payloadWrapperQuote[0];
       payloadWrapped[2] = 0; //so strcat() knows where to start
-      strcat(payloadWrapped, payload);
+      strcat(payloadWrapped, payloadChar);
       strcat(payloadWrapped, payloadWrapperQuote);
       strcat(payloadWrapped, "]\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
