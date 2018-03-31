@@ -783,7 +783,8 @@ class EtherEventClass {
       dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      char payloadWrapped[payloadWrapperLength + payloadLength + 1] = "['";
+      char payloadWrapped[payloadWrapperLength + payloadLength + 1];
+      strcpy(payloadWrapped, "['"); //can't initialize variable-sized array
       strcat(payloadWrapped, payloadChar);
       strcat(payloadWrapped, "']\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
