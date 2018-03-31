@@ -490,17 +490,27 @@ class EtherEventClass {
 #ifdef ETHEREVENT_FAST_SEND
     //payload conversions
 
-    //required to fix ambiguous errors/warnings
     template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, char payload[])
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload[])
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payload);
+      char payloadWrapped[payloadWrapperLength + strlen(payload) + 1];
+      char payloadWrapperQuote = '\''
+      if (strchr(payload, '\'') != NULL) {
+        payloadWrapperQuote = '"';
+      }
+      payloadWrapped[0] = '[';
+      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapper[2] = 0; //so strcat() knows where to start
+      strcat(payloadWrapped, payload);
+      strcat(payloadWrapped, payloadWrapperQuote);
+      strcat(payloadWrapped, ']');
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -554,7 +564,10 @@ class EtherEventClass {
       itoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      char payloadWrapped[payloadWrapperLength + intLengthMax + 1] = "['";
+      strcat(payloadWrapped, payloadChar);
+      strcat(payloadWrapped, "']");
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -576,7 +589,10 @@ class EtherEventClass {
       utoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      char payloadWrapped[payloadWrapperLength + unsignedIntLengthMax + 1] = "['";
+      strcat(payloadWrapped, payloadChar);
+      strcat(payloadWrapped, "']");
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -598,7 +614,10 @@ class EtherEventClass {
       ltoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      char payloadWrapped[payloadWrapperLength + longLengthMax + 1] = "['";
+      strcat(payloadWrapped, payloadChar);
+      strcat(payloadWrapped, "']");
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -620,7 +639,10 @@ class EtherEventClass {
       ultoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      char payloadWrapped[payloadWrapperLength + unsignedLongLengthMax + 1] = "['";
+      strcat(payloadWrapped, payloadChar);
+      strcat(payloadWrapped, "']");
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -637,7 +659,12 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
       const char payloadChar[] = {payload, 0};
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      const char payloadWrapped = ['[', '\'', payload, '\'', ']', 0];
+      if (payload == '\'') {
+        payloadWrapped[1] = '"';
+        payloadwrapped[3] = '"';
+      }
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -656,7 +683,18 @@ class EtherEventClass {
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      char payloadWrapped[payloadWrapperLength + payloadLength + 1]
+      char payloadWrapperQuote = '\''
+      if (strchr(payload, '\'') != NULL) {
+        payloadWrapperQuote = '"';
+      }
+      payloadWrapped[0] = '[';
+      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapper[2] = 0; //so strcat() knows where to start
+      strcat(payloadWrapped, payload);
+      strcat(payloadWrapped, payloadWrapperQuote);
+      strcat(payloadWrapped, ']');
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -680,13 +718,13 @@ class EtherEventClass {
       }
       payloadChar[stringLength] = 0;
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, payload.c_str());
+      return sendStrings(ethernetClient, target, port, event, payload.c_str());
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, payload.c_str(), passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -705,7 +743,7 @@ class EtherEventClass {
       char payloadChar[IPAddressLengthMax + 1];
       IPtoa(payload, payloadChar);
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -724,10 +762,10 @@ class EtherEventClass {
 #ifdef __ARDUINO_X86__
       sprintf (payloadChar, "%.*f", sendDoubleDecimalPlaces, payload);
 #else  //__ARDUINO_X86__
-      dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
+      dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadWrapped);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return sendStrings(ethernetClient, target, port, event, payloadChar);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -736,18 +774,18 @@ class EtherEventClass {
 
     //event conversions
 
-    //required to fix ambiguous errors/warnings
+    //passthrough to sendStrings()
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, char event[], const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "")
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array event)"));
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)event, payload);
+      return sendStrings(ethernetClient, target, port, event, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, event, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -796,9 +834,9 @@ class EtherEventClass {
       itoa(event, eventChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -817,9 +855,9 @@ class EtherEventClass {
       utoa(event, eventChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -838,9 +876,9 @@ class EtherEventClass {
       ltoa(event, eventChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -859,9 +897,9 @@ class EtherEventClass {
       ultoa(event, eventChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -875,9 +913,9 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
       const char eventChar[] = {event, 0};
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -893,9 +931,9 @@ class EtherEventClass {
       char eventChar[eventLength + 1];
       memcpy_P(eventChar, event, eventLength + 1);  //+1 for the null terminator
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -922,9 +960,9 @@ class EtherEventClass {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)event.c_str(), payload);
+      return sendStrings(ethernetClient, target, port, (const char*)event.c_str(), payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)event.c_str(), payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)event.c_str(), payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #endif  //__ARDUINO_X86__
     }
@@ -940,9 +978,9 @@ class EtherEventClass {
       char eventChar[IPAddressLengthMax + 1];
       IPtoa(event, eventChar);
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -961,9 +999,9 @@ class EtherEventClass {
       dtostrf(event, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, eventChar);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload);
 #else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
+      return sendStrings(ethernetClient, target, port, (const char*)eventChar, payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
@@ -984,9 +1022,9 @@ class EtherEventClass {
 
 
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "")
+    boolean sendStrings(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "")
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean sendStrings(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //ETHEREVENT_FAST_SEND
     //payload will always be defined in non-ETHEREVENT_FAST_SEND mode so the default value does not need to be specified
