@@ -502,6 +502,10 @@ class EtherEventClass {
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
 #ifdef ETHEREVENT_NO_AUTHENTICATION
+      if (payload[0] == 0) {
+        //don't wrap an empty payload
+        return sendStrings(ethernetClient, target, port, event);
+      }
       char payloadWrapped[payloadWrapperLength + strlen(payload) + 1];
       char payloadWrapperQuote[] = "'";
       if (strchr(payload, '\'') != NULL) {
