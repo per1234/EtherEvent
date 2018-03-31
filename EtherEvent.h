@@ -783,14 +783,18 @@ class EtherEventClass {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
-      char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+      const byte payloadLength = doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces;
+      char payloadChar[payloadLength + 1];  //max integer length + decimal point + decimal places setting + null terminator
 #ifdef __ARDUINO_X86__
       sprintf (payloadChar, "%.*f", sendDoubleDecimalPlaces, payload);
 #else  //__ARDUINO_X86__
       dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadWrapped);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return sendStrings(ethernetClient, target, port, event, payloadChar);
+      char payloadWrapped[payloadWrapperLength + payloadLength + 1] = "['";
+      strcat(payloadWrapped, payloadChar);
+      strcat(payloadWrapped, "']\n");
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
