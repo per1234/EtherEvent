@@ -25,11 +25,16 @@ MD5Builder MD5;
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 
+#if !defined(ETHEREVENT_DEBUG)
 #define ETHEREVENT_DEBUG false  //(false == serial debug output off, true == serial debug output on)The serial debug output will increase memory usage and communication latency so only enable when needed.
+#endif  //!defined(ETHEREVENT_DEBUG)
 #define ETHEREVENT_SERIAL if(ETHEREVENT_DEBUG)Serial  //I have to use a different name for Serial in this file otherwise the debug statement control also affects any other file that includes this file.
 #if ETHEREVENT_DEBUG == true
 #pragma message "EtherEvent debug output enabled"
 #endif  //ETHEREVENT_DEBUG == true
+#if !defined(ETHEREVENT_DEBUG_BAUDRATE)
+#define ETHEREVENT_DEBUG_BAUDRATE 9600
+#endif  //!defined(ETHEREVENT_DEBUG_BAUDRATE)
 
 
 #define ETHEREVENT_MAGIC_WORD "quintessence\n\r"  //word used to trigger the cookie send from the receiver. I had to #define this instead of const because find() didn't like the const
@@ -55,7 +60,6 @@ MD5Builder MD5;
 
 
 namespace EtherEventNamespace {
-const unsigned long debugSerialBaud = 9600;
 const char TCPEventsSenderIdentifier[] = "TCPEvents";
 const char payloadSeparator[] = "payload ";  //indicates payload
 const byte payloadSeparatorLength = strlen(EtherEventNamespace::payloadSeparator);  //includes space at the end
@@ -85,7 +89,7 @@ class EtherEventClass {
 #if ETHEREVENT_DEBUG == true
       delay(20);  //There needs to be a delay between the calls to serial.begin() in the sketch setup() and here or garbage will be printed to the serial monitor
 #endif
-      ETHEREVENT_SERIAL.begin(EtherEventNamespace::debugSerialBaud);  //for debugging
+      ETHEREVENT_SERIAL.begin(ETHEREVENT_DEBUG_BAUDRATE);  //for debugging
       ETHEREVENT_SERIAL.println(F("\n\n\nEtherEvent.begin"));
 
       eventLengthMax = eventLengthMaxInput;
@@ -1365,6 +1369,12 @@ class EtherEventClass {
       readPayloadLength = 0;
     }
 };
+
+
+//undefine all macros to avoid namespace pollution
+#undef ETHEREVENT_DEBUG
+#undef ETHEREVENT_DEBUG_BAUDRATE
+
 
 static EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
 
