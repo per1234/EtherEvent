@@ -490,12 +490,11 @@ class EtherEventClass {
 #ifdef ETHEREVENT_FAST_SEND
     //payload conversions
 
-    //required to fix ambiguous errors/warnings
-    template <typename event_t>
+    //required to avoid "ISO C++ says that these are ambiguous, even though the worst conversion for the first is better than the worst conversion for the second" warning
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, char payload[])
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], char payload[])
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
@@ -507,11 +506,22 @@ class EtherEventClass {
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const int8_t payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[]) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(const char array payload)"));
+      if (payload[0] == 0) {
+        //don't wrap an empty payload
+        return sendStrings(ethernetClient, target, port, event);
+      }
+      return wrapPayload(ethernetClient, target, port, event, payload, strlen(payload), true);
+    }
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+
+
+#ifdef ETHEREVENT_NO_AUTHENTICATION
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const int8_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const int8_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const int8_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t payload)"));
@@ -523,11 +533,10 @@ class EtherEventClass {
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const byte payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const byte payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const byte payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const byte payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte payload)"));
@@ -539,11 +548,10 @@ class EtherEventClass {
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const int payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const int payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const int payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const int payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
@@ -554,18 +562,17 @@ class EtherEventClass {
       itoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, intLengthMax, false);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const unsigned int payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const unsigned int payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const unsigned int payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const unsigned int payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int payload)"));
@@ -576,18 +583,17 @@ class EtherEventClass {
       utoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, unsignedIntLengthMax, false);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const long payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const long payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const long payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const long payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(long payload)"));
@@ -598,18 +604,17 @@ class EtherEventClass {
       ltoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, longLengthMax, false);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const unsigned long payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const unsigned long payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const unsigned long payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const unsigned long payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long payload)"));
@@ -620,35 +625,33 @@ class EtherEventClass {
       ultoa(payload, payloadChar, 10);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, unsignedLongLengthMax, false);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const char payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
       const char payloadChar[] = {payload, 0};
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, 1, true);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const __FlashStringHelper* payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const __FlashStringHelper* payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const __FlashStringHelper* payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const __FlashStringHelper* payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(__FlashStringHelper payload)"));
@@ -656,37 +659,36 @@ class EtherEventClass {
       char payloadChar[payloadLength + 1];
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, payloadLength, true);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const String &payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const String &payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const String &payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const String &payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
 #ifdef __ARDUINO_X86__
       //x86 boards don't have c_str()
-      const byte stringLength = payload.length();
-      char payloadChar[stringLength + 1];
-      for (byte counter = 0; counter < stringLength; counter++) {
+      const byte payloadLength = payload.length();
+      char payloadChar[payloadLength + 1];
+      for (byte counter = 0; counter < payloadLength; counter++) {
         payloadChar[counter] = payload[counter];
       }
-      payloadChar[stringLength] = 0;
+      payloadChar[payloadLength] = 0;
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, payloadLength, true);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, payload.c_str());
+      return wrapPayload(ethernetClient, target, port, event, payload.c_str(), payload.length(), true);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, payload.c_str(), passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -694,68 +696,96 @@ class EtherEventClass {
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const IPAddress &payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const IPAddress &payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const IPAddress &payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const IPAddress &payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress payload)"));
       char payloadChar[IPAddressLengthMax + 1];
       IPtoa(payload, payloadChar);
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, IPAddressLengthMax, false);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
-    template <typename event_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const double payload)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const float payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const double payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const float payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+    {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(float payload)"));
+#ifdef ETHEREVENT_NO_AUTHENTICATION
+      return send(ethernetClient, target, port, event, (const double)payload);
+#else  //ETHEREVENT_NO_AUTHENTICATION
+      return send(ethernetClient, target, port, event, (const double)payload, passwordInput);
+#endif  //ETHEREVENT_NO_AUTHENTICATION
+    }
+
+
+#ifdef ETHEREVENT_NO_AUTHENTICATION
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const double payload)
+#else  //ETHEREVENT_NO_AUTHENTICATION
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const double payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double payload)"));
-      char payloadChar[doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces + 1];  //max integer length + decimal point + decimal places setting + null terminator
+      const byte payloadLength = doubleIntegerLengthMax + 1 + sendDoubleDecimalPlaces;
+      char payloadChar[payloadLength + 1];  //max integer length + decimal point + decimal places setting + null terminator
 #ifdef __ARDUINO_X86__
       sprintf (payloadChar, "%.*f", sendDoubleDecimalPlaces, payload);
 #else  //__ARDUINO_X86__
       dtostrf(payload, sendDoubleDecimalPlaces + 2, sendDoubleDecimalPlaces, payloadChar);
 #endif  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, (const char*)payloadChar);
+      return wrapPayload(ethernetClient, target, port, event, payloadChar, payloadLength, false);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
+#if defined(ETHEREVENT_NO_AUTHENTICATION)
+    boolean wrapPayload(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[], const unsigned int bufferLength, const bool checkForSingleQuote) {
+      char payloadWrapped[payloadWrapperLength + bufferLength + 1];
+      char payloadWrapperQuote[] = "'";  //default quote character
+
+      //if the payload string contains a ' then it must be wrapped in [""] instead of the default ['']
+      if (checkForSingleQuote == true && strchr(payload, '\'') != NULL) {
+        payloadWrapperQuote[0] = '"';
+      }
+
+      payloadWrapped[0] = '[';
+      payloadWrapped[1] = payloadWrapperQuote[0];
+      payloadWrapped[2] = 0; //so strcat() knows where to start
+      strcat(payloadWrapped, payload);
+      strcat(payloadWrapped, payloadWrapperQuote);
+      strcat(payloadWrapped, "]\n");
+
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
+    }
+#endif  //defined(ETHEREVENT_NO_AUTHENTICATION)
+
+
     //event conversions
 
-    //required to fix ambiguous errors/warnings
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, char event[], const char payload[] = "")
-#else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-    {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array event)"));
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)event, payload);
-#else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const char*)event, payload, passwordInput);
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+    template <typename event_t>
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(no payload)"));
+      return send(ethernetClient, target, port, event, "");
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int8_t event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int8_t event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int8_t event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int8_t event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int8_t event)"));
@@ -767,10 +797,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const byte event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const byte event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const byte event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const byte event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(byte event)"));
@@ -782,10 +813,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const int event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int event)"));
@@ -803,10 +835,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned int event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned int event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned int event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned int event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned int event)"));
@@ -824,10 +857,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const long event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const long event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const long event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const long event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(long event)"));
@@ -845,10 +879,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned long event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned long event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned long event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const unsigned long event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(unsigned long event)"));
@@ -866,10 +901,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char event)"));
@@ -882,10 +918,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const __FlashStringHelper* event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const __FlashStringHelper* event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const __FlashStringHelper* event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(__FlashStringHelper event)"));
@@ -900,10 +937,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const String &event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const String &event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const String &event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const String &event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String event)"));
@@ -930,10 +968,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const IPAddress &event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(IPAddress event)"));
@@ -947,10 +986,11 @@ class EtherEventClass {
     }
 
 
+    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const char payload[] = "")
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const payload_t payload)
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const double event, const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(double event)"));
@@ -969,22 +1009,7 @@ class EtherEventClass {
 
 
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const float event, const char payload[] = "")
-#else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const float event, const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-    {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(float event)"));
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const double)event, payload);
-#else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, (const double)event, payload, passwordInput);
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-    }
-
-
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "")
+    boolean sendStrings(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "")
 #else  //ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -1078,34 +1103,33 @@ class EtherEventClass {
 #endif  //ETHEREVENT_FAST_SEND
       {
         ethernetClient.print(EtherEventNamespace::payloadSeparator);
-        char payloadWrapperStart[] = "['";  //default payload quoting character is '
-        char payloadWrapperEnd[] = "']\n";
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-        if (passwordInput[0] == 0) {  //authentication disabled
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-#ifdef ETHEREVENT_FAST_SEND //payload is only guaranteed to be a string in ETHEREVENT_FAST_SEND mode
-          if (strchr(payload, '\'') != NULL) {
-            ETHEREVENT_SERIAL.println(F("EtherEvent.send: ' found in payload"));
-            payloadWrapperStart[1] = '"'; //must use double quotes around the payload if the payload contains a single quote
-            payloadWrapperEnd[0] = '"';
-          }
-#endif  //ETHEREVENT_FAST_SEND
-          //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
-          ethernetClient.print(payloadWrapperStart);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-        }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-        ethernetClient.print(payload);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-        if (passwordInput[0] == 0) {  //authentication disabled
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-          ethernetClient.print(payloadWrapperEnd);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+        //the payload needs to be wrapped here if either in ETHEREVENT_NO_AUTHENTICATION, ETHEREVENT_FAST_SEND mode or if password[0]==0 (per-send unauthenticated mode)
+        //this was already done in the payload conversion overloads of send() if in unauthenticated, fast send mode
+        //The payload must be wrapped with [''] in unauthenticated mode because otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode.
+        //EtherEvent.availableEvent() will strip the wrapper characters from the payload.
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
+        if (passwordInput[0] == 0) {  //authentication disabled for this send
+          // wrap the payload if in per-event unathenticated mode
+          ETHEREVENT_SERIAL.println(F("EtherEvent.send: authentication disabled on a per-event basis"));
+          ethernetClient.print("['");
+          ethernetClient.print(payload);
+          ethernetClient.print("']\n");
         }
         else {
-          ethernetClient.write(10);  //newline
+          //don't wrap the payload in authenticated mode
+          ethernetClient.print(payload);
+          ethernetClient.write('\n');
         }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#elif defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
+        //since not in ETHEREVENT_FAST_SEND mode, the payload was not already wrapped so it must be done here
+        ethernetClient.print("['");
+        ethernetClient.print(payload);
+        ethernetClient.print("']\n");
+#else //!defined(ETHEREVENT_NO_AUTHENTICATION)
+        //payload was already wrapped during the ETHEREVENT_FAST_SEND mode payload conversion process
+        ethernetClient.print(payload);
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
+        ETHEREVENT_SERIAL.println(F("EtherEvent.send: payload sent"));
       }
 #ifndef ETHEREVENT_FAST_SEND
       payloadSpecified = true; //reset value of payloadSpecified for the next send()
@@ -1243,6 +1267,8 @@ class EtherEventClass {
     static const byte doubleIntegerLengthMax = 40;  //sign + 39 digits max (-1000000000000000000000000000000000000000 gives me "floating constant exceeds range of 'double'" warning)
 
     static const byte sendDoubleDecimalPlacesDefault = 3;  //default number of decimal places when sending event/payload of double/float type
+
+    static const byte payloadWrapperLength = 5; //['']\n
 #endif  //ETHEREVENT_FAST_SEND
 
 #ifndef ETHEREVENT_NO_AUTHENTICATION
