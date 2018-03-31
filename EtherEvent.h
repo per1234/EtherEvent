@@ -509,7 +509,7 @@ class EtherEventClass {
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
-      strcat(payloadWrapped, ']');
+      strcat(payloadWrapped, "]\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);
@@ -566,7 +566,7 @@ class EtherEventClass {
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + intLengthMax + 1] = "['";
       strcat(payloadWrapped, payloadChar);
-      strcat(payloadWrapped, "']");
+      strcat(payloadWrapped, "']\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
@@ -591,7 +591,7 @@ class EtherEventClass {
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + unsignedIntLengthMax + 1] = "['";
       strcat(payloadWrapped, payloadChar);
-      strcat(payloadWrapped, "']");
+      strcat(payloadWrapped, "']\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
@@ -616,7 +616,7 @@ class EtherEventClass {
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + longLengthMax + 1] = "['";
       strcat(payloadWrapped, payloadChar);
-      strcat(payloadWrapped, "']");
+      strcat(payloadWrapped, "']\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
@@ -641,7 +641,7 @@ class EtherEventClass {
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + unsignedLongLengthMax + 1] = "['";
       strcat(payloadWrapped, payloadChar);
-      strcat(payloadWrapped, "']");
+      strcat(payloadWrapped, "']\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
@@ -659,7 +659,7 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char payload)"));
       const char payloadChar[] = {payload, 0};
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      const char payloadWrapped = ['[', '\'', payload, '\'', ']', 0];
+      const char payloadWrapped = ['[', '\'', payload, '\'', ']', '\n', 0];
       if (payload == '\'') {
         payloadWrapped[1] = '"';
         payloadwrapped[3] = '"';
@@ -693,7 +693,7 @@ class EtherEventClass {
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
-      strcat(payloadWrapped, ']');
+      strcat(payloadWrapped, "]\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
@@ -728,7 +728,7 @@ class EtherEventClass {
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
-      strcat(payloadWrapped, ']');
+      strcat(payloadWrapped, "]\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
@@ -745,7 +745,7 @@ class EtherEventClass {
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload.c_str());
       strcat(payloadWrapped, payloadWrapperQuote);
-      strcat(payloadWrapped, ']');
+      strcat(payloadWrapped, "]\n"');
              return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, payload.c_str(), passwordInput);
@@ -765,8 +765,8 @@ class EtherEventClass {
       char payloadChar[IPAddressLengthMax + 1];
       IPtoa(payload, payloadChar);
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      char payloadWrapped[payloadWrapperLength + IPAddressLengthMax + 1]="['"
-          strcat(payloadWrapped, payload);
+      char payloadWrapped[payloadWrapperLength + IPAddressLengthMax + 1]="['";
+      strcat(payloadWrapped, payload);
       strcat(payloadWrapped, "']\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
