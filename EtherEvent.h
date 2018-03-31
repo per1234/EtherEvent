@@ -791,20 +791,7 @@ class EtherEventClass {
 
     //event conversions
 
-    //passthrough to sendStrings()
-    template <typename payload_t>
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const payload_t payload)
-#else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const payload_t payload, const char passwordInput[] = DEFAULT_PASSWORD_STRING)
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-    {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array event)"));
-#ifdef ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, payload);
-#else  //ETHEREVENT_NO_AUTHENTICATION
-      return send(ethernetClient, target, port, event, payload, passwordInput);
-#endif  //ETHEREVENT_NO_AUTHENTICATION
     }
 
 
