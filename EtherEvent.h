@@ -500,15 +500,15 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + strlen(payload) + 1];
-      char payloadWrapperQuote = '\''
+      char payloadWrapperQuote[] = "'";
       if (strchr(payload, '\'') != NULL) {
-        payloadWrapperQuote = '"';
+        payloadWrapperQuote[0] = '"';
       }
       payloadWrapped[0] = '[';
       payloadWrapped[1] = payloadWrapperQuote;
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
-      strcat(payloadWrapped, payloadWrapperQuote);
+      strcat(payloadWrapped, payloadWrapperQuote[0]);
       strcat(payloadWrapped, "]\n");
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
@@ -684,12 +684,12 @@ class EtherEventClass {
       memcpy_P(payloadChar, payload, payloadLength + 1);  //+1 for the null terminator
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + payloadLength + 1]
-      char payloadWrapperQuote = '\''
       if (strchr(payload, '\'') != NULL) {
-        payloadWrapperQuote = '"';
+      char payloadWrapperQuote[] = "'";
+        payloadWrapperQuote[0] = '"';
       }
       payloadWrapped[0] = '[';
-      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapped[1] = payloadWrapperQuote[0];
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
@@ -719,12 +719,12 @@ class EtherEventClass {
       payloadChar[payloadLength] = 0;
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + payloadLength + 1]
-      char payloadWrapperQuote = '\''
       if (strchr(payload, '\'') != NULL) {
-        payloadWrapperQuote = '"';
+      char payloadWrapperQuote[] = "'";
+        payloadWrapperQuote[0] = '"';
       }
       payloadWrapped[0] = '[';
-      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapped[1] = payloadWrapperQuote[0];
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
@@ -736,12 +736,12 @@ class EtherEventClass {
 #else  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + payload.length() + 1]
-      char payloadWrapperQuote = '\''
+      char payloadWrapperQuote[] = "'";
       if (strchr(payload.c_str(), '\'') != NULL) {
-        payloadWrapperQuote = '"';
+        payloadWrapperQuote[0] = '"';
       }
       payloadWrapped[0] = '[';
-      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapped[1] = payloadWrapperQuote[0];
       payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload.c_str());
       strcat(payloadWrapped, payloadWrapperQuote);
