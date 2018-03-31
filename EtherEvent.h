@@ -711,12 +711,12 @@ class EtherEventClass {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(String payload)"));
 #ifdef __ARDUINO_X86__
       //x86 boards don't have c_str()
-      const byte stringLength = payload.length();
-      char payloadChar[stringLength + 1];
-      for (byte counter = 0; counter < stringLength; counter++) {
+      const byte payloadLength = payload.length();
+      char payloadChar[payloadLength + 1];
+      for (byte counter = 0; counter < payloadLength; counter++) {
         payloadChar[counter] = payload[counter];
       }
-      payloadChar[stringLength] = 0;
+      payloadChar[payloadLength] = 0;
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       char payloadWrapped[payloadWrapperLength + payloadLength + 1]
       char payloadWrapperQuote = '\''
