@@ -735,7 +735,7 @@ class EtherEventClass {
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      char payloadWrapped[payloadWrapperLength + payloadLength + 1]
+      char payloadWrapped[payloadWrapperLength + payload.length() + 1]
       char payloadWrapperQuote = '\''
       if (strchr(payload.c_str(), '\'') != NULL) {
         payloadWrapperQuote = '"';
