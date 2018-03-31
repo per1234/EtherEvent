@@ -500,7 +500,7 @@ class EtherEventClass {
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
     {
-      ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(const char array payload)"));
 #ifdef ETHEREVENT_NO_AUTHENTICATION
       if (payload[0] == 0) {
         //don't wrap an empty payload
