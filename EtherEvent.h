@@ -506,7 +506,7 @@ class EtherEventClass {
       }
       payloadWrapped[0] = '[';
       payloadWrapped[1] = payloadWrapperQuote;
-      payloadWrapper[2] = 0; //so strcat() knows where to start
+      payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
       strcat(payloadWrapped, ']');
@@ -690,7 +690,7 @@ class EtherEventClass {
       }
       payloadWrapped[0] = '[';
       payloadWrapped[1] = payloadWrapperQuote;
-      payloadWrapper[2] = 0; //so strcat() knows where to start
+      payloadWrapped[2] = 0; //so strcat() knows where to start
       strcat(payloadWrapped, payload);
       strcat(payloadWrapped, payloadWrapperQuote);
       strcat(payloadWrapped, ']');
@@ -718,13 +718,35 @@ class EtherEventClass {
       }
       payloadChar[stringLength] = 0;
 #ifdef ETHEREVENT_NO_AUTHENTICATION
+      char payloadWrapped[payloadWrapperLength + payloadLength + 1]
+      char payloadWrapperQuote = '\''
+      if (strchr(payload, '\'') != NULL) {
+        payloadWrapperQuote = '"';
+      }
+      payloadWrapped[0] = '[';
+      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapped[2] = 0; //so strcat() knows where to start
+      strcat(payloadWrapped, payload);
+      strcat(payloadWrapped, payloadWrapperQuote);
+      strcat(payloadWrapped, ']');
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payloadChar, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //__ARDUINO_X86__
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      return sendStrings(ethernetClient, target, port, event, payload.c_str());
+      char payloadWrapped[payloadWrapperLength + payloadLength + 1]
+      char payloadWrapperQuote = '\''
+      if (strchr(payload.c_str(), '\'') != NULL) {
+        payloadWrapperQuote = '"';
+      }
+      payloadWrapped[0] = '[';
+      payloadWrapped[1] = payloadWrapperQuote;
+      payloadWrapped[2] = 0; //so strcat() knows where to start
+      strcat(payloadWrapped, payload.c_str());
+      strcat(payloadWrapped, payloadWrapperQuote);
+      strcat(payloadWrapped, ']');
+      return sendStrings(ethernetClient, target, port, event, payloadWrapped);
 #else  //ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, payload.c_str(), passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
@@ -1116,34 +1138,27 @@ class EtherEventClass {
 #endif  //ETHEREVENT_FAST_SEND
       {
         ethernetClient.print(EtherEventNamespace::payloadSeparator);
-        char payloadWrapperStart[] = "['";  //default payload quoting character is '
-        char payloadWrapperEnd[] = "']\n";
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-        if (passwordInput[0] == 0) {  //authentication disabled
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-#ifdef ETHEREVENT_FAST_SEND //payload is only guaranteed to be a string in ETHEREVENT_FAST_SEND mode
-          if (strchr(payload, '\'') != NULL) {
-            ETHEREVENT_SERIAL.println(F("EtherEvent.send: ' found in payload"));
-            payloadWrapperStart[1] = '"'; //must use double quotes around the payload if the payload contains a single quote
-            payloadWrapperEnd[0] = '"';
-          }
-#endif  //ETHEREVENT_FAST_SEND
-          //adds [''] to the payload in unauthenticated mode otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode, EtherEvent.availableEvent() will strip these characters from the payload
-          ethernetClient.print(payloadWrapperStart);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+        //the payload needs to be wrapped here if either in ETHEREVENT_NO_AUTHENTICATION, ETHEREVENT_FAST_SEND mode or if password[0]==0 (per-send unauthenticated mode)
+        //this was already done in the payload conversion overloads of send() if in unauthenticated, fast send mode
+        //The payload must be wrapped with [''] in unauthenticated mode because otherwise TCPEvents attempts to evaluate the payload as a python expression because the servertype is assumed to be TCPEvents in unauthenticated mode.
+        //EtherEvent.availableEvent() will strip the wrapper characters from the payload.
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
+        if (passwordInput[0] == 0) {  //authentication disabled for this send
+          ethernetClient.print("['");
+          ethernetClient.print(payload);
+          ethernetClient.print("']\n");
         }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#else //!defined(ETHEREVENT_NO_AUTHENTICATION)
+#if defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
+        ethernetClient.print("['");
+#endif  //defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
         ethernetClient.print(payload);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-        if (passwordInput[0] == 0) {  //authentication disabled
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-          ethernetClient.print(payloadWrapperEnd);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
-        }
-        else {
-          ethernetClient.write(10);  //newline
-        }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#if (defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
+        ethernetClient.print("']\n");
+#else  //(defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
+        ethernetClient.write(10);  //newline
+#endif  //(defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
       }
 #ifndef ETHEREVENT_FAST_SEND
       payloadSpecified = true; //reset value of payloadSpecified for the next send()
