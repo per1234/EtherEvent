@@ -712,7 +712,7 @@ class EtherEventClass {
       }
       payloadChar[payloadLength] = 0;
 #ifdef ETHEREVENT_NO_AUTHENTICATION
-      char payloadWrapped[payloadWrapperLength + payloadLength + 1]
+      char payloadWrapped[payloadWrapperLength + payloadLength + 1];
       char payloadWrapperQuote[] = "'";
       if (strchr(payloadChar, '\'') != NULL) {
         payloadWrapperQuote[0] = '"';
