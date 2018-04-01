@@ -748,6 +748,7 @@ class EtherEventClass {
     }
 
 
+#if defined(ETHEREVENT_NO_AUTHENTICATION)
     boolean wrapPayload(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[], const unsigned int bufferLength, const bool checkForSingleQuote) {
       char payloadWrapped[payloadWrapperLength + bufferLength + 1];
       char payloadWrapperQuote[] = "'";  //default quote character
@@ -766,6 +767,7 @@ class EtherEventClass {
 
       return sendStrings(ethernetClient, target, port, event, payloadWrapped);
     }
+#endif  //defined(ETHEREVENT_NO_AUTHENTICATION)
 
 
     //event conversions
