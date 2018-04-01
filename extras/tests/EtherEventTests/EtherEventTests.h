@@ -440,7 +440,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       DEBUG_SERIAL.println(receivedPayload);
     }
 
-    //compare sent payload to received payload
+    //compare sent payload to received payload (must be done even when no payload was received because if a payload was sent but not received that is a mismatch)
     if (strcmp(sentPayload, receivedPayload) != 0) {
       Serial.println(F("\nPayload mismatch"));
       Serial.print(F("Sent payload: "));
