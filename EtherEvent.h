@@ -497,11 +497,17 @@ class EtherEventClass {
     //required to avoid "ISO C++ says that these are ambiguous, even though the worst conversion for the first is better than the worst conversion for the second" warning
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], char payload[])
+#else  //ETHEREVENT_NO_AUTHENTICATION
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], char payload[], const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+#endif  //ETHEREVENT_NO_AUTHENTICATION
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(char array payload)"));
+#ifdef ETHEREVENT_NO_AUTHENTICATION
       return send(ethernetClient, target, port, event, (const char*)payload);
-    }
+#else  //ETHEREVENT_NO_AUTHENTICATION
+      return send(ethernetClient, target, port, event, (const char*)payload, passwordInput);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
+    }
 
 
 #ifdef ETHEREVENT_NO_AUTHENTICATION
