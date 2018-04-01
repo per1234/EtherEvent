@@ -1146,22 +1146,26 @@ class EtherEventClass {
         //EtherEvent.availableEvent() will strip the wrapper characters from the payload.
 #if !defined(ETHEREVENT_NO_AUTHENTICATION)
         if (passwordInput[0] == 0) {  //authentication disabled for this send
-          ETHEREVENT_SERIAL.println(F("EtherEvent.send: authentication disabled for this event"));
+          // wrap the payload if in per-event unathenticated mode
+          ETHEREVENT_SERIAL.println(F("EtherEvent.send: authentication disabled on a per-event basis"));
           ethernetClient.print("['");
           ethernetClient.print(payload);
           ethernetClient.print("']\n");
         }
+        else {
+          //don't wrap the payload in authenticated mode
+          ethernetClient.print(payload);
+          ethernetClient.write('\n');
+        }
 #elif defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
-        ETHEREVENT_SERIAL.println(F("EtherEvent.send: wrapping payload"));
+        //since not in ETHEREVENT_FAST_SEND mode, the payload was not already wrapped so it must be done here
         ethernetClient.print("['");
-#endif  //defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
         ethernetClient.print(payload);
-#if defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
         ethernetClient.print("']\n");
-#elif !defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND)
-        ETHEREVENT_SERIAL.println(F("EtherEvent.send: sending newline at end of payload"));
-        ethernetClient.write(10);  //newline
-#endif  //(defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ETHEREVENT_FAST_SEND))
+#else //!defined(ETHEREVENT_NO_AUTHENTICATION)
+        //payload was already wrapped during the ETHEREVENT_FAST_SEND mode payload conversion process
+        ethernetClient.print(payload);
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
         ETHEREVENT_SERIAL.println(F("EtherEvent.send: payload sent"));
       }
 #ifndef ETHEREVENT_FAST_SEND
