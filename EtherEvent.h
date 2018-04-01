@@ -1042,7 +1042,7 @@ class EtherEventClass {
 #ifdef ETHEREVENT_NO_AUTHENTICATION
     boolean sendStrings(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "")
 #else  //ETHEREVENT_NO_AUTHENTICATION
-    boolean sendStrings(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const char event[], const char payload[] = "", const char passwordInput[] = DEFAULT_PASSWORD_STRING)
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 #else  //ETHEREVENT_FAST_SEND
     //payload will always be defined in non-ETHEREVENT_FAST_SEND mode so the default value does not need to be specified
