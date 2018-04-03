@@ -335,7 +335,7 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
   byte timeoutCount = 0;
   byte authenticationFailCount = 0;
   byte mismatchCount = 0;
-  receiveReturnCode_t receiveSuccess;
+  receiveReturnCode_t receiveReturnCode;
   do {
     const unsigned long preSentTimestamp = micros();
     EtherEvent.send(ethernetClient, target, sendPort, event, payload, password);
@@ -344,7 +344,7 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
     Serial.print(F("Send duration: "));
     Serial.println(sendDuration);
 
-    receiveSuccess = receive(event, payload);
+    receiveReturnCode = receive(event, payload);
     switch (receiveReturnCode) {
       case timeoutReturnCode:
         timeoutCount++;
