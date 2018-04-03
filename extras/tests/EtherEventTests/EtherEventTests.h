@@ -171,9 +171,9 @@ template <typename target_t, typename event_t, typename payload_t>void test(Ethe
 template <typename target_t, typename event_t, typename payload_t, typename password_t>void test(EthernetClient & ethernetClient, const target_t target, const char targetType[], const unsigned int sendPort, const event_t event, const char eventType[], const payload_t payload, const char payloadType[], const password_t password, const char passwordType[]);
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
-template <typename event_t, typename payload_t>bool receive(const event_t sentEvent, const payload_t sentPayload);
-template <typename event_t>bool receive(const event_t sentEvent, const char sentPayload[]);
-bool receive(const char sentEvent[], const char sentPayload[]);
+template <typename event_t, typename payload_t>receiveReturnCode_t receive(const event_t sentEvent, const payload_t sentPayload);
+template <typename event_t>receiveReturnCode_t receive(const event_t sentEvent, const char sentPayload[]);
+receiveReturnCode_t receive(const char sentEvent[], const char sentPayload[]);
 
 
 void etherEventTests() {
