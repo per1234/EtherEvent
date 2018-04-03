@@ -1,11 +1,11 @@
-#ifndef ETHEREVENTTESTS_H
+#if !defined(ETHEREVENTTESTS_H)
 #define ETHEREVENTTESTS_H
 
 #include <SPI.h>  //bundled with Arduino hardware packages
 #include <Ethernet.h> //built-in library included with Arduino IDE
-#ifndef __ARDUINO_X86__
+#if !defined(__ARDUINO_X86__)
 #include <utility/w5100.h>  //Part of built-in Ethernet library included with Arduino IDE. Used for setting the W5x00 retransmission time and count.
-#endif //__ARDUINO_X86__
+#endif //!defined(__ARDUINO_X86__)
 EthernetServer ethernetServer(1024);  //TCP port to receive on
 EthernetClient ethernetClient;  //create the client object for Ethernet communication
 
@@ -14,9 +14,9 @@ EthernetClient ethernetClient;  //create the client object for Ethernet communic
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
 #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
 
-#ifdef __AVR__
+#if defined(__AVR__)
 #include <MemoryFree.h> //https://github.com/McNeight/MemoryFree
-#endif  //__AVR__
+#endif  //defined(__AVR__)
 
 #include <Arduino.h>  //Arduino core library
 
@@ -80,7 +80,7 @@ String payloadString = "payloadString";
 
 const unsigned int sendPort = 1024;  //The port to send the test events to.
 
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
 //used for availableEvent() overload tests:
 const char passwordConstCharArray[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 char passwordCharArray[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
@@ -100,7 +100,7 @@ enum __attribute__((packed)) availableEventTest_t{
   ethernetServerCookiePasswordFlashStringHelperTest,
   availableEventTestCount
 };
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
 
 
 //receive() return codes
@@ -168,9 +168,9 @@ void runTests();
 
 template <typename target_t, typename event_t>void test(EthernetClient &ethernetClient, const target_t target, const char targetType[], const unsigned int sendPort, const event_t event, const char eventType[]);
 template <typename target_t, typename event_t, typename payload_t>void test(EthernetClient & ethernetClient, const target_t target, const char targetType[], const unsigned int sendPort, const event_t event, const char eventType[], const payload_t payload, const char payloadType[]);
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
 template <typename target_t, typename event_t, typename payload_t, typename password_t>void test(EthernetClient & ethernetClient, const target_t target, const char targetType[], const unsigned int sendPort, const event_t event, const char eventType[], const payload_t payload, const char payloadType[], const password_t password, const char passwordType[]);
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
 
 template <typename event_t, typename payload_t>receiveReturnCode_t receive(const event_t sentEvent, const payload_t sentPayload);
 template <typename event_t>receiveReturnCode_t receive(const event_t sentEvent, const char sentPayload[]);
@@ -187,13 +187,13 @@ void etherEventTests() {
 
   EtherEvent.begin(EVENT_BUFFER_SIZE, PAYLOAD_BUFFER_SIZE);
 
-#ifdef ETHEREVENT_FAST_SEND
+#if defined(ETHEREVENT_FAST_SEND)
   EtherEvent.setSendDoubleDecimalPlaces(2); //Print class defaults to two decimal places
-#endif  //ETHEREVENT_FAST_SEND
+#endif  //defined(ETHEREVENT_FAST_SEND)
 
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
   EtherEvent.setPassword(passwordConstCharArray);
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
 
   Serial.print(F("Setting timeout to: "));
   Serial.println(etherEventTimeout);
@@ -201,36 +201,36 @@ void etherEventTests() {
   Serial.print(F("EtherEvent.getTimeout(): "));
   Serial.println(EtherEvent.getTimeout());
 
-#ifndef __ARDUINO_X86__
+#if defined(__ARDUINO_X86__)
   W5100.setRetransmissionTime(W5x00timeout);  //set the timeout for the W5x00 module.
   W5100.setRetransmissionCount(W5x00retransmissionCount);  //Retransmission Count - 1 is the minimum value
-#endif //__ARDUINO_X86__
+#endif //defined(__ARDUINO_X86__)
 
-#ifdef __AVR__
+#if defined(__AVR__)
   const unsigned long previousFreeMemory = freeMemory();
-#endif  //__AVR__
+#endif  //defined(__AVR__)
 
   runTests();
 
   //test for memory leaks
-#ifdef __AVR__
+#if defined(__AVR__)
   const unsigned long currentFreeMemory = freeMemory();
   if (previousFreeMemory > currentFreeMemory) {
     Serial.print(F("Memory leak detected. Difference="));
     Serial.println(previousFreeMemory - currentFreeMemory);
     testPassed = false;
   }
-#endif  //__AVR__
+#endif  //defined(__AVR__)
 
   Serial.print(F("\n\nTests finished: "));
   Serial.println(testPassed == true ? F("Passed") : F("Failed"));
   Serial.println(F("Configuration:"));
-#ifdef ETHEREVENT_NO_AUTHENTICATION
+#if defined(ETHEREVENT_NO_AUTHENTICATION)
   Serial.println(F("ETHEREVENT_NO_AUTHENTICATION"));
-#endif  //ETHEREVENT_NO_AUTHENTICATION
-#ifdef ETHEREVENT_FAST_SEND
+#endif  //defined(ETHEREVENT_NO_AUTHENTICATION)
+#if defined(ETHEREVENT_FAST_SEND)
   Serial.println(F("ETHEREVENT_FAST_SEND"));
-#endif  //ETHEREVENT_FAST_SEND
+#endif  //defined(ETHEREVENT_FAST_SEND)
   Serial.print(F("TEST_BATCH: "));
   Serial.println(TEST_BATCH);
 }
@@ -321,7 +321,7 @@ template <typename target_t, typename event_t, typename payload_t>void test(Ethe
 }
 
 
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
 template <typename target_t, typename event_t, typename payload_t, typename password_t>void test(EthernetClient & ethernetClient, const target_t target, const char targetType[], const unsigned int sendPort, const event_t event, const char eventType[], const payload_t payload, const char payloadType[], const password_t password, const char passwordType[]) {
   //provide some output to show test progress
   Serial.print(F("Target type: "));
@@ -365,7 +365,7 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
     Serial.println(F("\nTest failed\n"));
   }
 }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
 
 
 template <typename event_t, typename payload_t>receiveReturnCode_t receive(const event_t sentEvent, const payload_t sentPayload) {
@@ -394,18 +394,18 @@ receiveReturnCode_t receive(const char sentEvent[], const char sentPayload[]) {
   const unsigned long timestamp = millis();
 
   //wait for the event to be received
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
   static availableEventTest_t availableEventTest = ethernetServerTest;
   switch (availableEventTest) {
     case ethernetServerTest:
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
       while (EtherEvent.availableEvent(ethernetServer) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
           return timeoutReturnCode;
         }
       }
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
       break;
     case ethernetServerCookieTest:
       while (EtherEvent.availableEvent(ethernetServer, 42) == 0) {
@@ -455,7 +455,7 @@ receiveReturnCode_t receive(const char sentEvent[], const char sentPayload[]) {
       DEBUG_SERIAL.println(F("\nreceive: case availableEventTestCount reached. Something is wrong!\n"));
       break;
   }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
   int availableLength = EtherEvent.availableEvent();  //test availableEvent() called with no arguments
   if (availableLength == -1) {
     Serial.println(F("\nAuthentication failed\n"));
@@ -510,17 +510,17 @@ receiveReturnCode_t receive(const char sentEvent[], const char sentPayload[]) {
       DEBUG_SERIAL.println(F("receive: Payload matched"));
     }
   }
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
   availableEventTest = static_cast<availableEventTest_t>(static_cast<int>(availableEventTest) + 1); //increment the test type
   if (availableEventTest == availableEventTestCount) {  //the last test type was reached
     //restart from the first test type
     availableEventTest = static_cast<availableEventTest_t>(static_cast<int>(availableEventTestStart) + 1);
   }
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
   return successReturnCode;
 }
 
 
 #include "RunTests.h"
 
-#endif  //ETHEREVENTTESTS_H
+#endif  //!defined(ETHEREVENTTESTS_H)

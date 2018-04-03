@@ -70,7 +70,7 @@ void generateTests(const byte eventPayloadTypesStartIndex, const byte eventPaylo
         // test(ethernetClient, target, port, event, payload)
         printThroughPayload(targetTypeCounter, eventTypeCounter, payloadTypeCounter);
         Serial.println(");");
-        Serial.println("#ifndef ETHEREVENT_NO_AUTHENTICATION");
+        Serial.println("#if !defined(ETHEREVENT_NO_AUTHENTICATION)");
 
         for (byte passwordTypeCounter = 0; passwordTypeCounter < sizeof(passwordTypes) / sizeof(passwordTypes[0]); ++passwordTypeCounter) {
           // test(ethernetClient, target, port, event, payload, password)
@@ -82,7 +82,7 @@ void generateTests(const byte eventPayloadTypesStartIndex, const byte eventPaylo
           Serial.print(passwordTypes[passwordTypeCounter]);
           Serial.println("\");");
         }
-        Serial.println("#endif //ETHEREVENT_NO_AUTHENTICATION");
+        Serial.println("#endif //!defined(ETHEREVENT_NO_AUTHENTICATION)");
       }
     }
   }

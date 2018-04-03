@@ -7,9 +7,9 @@
 //These libraries are required by EtherEvent:
 #include <SPI.h>  //bundled with Arduino hardware packages
 #include <Ethernet.h> //built-in library included with Arduino IDE
-#ifndef __ARDUINO_X86__
+#if !defined(__ARDUINO_X86__)
 #include <utility/w5100.h>  //Part of built-in Ethernet library included with Arduino IDE. Used for setting the W5x00 retransmission time and count.
-#endif  //__ARDUINO_X86__
+#endif  //!defined(__ARDUINO_X86__)
 #if !defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
 #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION) && !defined(ESP8266)
@@ -61,20 +61,20 @@ void setup() {
     Ethernet.begin(MACaddress, deviceIP);  //use static IP address
   }
   ethernetServer.begin();  //begin the server that will be used to receive events
-#ifndef ETHEREVENT_NO_AUTHENTICATION
+#if !defined(ETHEREVENT_NO_AUTHENTICATION)
   if (EtherEvent.begin() == false || EtherEvent.setPassword(password) == false) {  //set the password, maximum event lenght, and maximum payload length
-#else  //ETHEREVENT_NO_AUTHENTICATION
+#else  //!defined(ETHEREVENT_NO_AUTHENTICATION)
   if (EtherEvent.begin() == false) {  //set the password, maximum event lenght, and maximum payload length
-#endif  //ETHEREVENT_NO_AUTHENTICATION
+#endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
     Serial.println(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program
   }
 
   EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
-#ifndef __ARDUINO_X86__
+#if !defined(__ARDUINO_X86__)
   W5100.setRetransmissionTime(W5x00timeout);  //set the timeout for the W5x00 module.
   W5100.setRetransmissionCount(W5x00retransmissionCount);  //Retransmission Count - 1 is the minimum value
-#endif  //__ARDUINO_X86__
+#endif  //!defined(__ARDUINO_X86__)
 }
 
 

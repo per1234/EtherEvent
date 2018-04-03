@@ -8,9 +8,9 @@
 #include <SPI.h>  //bundled with Arduino hardware packages
 #include <Ethernet.h> //built-in library included with Arduino IDE
 #include <utility/w5100.h>  //Part of built-in Ethernet library included with Arduino IDE. Used for setting the W5x00 retransmission time and count.
-#ifndef ESP8266  //ArduinoMD5 library is not required for ESP8266
+#if !defined(ESP8266)  //ArduinoMD5 library is not required for ESP8266
 #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
-#endif  //ESP8266
+#endif  //!defined(ESP8266)
 #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
 #include <Entropy.h>  //https://sites.google.com/site/astudyofentropy/project-definition/timer-jitter-entropy-sources/entropy-library
 
@@ -86,10 +86,10 @@ void loop() {
         Serial.print(F("Received payload: "));
         Serial.println(payload);
       }
-#ifdef ethernetclientwithremoteIP_h  //must have the modified Ethernet library installed for this function to be available
+#if defined(ethernetclientwithremoteIP_h)  //must have the modified Ethernet library installed for this function to be available
       Serial.print(F("Received from IP: "));
       Serial.println(EtherEvent.senderIP());
-#endif
+#endif  //defined(ethernetclientwithremoteIP_h)
     }
   }
 

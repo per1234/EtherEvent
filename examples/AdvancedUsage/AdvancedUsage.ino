@@ -5,12 +5,12 @@
 //These libraries are required by EtherEvent:
 #include <SPI.h>  //bundled with Arduino hardware packages
 #include <Ethernet.h> //built-in library included with Arduino IDE
-#ifndef __ARDUINO_X86__
+#if !defined(__ARDUINO_X86__)
 #include <utility/w5100.h>  //Part of built-in Ethernet library included with Arduino IDE. Used for setting the W5x00 retransmission time and count.
-#endif //__ARDUINO_X86__
-#ifndef ESP8266  //ArduinoMD5 library is not required for ESP8266
+#endif //!defined(__ARDUINO_X86__)
+#if !defined(ESP8266)  //ArduinoMD5 library is not required for ESP8266
 #include <MD5.h>  //http://github.com/tzikis/ArduinoMD5
-#endif  //ESP8266
+#endif  //!defined(ESP8266)
 #include <EtherEvent.h> //https://github.com/per1234/EtherEvent
 
 
@@ -54,10 +54,10 @@ void setup() {
   }
 
   EtherEvent.setTimeout(etherEventTimeout);  //set timeout duration
-#ifndef __ARDUINO_X86__
+#if !defined(__ARDUINO_X86__)
   W5100.setRetransmissionTime(W5x00timeout);  //set the timeout for the W5x00 module.
   W5100.setRetransmissionCount(W5x00retransmissionCount);  //Retransmission Count - 1 is the minimum value
-#endif //__ARDUINO_X86__
+#endif //!defined(__ARDUINO_X86__)
 }
 
 
@@ -82,10 +82,10 @@ void loop() {
         Serial.print(F("Received payload: "));
         Serial.println(payload);
       }
-#ifdef ethernetclientwithremoteIP_h  //must have the modified Ethernet library installed for this function to be available
+#if defined(ethernetclientwithremoteIP_h)  //must have the modified Ethernet library installed for this function to be available
       Serial.print(F("Received from IP: "));
       Serial.println(EtherEvent.senderIP());
-#endif  //ethernetclientwithremoteIP_h
+#endif  //defined(ethernetclientwithremoteIP_h)
     }
   }
 
