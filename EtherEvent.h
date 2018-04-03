@@ -1377,7 +1377,12 @@ class EtherEventClass {
 
 //undefine all macros to avoid namespace pollution
 #undef ETHEREVENT_DEBUG
+#undef ETHEREVENT_SERIAL
 #undef ETHEREVENT_DEBUG_BAUDRATE
+#undef ETHEREVENT_MAGIC_WORD
+#undef ETHEREVENT_ACCEPT_MESSAGE
+#undef DEFAULT_PASSWORD_STRING
+#undef DEFAULT_PASSWORD_CHAR
 
 
 static EtherEventClass EtherEvent;  //This sets up a single global instance of the library so the class doesn't need to be declared in the user sketch and multiple instances are not necessary in this case.
