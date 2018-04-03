@@ -27,7 +27,10 @@ EthernetClient ethernetClient;  //create the client object for Ethernet communic
 #define PAYLOAD_BUFFER_SIZE 42
 
 static const unsigned long receiveTimeoutDuration = 500; //(ms) time to wait for reply after sending event
-static const byte maxTestRetryCount = 10; //number of times to retry the test before failing
+
+static const byte maximumTimeoutCount = 10; //number of times to retry an event send due to timeout before failing
+static const byte maximumAuthenticatonFailCount = 2; //number of times to retry an event send due to authentication failure before failing
+static const byte maximumMismatchCount = 1; //number of times to retry an event send due to mismatch before failing
 
 //timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed Ethernet operations, too short will cause failed event send or receive.
 //The default values used when these timeouts are not set are fairly conservative.
@@ -97,6 +100,16 @@ enum __attribute__((packed)) availableEventTest_t{
   availableEventTestCount
 };
 #endif  //ETHEREVENT_NO_AUTHENTICATION
+
+
+//receive() return codes
+enum __attribute__((packed)) receiveReturnCode_t{
+  timeoutReturnCode,
+  authenticationFailedReturnCode,
+  mismatchReturnCode,
+  successReturnCode
+};
+
 
 bool testPassed = true;
 
@@ -230,8 +243,10 @@ template <typename target_t, typename event_t>void test(EthernetClient &ethernet
   Serial.print(F("Event type: "));
   Serial.println(eventType);
 
-  byte testRetryCount = 0;
-  bool receiveSuccess;
+  byte timeoutCount = 0;
+  byte authenticationFailCount = 0;
+  byte mismatchCount = 0;
+  receiveReturnCode_t receiveReturnCode;
   do {
     const unsigned long preSentTimestamp = micros();
     EtherEvent.send(ethernetClient, target, sendPort, event);
@@ -240,10 +255,22 @@ template <typename target_t, typename event_t>void test(EthernetClient &ethernet
     Serial.print(F("Send duration: "));
     Serial.println(sendDuration);
 
-    receiveSuccess = receive(event, "");
-    testRetryCount++;
-  } while (receiveSuccess == false && testRetryCount <= maxTestRetryCount);
-  if (receiveSuccess == false) {
+    receiveReturnCode = receive(event, "");
+    switch (receiveReturnCode) {
+      case timeoutReturnCode:
+        timeoutCount++;
+        break;
+      case authenticationFailedReturnCode:
+        authenticationFailCount++;
+        break;
+      case mismatchReturnCode:
+        mismatchCount++;
+        break;
+      case successReturnCode:
+        break;
+    }
+  } while (receiveReturnCode != successReturnCode && timeoutCount <= maximumTimeoutCount && authenticationFailCount <= maximumAuthenticatonFailCount && mismatchCount <= maximumMismatchCount);
+  if (receiveReturnCode != successReturnCode) {
     testPassed = false;
     Serial.println(F("\nTest failed\n"));
   }
@@ -259,8 +286,10 @@ template <typename target_t, typename event_t, typename payload_t>void test(Ethe
   Serial.print(F("Payload type: "));
   Serial.println(payloadType);
 
-  byte testRetryCount = 0;
-  bool receiveSuccess;
+  byte timeoutCount = 0;
+  byte authenticationFailCount = 0;
+  byte mismatchCount = 0;
+  receiveReturnCode_t receiveReturnCode;
   do {
     const unsigned long preSentTimestamp = micros();
     EtherEvent.send(ethernetClient, target, sendPort, event, payload);
@@ -269,10 +298,22 @@ template <typename target_t, typename event_t, typename payload_t>void test(Ethe
     Serial.print(F("Send duration: "));
     Serial.println(sendDuration);
 
-    receiveSuccess = receive(event, payload);
-    testRetryCount++;
-  } while (receiveSuccess == false && testRetryCount <= maxTestRetryCount);
-  if (receiveSuccess == false) {
+    receiveReturnCode = receive(event, payload);
+    switch (receiveReturnCode) {
+      case timeoutReturnCode:
+        timeoutCount++;
+        break;
+      case authenticationFailedReturnCode:
+        authenticationFailCount++;
+        break;
+      case mismatchReturnCode:
+        mismatchCount++;
+        break;
+      case successReturnCode:
+        break;
+    }
+  } while (receiveReturnCode != successReturnCode && timeoutCount <= maximumTimeoutCount && authenticationFailCount <= maximumAuthenticatonFailCount && mismatchCount <= maximumMismatchCount);
+  if (receiveReturnCode != successReturnCode) {
     testPassed = false;
     Serial.println(F("\nTest failed\n"));
   }
@@ -291,8 +332,10 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
   Serial.print(F("Password type: "));
   Serial.println(passwordType);
 
-  byte testRetryCount = 0;
-  bool receiveSuccess;
+  byte timeoutCount = 0;
+  byte authenticationFailCount = 0;
+  byte mismatchCount = 0;
+  receiveReturnCode_t receiveSuccess;
   do {
     const unsigned long preSentTimestamp = micros();
     EtherEvent.send(ethernetClient, target, sendPort, event, payload, password);
@@ -302,9 +345,21 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
     Serial.println(sendDuration);
 
     receiveSuccess = receive(event, payload);
-    testRetryCount++;
-  } while (receiveSuccess == false && testRetryCount <= maxTestRetryCount);
-  if (receiveSuccess == false) {
+    switch (receiveReturnCode) {
+      case timeoutReturnCode:
+        timeoutCount++;
+        break;
+      case authenticationFailedReturnCode:
+        authenticationFailCount++;
+        break;
+      case mismatchReturnCode:
+        mismatchCount++;
+        break;
+      case successReturnCode:
+        break;
+    }
+  } while (receiveReturnCode != successReturnCode && timeoutCount <= maximumTimeoutCount && authenticationFailCount <= maximumAuthenticatonFailCount && mismatchCount <= maximumMismatchCount);
+  if (receiveSuccess != successReturnCode) {
     testPassed = false;
     Serial.println(F("\nTest failed\n"));
   }
@@ -312,7 +367,7 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 
-template <typename event_t, typename payload_t>bool receive(const event_t sentEvent, const payload_t sentPayload) {
+template <typename event_t, typename payload_t>receiveReturnCode_t receive(const event_t sentEvent, const payload_t sentPayload) {
   DEBUG_SERIAL.println(F("receive: event_t, payload_t"));
 
   printPayload.print(sentPayload);
@@ -322,7 +377,7 @@ template <typename event_t, typename payload_t>bool receive(const event_t sentEv
 }
 
 
-template <typename event_t>bool receive(const event_t sentEvent, const char sentPayload[]) {
+template <typename event_t>receiveReturnCode_t receive(const event_t sentEvent, const char sentPayload[]) {
   DEBUG_SERIAL.println(F("receive: event_t, char[]"));
 
   printEvent.print(sentEvent);
@@ -332,7 +387,7 @@ template <typename event_t>bool receive(const event_t sentEvent, const char sent
 }
 
 
-bool receive(const char sentEvent[], const char sentPayload[]) {
+receiveReturnCode_t receive(const char sentEvent[], const char sentPayload[]) {
   DEBUG_SERIAL.println(F("receive: char[], char[]"));
 
   const unsigned long timestamp = millis();
@@ -346,7 +401,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       while (EtherEvent.availableEvent(ethernetServer) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
-          return false;
+          return timeoutReturnCode;
         }
       }
 #ifndef ETHEREVENT_NO_AUTHENTICATION
@@ -355,7 +410,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       while (EtherEvent.availableEvent(ethernetServer, 42) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
-          return false;
+          return timeoutReturnCode;
         }
       }
       break;
@@ -363,7 +418,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       while (EtherEvent.availableEvent(ethernetServer, 42, passwordCharArray) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
-          return false;
+          return timeoutReturnCode;
         }
       }
       break;
@@ -371,7 +426,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       while (EtherEvent.availableEvent(ethernetServer, 42, passwordConstCharArray) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
-          return false;
+          return timeoutReturnCode;
         }
       }
       break;
@@ -379,7 +434,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       while (EtherEvent.availableEvent(ethernetServer, 42, password_STRING_LITERAL) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
-          return false;
+          return timeoutReturnCode;
         }
       }
       break;
@@ -387,7 +442,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       while (EtherEvent.availableEvent(ethernetServer, 42, password_FLASHSTRINGHELPER) == 0) {
         if (millis() - timestamp > receiveTimeoutDuration) {
           Serial.println(F("\nTimed out waiting for response\n"));
-          return false;
+          return timeoutReturnCode;
         }
       }
       break;
@@ -403,7 +458,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
   int availableLength = EtherEvent.availableEvent();  //test availableEvent() called with no arguments
   if (availableLength == -1) {
     Serial.println(F("\nAuthentication failed\n"));
-    return false;
+    return authenticationFailedReturnCode;
   }
   else {
     //put the event in the buffer
@@ -422,7 +477,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       Serial.print(F("Received event: "));
       Serial.println(receivedEvent);
       Serial.println();
-      return false;
+      return mismatchReturnCode;
     }
     else {
       DEBUG_SERIAL.println(F("receive: Event matched"));
@@ -448,7 +503,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
       Serial.print(F("Received payload: "));
       Serial.println(receivedPayload);
       Serial.println();
-      return false;
+      return mismatchReturnCode;
     }
     else {
       DEBUG_SERIAL.println(F("receive: Payload matched"));
@@ -461,7 +516,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
     availableEventTest = static_cast<availableEventTest_t>(static_cast<int>(availableEventTestStart) + 1);
   }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
-  return true;
+  return successReturnCode;
 }
 
 
