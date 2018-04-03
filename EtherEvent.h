@@ -405,8 +405,6 @@ class EtherEventClass {
     //send
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if !defined(ETHEREVENT_FAST_SEND)
-    //The reason for all these annoying event/payload conversion functions in ETHEREVENT_FAST_SEND mode is that using the Arduino Print class for conversions (as done in non-fast send mode) leads to (at least with the Ethernet library and likely others) significantly increased send times for some types due to doing the conversion process in multiple steps, each of which is sent as a separate TCP segment (packet).
-    //This inefficiency is most dramatic with __FlashStringHelper, where each character is sent individually, but also occurs with negative numbers (the - is sent separately), and float/double (the . and all numbers that follow it are sent separately). It does not occur for char array, String, positive numbers, char.
 
     //always handle payload not specified for non-ETHEREVENT_FAST_SEND mode
     template <typename target_t, typename event_t>
@@ -510,6 +508,8 @@ class EtherEventClass {
 
 #if defined(ETHEREVENT_FAST_SEND)
     //payload conversions
+    //The reason for all these annoying event/payload conversion functions in ETHEREVENT_FAST_SEND mode is that using the Arduino Print class for conversions (as done in non-fast send mode) leads to (at least with the Ethernet library and likely others) significantly increased send times for some types due to doing the conversion process in multiple steps, each of which is sent as a separate TCP segment (packet).
+    //This inefficiency is most dramatic with __FlashStringHelper, where each character is sent individually, but also occurs with negative numbers (the - is sent separately), and float/double (the . and all numbers that follow it are sent separately). It does not occur for char array, String, positive numbers, char.
 
     //required to avoid "ISO C++ says that these are ambiguous, even though the worst conversion for the first is better than the worst conversion for the second" warning
 #if defined(ETHEREVENT_NO_AUTHENTICATION)
