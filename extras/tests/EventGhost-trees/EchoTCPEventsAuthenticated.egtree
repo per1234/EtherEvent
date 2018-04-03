@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<EventGhost Version="WIP-2017.06.25-16.49.04" Guid="{143A218B-9A64-45EE-BCA2-1B65CF72857A}" Time="1522721825.93">
+<EventGhost Version="WIP-2017.06.25-16.49.04" Guid="{33457C6D-EB8E-4285-8D52-3E112ABDF760}" Time="1522721887.59">
     <Autostart Name="Autostart" XML_Guid="{46E0EBBB-1C21-44F3-BA3B-25ACFB6A4091}" Expanded="True">
         <Action Name="Used for HIL testing of EtherEvent" XML_Guid="{6E0EBC2F-B608-4EC9-ACAA-4096B94C4BF7}">
             EventGhost.Comment()
@@ -11,7 +11,7 @@
             EventGhost.Comment()
         </Action>
         <Plugin XML_Guid="{EBE2FD18-F16F-43A7-9CEC-3CF96D328C48}" Identifier="TCPEvents" Guid="{198090B7-0574-4F91-B2E7-1AF5BB37E2DE}" File="TCPEvents">
-            gAIoTQAEWAgAAABwYXNzd29yZHEAWAMAAABUQ1BxAYhHP7mZmZmZmZpHP7mZmZmZmZp0cQIu
+            gAIoTQAEWAgAAABwYXNzd29yZHEAWAMAAABUQ1BxAYhHP/AAAAAAAABHP/AAAAAAAAB0cQIu
         </Plugin>
     </Autostart>
     <Macro Name="Echo received event" XML_Guid="{FB5D0AEB-66AD-410E-A49D-CC2F9246152E}" Expanded="True">
