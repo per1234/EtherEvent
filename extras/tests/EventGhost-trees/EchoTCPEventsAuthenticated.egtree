@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<EventGhost Version="WIP-2017.06.25-16.49.04" Guid="{E83531B5-2854-441B-89B8-358ED9A5F2C0}" Time="1522141508.08">
+<EventGhost Version="WIP-2017.06.25-16.49.04" Guid="{143A218B-9A64-45EE-BCA2-1B65CF72857A}" Time="1522721825.93">
     <Autostart Name="Autostart" XML_Guid="{46E0EBBB-1C21-44F3-BA3B-25ACFB6A4091}" Expanded="True">
         <Action Name="Used for HIL testing of EtherEvent" XML_Guid="{6E0EBC2F-B608-4EC9-ACAA-4096B94C4BF7}">
             EventGhost.Comment()
@@ -20,7 +20,7 @@
             EventGhost.Comment()
         </Action>
         <Action Name="Save and print received data" XML_Guid="{7822D805-5B0C-4864-8E17-1EA918E1681D}">
-            EventGhost.PythonScript(u'if isinstance(eg.event.payload, list):\n    eg.globals.IPaddress = str(eg.event.payload[0])\n    eg.globals.payload = str(eg.event.payload[1])\nelse:\n    eg.globals.IPaddress = str(eg.event.payload)\n    eg.globals.payload = ""\n\nif eg.event.prefix == "TCP":\n    eg.globals.event = str(eg.event.suffix)\nelse:\n    eg.globals.event = str(eg.event.string)\n\nprint "IP Address: " + eg.globals.IPaddress\nprint "Event: " + eg.globals.event\nprint "Payload: " + eg.globals.payload')
+            EventGhost.PythonScript(u'if isinstance(eg.event.payload, list):\n    eg.globals.IPaddress = str(eg.event.payload[0])\n    eg.globals.payload = str(eg.event.payload[1])\nelse:\n    eg.globals.IPaddress = str(eg.event.payload)\n    eg.globals.payload = ""\n\nif eg.globals.IPaddress != "192.168.69.104":\n     eg.StopMacro()\n\nif eg.event.prefix == "TCP":\n    eg.globals.event = str(eg.event.suffix)\nelse:\n    eg.globals.event = str(eg.event.string)\n\nprint "IP Address: " + eg.globals.IPaddress\nprint "Event: " + eg.globals.event\nprint "Payload: " + eg.globals.payload')
         </Action>
         <Action XML_Guid="{D5ED408E-F4FD-4491-8E02-4A0999BD5C87}">
             TCPEvents.SendEvent(u'{eg.globals.IPaddress}', 1024, u'password', u'', u'{"payload " + eg.globals.payload + "\\n" + eg.globals.event}', u'', None)
