@@ -201,10 +201,10 @@ void etherEventTests() {
   Serial.print(F("EtherEvent.getTimeout(): "));
   Serial.println(EtherEvent.getTimeout());
 
-#if defined(__ARDUINO_X86__)
+#if !defined(__ARDUINO_X86__)
   W5100.setRetransmissionTime(W5x00timeout);  //set the timeout for the W5x00 module.
   W5100.setRetransmissionCount(W5x00retransmissionCount);  //Retransmission Count - 1 is the minimum value
-#endif //defined(__ARDUINO_X86__)
+#endif //!defined(__ARDUINO_X86__)
 
 #if defined(__AVR__)
   const unsigned long previousFreeMemory = freeMemory();

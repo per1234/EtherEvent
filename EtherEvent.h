@@ -577,11 +577,11 @@ class EtherEventClass {
     {
       ETHEREVENT_SERIAL.println(F("EtherEvent.send(int payload)"));
       char payloadChar[intLengthMax + 1];
-#if defined(__ARDUINO_X86__
+#if defined(__ARDUINO_X86__)
       sprintf (payloadChar, "%i", payload);
-#else  //__ARDUINO_X86__
+#else  //defined(__ARDUINO_X86__)
       itoa(payload, payloadChar, 10);
-#endif  //!defined(__ARDUINO_X86__)
+#endif  //defined(__ARDUINO_X86__)
 #if defined(ETHEREVENT_NO_AUTHENTICATION)
       return wrapPayload(ethernetClient, target, port, event, payloadChar, intLengthMax, false);
 #else  //defined(ETHEREVENT_NO_AUTHENTICATION)
