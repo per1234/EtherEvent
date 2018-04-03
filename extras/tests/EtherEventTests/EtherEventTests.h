@@ -432,7 +432,7 @@ bool receive(const char sentEvent[], const char sentPayload[]) {
     availableLength = EtherEvent.availablePayload();
     DEBUG_SERIAL.print(F("receive: Received payload length="));
     DEBUG_SERIAL.println(availableLength);
-    char receivedPayload[max(availableLength, 1U)]; //the buffer must be sized to at least 1 element to accommodate the null terminator so that the strcmp will still work when no payload was sent
+    char receivedPayload[max(availableLength, 1)]; //the buffer must be sized to at least 1 element to accommodate the null terminator so that the strcmp will still work when no payload was sent
     receivedPayload[0] = 0; //default to an empty string
     if (availableLength > 0) {  //there is a payload
       EtherEvent.readPayload(receivedPayload);
