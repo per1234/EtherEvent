@@ -359,7 +359,7 @@ template <typename target_t, typename event_t, typename payload_t, typename pass
         break;
     }
   } while (receiveReturnCode != successReturnCode && timeoutCount <= maximumTimeoutCount && authenticationFailCount <= maximumAuthenticatonFailCount && mismatchCount <= maximumMismatchCount);
-  if (receiveSuccess != successReturnCode) {
+  if (receiveReturnCode != successReturnCode) {
     testPassed = false;
     Serial.println(F("\nTest failed\n"));
   }
