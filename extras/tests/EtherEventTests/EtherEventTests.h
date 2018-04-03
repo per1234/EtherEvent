@@ -86,6 +86,7 @@ const char passwordConstCharArray[] = "password";  //EtherEvent password. This m
 char passwordCharArray[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 #define password_STRING_LITERAL "password"
 #define password_FLASHSTRINGHELPER F("password")
+String passwordString = "password";
 
 
 //used for availableEvent() overload tests:

@@ -101,7 +101,7 @@ Initialize EtherEvent.
 ##### `EtherEvent.setPassword(password)`
 Set the password. This is not required if authentication is disabled.
 - Parameter: **password** - Password used to authenticate event transmission.
-  - Type: char array or __FlashStringHelper (`F()` macro)
+  - Type: char array, __FlashStringHelper (`F()` macro), String
 - Returns: `true` = success, `false` = memory allocation failed
   - Type: boolean
 

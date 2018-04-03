@@ -32,7 +32,8 @@ const char passwordTypes[][maximumStringLength] = {
   {"ConstCharArray"},
   {"CharArray"},
   {"_STRING_LITERAL"},
-  {"_FLASHSTRINGHELPER"}
+  {"_FLASHSTRINGHELPER"},
+  {"String"}
 };
 
 

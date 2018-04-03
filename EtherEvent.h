@@ -488,6 +488,25 @@ class EtherEventClass {
       memcpy_P(passwordInputChar, passwordInput, passwordInputLength + 1);  //+1 for the null terminator
       return send(ethernetClient, target, port, event, payload, passwordInputChar);
     }
+
+
+    //convert String password to char array (this is used for ETHEREVENT_FAST_SEND and regular modes)
+    template <typename event_t, typename payload_t>
+    boolean send(EthernetClient &ethernetClient, const IPAddress &target, const unsigned int port, const event_t event, const payload_t payload, const String passwordInput) {
+      ETHEREVENT_SERIAL.println(F("EtherEvent.send(String password)"));
+#ifdef __ARDUINO_X86__
+      //x86 boards don't have c_str()
+      const byte passwordLength = passwordInput.length();
+      char passwordInputChar[passwordLength + 1];
+      for (byte counter = 0; counter < passwordLength; counter++) {
+        passwordInputChar[counter] = passwordInput[counter];
+      }
+      passwordInputChar[passwordLength] = 0;
+      return send(ethernetClient, target, port, event, payload, passwordInputChar);
+#else  //__ARDUINO_X86__
+      return send(ethernetClient, target, port, event, payload, passwordInput.c_str());
+#endif  //__ARDUINO_X86__
+    }
 #endif  //ETHEREVENT_NO_AUTHENTICATION
 
 
