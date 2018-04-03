@@ -55,7 +55,7 @@ Easy to use [Arduino](http://arduino.cc) library for password authenticated netw
 
 #### Installation
 - 32 kB is the minimum recommended flash memory capacity for use of this library.
-- Download the most recent version of EtherEvent here: https://github.com/per1234/EtherEvent/archive/master.zip
+- Download the most recent version of EtherEvent by clicking the "Source code" link here: https://github.com/per1234/EtherEvent/releases
 - Using Arduino IDE 1.0.x:
   - **Sketch > Import Library... > Add Library... >** select the downloaded file **> Open**
 - Using Arduino IDE 1.5+:
