@@ -37,9 +37,9 @@ const IPAddress deviceIP = IPAddress(192, 168, 69, 104);  //IP address to use fo
 const char password[] = "password";  //EtherEvent password. This must match the password set in EventGhost.
 const unsigned int port = 1024;  //TCP port to receive events.
 
-//timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed ethernet operations, too short will cause failed event send or receive.
+//timeout values - these can be tuned to your system to provide the most responsive operation. Too high of value will cause a long delay on failed Ethernet operations, too short will cause failed event send or receive.
 //The default values used when these timeouts are not set are fairly conservative.
-const byte etherEventTimeout = 20;  //(ms)The max time to wait for ethernet communication.
+const byte etherEventTimeout = 20;  //(ms)The max time to wait for Ethernet communication.
 const unsigned int W5x00timeout = 400;  //(0.1ms)used to set the timeout for the W5x00 module.
 const byte W5x00retransmissionCount = 1;  //Retransmission count. 1 is the minimum value.
 
@@ -48,7 +48,7 @@ const IPAddress sendIP = IPAddress(192, 168, 69, 100);  //The IP address to send
 const unsigned int sendPort = 1024;  //The port to send the test events to.
 
 EthernetServer ethernetServer(port);  //TCP port to receive on
-EthernetClient ethernetClient;  //create the client object for ethernet communication
+EthernetClient ethernetClient;  //create the client object for Ethernet communication
 static unsigned long sendTimeStamp;  //used by the example to periodically send an event
 
 
@@ -62,9 +62,9 @@ void setup() {
   }
   ethernetServer.begin();  //begin the server that will be used to receive events
 #if !defined(ETHEREVENT_NO_AUTHENTICATION)
-  if (EtherEvent.begin() == false || EtherEvent.setPassword(password) == false) {  //set the password, maximum event lenght, and maximum payload length
+  if (EtherEvent.begin() == false || EtherEvent.setPassword(password) == false) {  //set the password, maximum event length, and maximum payload length
 #else  //!defined(ETHEREVENT_NO_AUTHENTICATION)
-  if (EtherEvent.begin() == false) {  //set the password, maximum event lenght, and maximum payload length
+  if (EtherEvent.begin() == false) {  //set the password, maximum event length, and maximum payload length
 #endif  //!defined(ETHEREVENT_NO_AUTHENTICATION)
     Serial.println(F("ERROR: Buffer size exceeds available memory, use smaller values."));
     while (true);  //abort execution of the rest of the program

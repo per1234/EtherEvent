@@ -1351,7 +1351,7 @@ class EtherEventClass {
     IPAddress fromIP;  //IP address of the last event sender
     byte eventLengthMax;
     char* receivedEvent;  //event buffer
-    byte receivedEventLength;  //save the length so I don't have to do strlen everytime availableEvent() is called
+    byte receivedEventLength;  //save the length so I don't have to do strlen every time availableEvent() is called
     byte readEventLength;  //number of characters of the event that have been read
     unsigned int payloadLengthMax;
     char* receivedPayload;  //payload buffer
